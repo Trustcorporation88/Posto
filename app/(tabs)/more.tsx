@@ -3,6 +3,7 @@ import { View, Text, useWindowDimensions } from "react-native";
 import { Page } from "@/components/sobra/shell";
 import { CsvTools } from "@/components/sobra/csv-tools";
 import { CategoryManager } from "@/components/sobra/category-manager";
+import { StationCalendar } from "@/components/sobra/station-calendar";
 import {
   C,
   F,
@@ -24,6 +25,7 @@ export default function More() {
       monthPicker={false}
       addButton={false}
     >
+      <StationCalendar />
       <View style={{ flexDirection: wide ? "row" : "column", gap: 22 }}>
         <View style={{ flex: wide ? 1.4 : undefined, gap: 22 }}>
           <CsvTools />
