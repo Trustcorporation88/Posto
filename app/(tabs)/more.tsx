@@ -5,6 +5,7 @@ import { CsvTools } from "@/components/sobra/csv-tools";
 import { CategoryManager } from "@/components/sobra/category-manager";
 import { StationCalendar } from "@/components/sobra/station-calendar";
 import { ShiftOpeningPanel } from "@/components/sobra/shift-opening";
+import { ShiftMovementsPanel } from "@/components/sobra/shift-movements";
 import {
   C,
   F,
@@ -27,6 +28,7 @@ export default function More() {
       addButton={false}
     >
       <ShiftOpeningPanel />
+      <ShiftMovementsPanel />
       <StationCalendar />
       <View style={{ flexDirection: wide ? "row" : "column", gap: 22 }}>
         <View style={{ flex: wide ? 1.4 : undefined, gap: 22 }}>

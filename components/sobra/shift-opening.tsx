@@ -229,8 +229,8 @@ export function ShiftOpeningPanel() {
               </View>
               <Notice warning>
                 O fim do horário previsto não fecha este registro. Uma nova
-                abertura fica bloqueada até o fechamento. Esse módulo será
-                implementado na próxima etapa autorizada.
+                abertura fica bloqueada até o fechamento. Os recebimentos,
+                suprimentos e sangrias do turno são exibidos no painel abaixo.
               </Notice>
               <Button
                 variant="ghost"
@@ -294,9 +294,9 @@ export function ShiftOpeningPanel() {
             }}
           >
             <Body size={11}>
-              Etapa em construção: somente abertura. Movimentações e fechamento
-              ainda não estão disponíveis. Não use como rotina completa de
-              caixa.
+              Abertura e movimentações locais estão disponíveis. O fechamento,
+              conferência e reabertura ainda não estão disponíveis. Não use como
+              rotina completa de caixa.
             </Body>
             <Body size={11}>
               Use uma única janela e um único dispositivo por caixa. O nome do
