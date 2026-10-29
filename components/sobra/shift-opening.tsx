@@ -5,7 +5,8 @@ import { useShiftOpening } from "@/hooks/use-shift-opening";
 import { useStationClock } from "@/hooks/use-station-clock";
 import { money, parseMoney } from "@/lib/budget";
 import { getScheduledShift, getStationNow } from "@/lib/station-calendar";
-import { prepareShiftOpening, ShiftOpeningReview } from "@/lib/shift-opening";
+import { prepareStationOpening } from "@/lib/station-register";
+import type { StationOpeningReview } from "@/lib/station-register";
 import { stationDateLabel } from "./station-month";
 import {
   Body,
@@ -32,13 +33,14 @@ function openingTimeLabel(instant: string): string {
 
 export function ShiftOpeningPanel() {
   const { demo } = useBudget();
-  const { data, ready, busy, loadError, reload, open } = useShiftOpening();
+  const { data, register, ready, busy, loadError, reload, open } =
+    useShiftOpening();
   const now = useStationClock();
   const clock = getStationNow(now);
   const [sheetVisible, setSheetVisible] = useState(false);
   const [operator, setOperator] = useState("");
   const [floatText, setFloatText] = useState("");
-  const [review, setReview] = useState<ShiftOpeningReview | null>(null);
+  const [review, setReview] = useState<StationOpeningReview | null>(null);
   const [error, setError] = useState("");
   const [savedNotice, setSavedNotice] = useState(false);
   let currentShift: ReturnType<typeof getScheduledShift> = null;
@@ -79,7 +81,7 @@ export function ShiftOpeningPanel() {
         throw new Error(
           "Informe o fundo em reais, por exemplo 300,00. Use 0,00 se não houver fundo de troco.",
         );
-      setReview(prepareShiftOpening(data, operator, amount, new Date()));
+      setReview(prepareStationOpening(register, operator, amount, now));
       setError("");
     } catch (cause) {
       setError(
@@ -105,7 +107,6 @@ export function ShiftOpeningPanel() {
           ? cause.message
           : "Não foi possível salvar. Os dados anteriores foram preservados.",
       );
-      setReview(null);
     }
   };
 
@@ -294,9 +295,9 @@ export function ShiftOpeningPanel() {
             }}
           >
             <Body size={11}>
-              Abertura e movimentações locais estão disponíveis. O fechamento,
-              conferência e reabertura ainda não estão disponíveis. Não use como
-              rotina completa de caixa.
+              Abertura, movimentações e fechamento manual por turno estão
+              disponíveis. Reabertura, estorno e ajustes continuam fora desta
+              etapa. Não substitui o PDV ou a rotina fiscal do posto.
             </Body>
             <Body size={11}>
               Use uma única janela e um único dispositivo por caixa. O nome do

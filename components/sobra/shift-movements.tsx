@@ -8,8 +8,8 @@ import { getScheduledShift, getStationNow } from "@/lib/station-calendar";
 import {
   createMovementIntentId,
   getMovementSummary,
-  prepareShiftMovement,
 } from "@/lib/shift-movements";
+import { prepareStationMovement } from "@/lib/station-register";
 import type {
   MovementType,
   PaymentMethod,
@@ -75,7 +75,7 @@ function timeLabel(value: string): string {
 
 export function ShiftMovementsPanel() {
   const { demo } = useBudget();
-  const { data, opening, ready, busy, loadError, reload, record } =
+  const { data, opening, register, ready, busy, loadError, reload, record } =
     useShiftMovements();
   const [visible, setVisible] = useState(false);
   const [draft, setDraft] = useState<ShiftMovementDraft>(emptyDraft);
@@ -138,9 +138,8 @@ export function ShiftMovementsPanel() {
         );
       const normalized: ShiftMovementDraft = { ...draft, amount };
       setReview(
-        prepareShiftMovement(
-          data,
-          opening,
+        prepareStationMovement(
+          register,
           normalized,
           now,
           createMovementIntentId(),
@@ -420,8 +419,9 @@ export function ShiftMovementsPanel() {
             verificados no banco; não informe PAN, CVV nem senha.
           </Body>
           <Body size={11}>
-            Sangrias e suprimentos são custódia, não despesa nem receita. Sem
-            fechamento, estorno, exportação ou sincronização nesta etapa.
+            Sangrias e suprimentos são custódia, não despesa nem receita. A
+            conferência é manual e não substitui o PDV nem a conciliação
+            bancária.
           </Body>
         </View>
       </Card>

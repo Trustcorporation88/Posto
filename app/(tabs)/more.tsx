@@ -6,6 +6,7 @@ import { CategoryManager } from "@/components/sobra/category-manager";
 import { StationCalendar } from "@/components/sobra/station-calendar";
 import { ShiftOpeningPanel } from "@/components/sobra/shift-opening";
 import { ShiftMovementsPanel } from "@/components/sobra/shift-movements";
+import { ShiftClosingPanel } from "@/components/sobra/shift-closing";
 import {
   C,
   F,
@@ -29,6 +30,7 @@ export default function More() {
     >
       <ShiftOpeningPanel />
       <ShiftMovementsPanel />
+      <ShiftClosingPanel />
       <StationCalendar />
       <View style={{ flexDirection: wide ? "row" : "column", gap: 22 }}>
         <View style={{ flex: wide ? 1.4 : undefined, gap: 22 }}>
