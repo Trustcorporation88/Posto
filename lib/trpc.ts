@@ -4,6 +4,7 @@ import superjson from "superjson";
 import type { AppRouter } from "@/server/routers";
 import { getApiBaseUrl } from "@/constants/oauth";
 import * as Auth from "@/lib/_core/auth";
+import * as BusinessCsrf from "@/lib/business-csrf";
 
 /**
  * tRPC React client for type-safe API calls.
@@ -27,7 +28,14 @@ export function createTRPCClient() {
         transformer: superjson,
         async headers() {
           const token = await Auth.getSessionToken();
-          return token ? { Authorization: `Bearer ${token}` } : {};
+          return {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            ...(BusinessCsrf.getBusinessCsrfToken()
+              ? {
+                  "X-Sobra-CSRF": BusinessCsrf.getBusinessCsrfToken() as string,
+                }
+              : {}),
+          };
         },
         // Custom fetch to include credentials for cookie-based auth
         fetch(url, options) {

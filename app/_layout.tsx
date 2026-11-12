@@ -30,8 +30,6 @@ import {
   DMSans_500Medium,
   DMSans_700Bold,
 } from "@expo-google-fonts/dm-sans";
-import { BudgetProvider } from "@/hooks/use-budget";
-import { TransactionEditor } from "@/components/sobra/transaction-editor";
 const DEFAULT_WEB_INSETS: EdgeInsets = { top: 0, right: 0, bottom: 0, left: 0 };
 const DEFAULT_WEB_FRAME: Rect = { x: 0, y: 0, width: 0, height: 0 };
 export const unstable_settings = { anchor: "(tabs)" };
@@ -83,14 +81,12 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <QueryClientProvider client={queryClient}>
-          <BudgetProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="oauth/callback" />
-            </Stack>
-            <TransactionEditor />
-            <StatusBar style="dark" />
-          </BudgetProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="gestao" />
+            <Stack.Screen name="oauth/callback" />
+          </Stack>
+          <StatusBar style="dark" />
         </QueryClientProvider>
       </trpc.Provider>
     </GestureHandlerRootView>

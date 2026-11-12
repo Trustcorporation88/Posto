@@ -164,7 +164,6 @@ Criar `lib/shift-movements.ts` para domínio e totais, `lib/shift-movements-stor
 
 Validar com mocks sem qualquer registro real: vínculo/orfandade, compatibilidade da abertura v1, dinheiro versus meios eletrônicos, natureza de recebimento, suprimento/sangria, falta de dinheiro, overflow, campos, duplicidade/idempotência, mudança de turno durante leitura, conflitos e quota; verificar TypeScript, lint, empacotamento web e revisão somente leitura. Salvar etapa no repositório gerenciado sem publicar. Aguardar confirmação para fechamento posterior.
 
-
 ## Etapa aprovada em 29/10/2026: fechamento e conferência local do turno
 
 O usuário aprovou a implementação do fechamento e confirmou estes padrões: lançar dinheiro fisicamente contado, inclusive o fundo de troco, e valores de Pix/débito/crédito conferidos nos relatórios; comparar cada total com o esperado; permitir fechar com diferença somente mediante justificativa e deixar a situação explicitamente pendente; exigir a identificação declarada do conferente; tornar o registro imutável nesta etapa; e exigir uma nova declaração do fundo contado ao abrir o próximo turno, sem transferi-lo automaticamente.
@@ -182,3 +181,89 @@ Ao fechar, preservar o snapshot imutável da abertura, de todos os movimentos e 
 Integrar o novo store às telas em Mais abaixo da abertura e dos movimentos. Não alterar o orçamento, categorias, CSV pessoal nem dados do backend. Não implementar reabertura, edição, cancelamento, estorno, ajustes contábeis, exportação de caixa, integração bancária/TEF/PDV, conferência de combustível em litros/LMC, autenticação, sincronização, publicação automática, APK ou geração de relatórios fiscais. O Sobra continua ferramenta auxiliar manual, não sistema fiscal, POS ou prova de prestação de contas.
 
 A estrutura nova fica em `lib/` para tipos, regras, validação e loja; `lib/*storage*` para os adaptadores localStorage/AsyncStorage e migração legada; `hooks/` para estado único compartilhado; `components/sobra/` e `app/(tabs)/more.tsx` para fechamento, resumo e histórico; `tests/` para os testes do domínio/store. A base visual aprovada permanece a atual em creme e verde profundo; os dados financeiros continuam exclusivamente no navegador/dispositivo.
+
+## Nova direção aprovada em 12/11/2026: Sobra Gestão para posto, conveniência e troca de óleo
+
+**Status:** o usuário aprovou transformar o Sobra em sistema web completo e multiusuário, continuar no projeto atual, aceitar checkpoints Manus em vez de PR GitHub e usar login próprio por e-mail e senha. A Fase 1 está implementada no Preview; o primeiro cadastro do proprietário ainda não foi feito e nenhum usuário/organização comercial ou dado de negócio foi criado. As fases seguintes não foram implementadas e aguardam confirmação. A pesquisa curada de dez repositórios está em `/home/ubuntu/repositorios-github-sobra.md`; não houve cópia de código.
+
+### Produto e escopo
+
+Criar uma aplicação de gestão do posto do usuário em Bauru, SP, acessível em navegador desktop e celular. O projeto atual é Expo Router/React Native com backend Express/tRPC e Drizzle/MySQL. Preservar a aplicação móvel existente, seus identificadores e seus registros locais. O acesso web comercial terá persistência central no banco gerenciado, autenticação individual e autorização verificada no servidor, não somente na interface. Inicialmente modelar uma empresa e a unidade do posto; deixar a estrutura preparada para outras unidades sem transformar o produto em SaaS público ou permitir cadastro de outras empresas.
+
+O banco gerenciado e o servidor já estão habilitados, mas o schema de negócio contém somente usuários do starter. O orçamento pessoal e os registros locais de abertura, movimentações e fechamento existentes usam armazenamento no navegador/dispositivo e não serão enviados, convertidos ou apagados automaticamente. Qualquer importação futura será opt-in, revisável e preservará uma cópia local/exportada.
+
+### Acesso e segurança multiusuário
+
+Usar contas próprias da aplicação com e-mail e senha, sem cadastro público aberto. O fluxo inicial é o proprietário provisionado uma única vez por meio do contexto OAuth já autorizado do proprietário do projeto; esse usuário poderá convidar operadores. Convites e redefinições serão links individuais, temporários e de uso único; o proprietário poderá emitir convites, alterar papéis, bloquear contas e gerar links de reset de 30 minutos, copiados e enviados por canal privado. A recuperação da própria conta proprietária também exige autenticação OAuth do proprietário do projeto. O MVP não enviará mensagens de e-mail por conta própria. Não apresentar e-mail como verificado enquanto não houver confirmação por provedor de envio.
+
+Nunca armazenar senha em texto puro ou registrar credenciais em logs. Armazenar somente hash de senha com algoritmo resistente e sal exclusivo, usar comparação segura, limitar tentativas de login, encerrar sessões no bloqueio/reset e manter tokens de sessão aleatórios armazenados somente em forma protegida. Para o navegador, sessão em cookie HttpOnly; em HTTPS do Preview, `SameSite=None; Secure`, sem derivar esses atributos de `NODE_ENV` ou do protocolo HTTP interno. Permitir HTTP local apenas com cookie local apropriado. Aplicar allowlist de origens, proteção CSRF nas mutações e autorização no servidor em toda operação de negócio. Sem segredos no bundle Expo/web.
+
+Vincular cada conta a uma organização e unidade por uma associação com papel. Papéis iniciais propostos, configuráveis pelo proprietário: proprietário, gerente, caixa/conveniência, frentista, técnico de troca de óleo e consulta financeira. Cada procedimento protegido valida sessão ativa, organização, unidade e permissão no backend; toda leitura e gravação de negócio exige escopo de organização. Gravar trilha de auditoria para ações críticas de caixa, vendas, estoque, preços, permissões e cadastros, com autor e horários. Dados de uma organização nunca devem aparecer para outra.
+
+### Módulos de negócio previstos
+
+1. **Caixa e turnos:** migrar a capacidade de abertura, recebimentos, sangrias, suprimentos e fechamento para registros centralizados vinculados ao usuário autenticado. Preservar as regras já aprovadas de horários de Bauru, dinheiro versus recebimentos eletrônicos, diferenças justificadas e histórico imutável. A identidade declarada local passará a ser a identidade autenticada; não afirmar confirmação bancária nem conciliação automática.
+2. **Posto e combustível:** cadastros de combustíveis, tanques e bombas; recebimentos de combustível e custos; leituras de encerrantes/medidores, vendas por produto e período, estoque teórico versus medido, diferenças/perdas justificadas, preço por litro e margem por litro. Volumes e contadores usarão representação decimal exata ou unidades escaladas, nunca `float` binário; a precisão e as rotinas físicas dependem dos equipamentos reais. Inicialmente entrada manual e importação autorizada, sem alegar conexão com bombas ou PDV.
+3. **Conveniência:** produtos, códigos de barras, fornecedores, compras/recebimento, ledger de entradas e saídas, contagem e ajustes justificados, preço/custo, vendas, devoluções e divisão dos pagamentos. Estoque deve ser rastreável por movimento, sem apagar o histórico. Integração com leitor, impressora, maquininha ou PDV fica fora até confirmar modelos e contratos.
+4. **Troca de óleo e serviços:** clientes e veículos, catálogo de serviços e produtos, orçamento/ordem de serviço, técnico responsável, itens/óleo/filtros aplicados, mão de obra, valor, status e histórico do veículo. Baixa de insumos vinculada à ordem e à unidade, com revisão antes da conclusão.
+5. **Painel, financeiro e portabilidade:** vendas e margem por área (pista, conveniência e serviços); margem de combustível por litro; custos, despesas, taxas de cartão, caixa esperado versus contado, pagamentos/recebimentos e relatórios por período. Separar receita, margem, caixa e recebível. CSV com prévia, validação e exportação por permissão; não chamar CSV de backup completo. Contas a pagar/receber e integração contábil serão delimitadas em fase própria, não presumidas automaticamente.
+6. **Fiscal e integrações:** não emitir NF-e, NFC-e, NFS-e nem declarar conformidade fiscal apenas com o dashboard. Antes de automatizar, confirmar emissor/PDV atual, regime e fluxo com contador, escolher provedor/tecnologia e validar requisitos de SP, certificados, contingência e legislação. A licença do SPED-NFE encontrada na pesquisa é ambígua, portanto não incorporar esse código sem esclarecimento e revisão jurídica. Integração de bombas/PDV também depende de compatibilidade do hardware/fornecedor; OpenFSC é somente uma especificação de protocolo.
+
+### Dados e regras de domínio
+
+Valores financeiros serão armazenados em centavos inteiros dentro dos limites seguros e processados sem arredondamentos implícitos. Quantidades de combustível e lubrificantes serão armazenadas em decimal exato ou inteiros com escala documentada, a confirmar conforme resolução dos medidores e unidades realmente usadas. Separar venda/competência, custo de mercadoria, taxa, recebível e caixa físico. Cálculos de margem identificarão claramente custo usado e período; divergência entre estoque físico e teórico será registrada como diferença a investigar, não automaticamente como fraude, vazamento ou despesa.
+
+Registros de vendas, movimentos de estoque, caixa e ordens de serviço terão IDs, timestamps, autor autenticado, unidade, origem e estado. Eventos críticos e fechamentos serão imutáveis ou corrigidos por novo evento rastreável, sem apagar silenciosamente o histórico. Operações relacionadas usarão transações no banco e restrições de integridade; testes nunca criarão vendas, turnos ou dados reais no banco compartilhado de desenvolvimento/produção.
+
+### Etapas de implementação
+
+1. **Fundação web segura:** shell responsivo de gestão, login/logout por e-mail e senha, provisionamento do primeiro proprietário, convite/revogação, mudança de papéis, bloqueio de contas, redefinição de senha por link temporário, recuperação do proprietário com OAuth, organização/unidade, escopo multiusuário, sessão, auditoria e primeiras tabelas/migrações aditivas. As telas legadas permanecem separadas e os dados locais ficam intactos.
+2. **Caixa de turno centralizado:** conversão das regras já aprovadas para operações autenticadas e compartilhadas, com histórico, concorrência e diferenças justificadas.
+3. **Operação de pista:** combustíveis, tanques, recebimentos, medidores/encerrantes, conciliação física versus teórica e margem por litro.
+4. **Conveniência:** catálogo, compras, estoque por movimento, vendas e caixa integrados.
+5. **Troca de óleo:** clientes, veículos, ordens de serviço, consumo de estoque, preço e histórico.
+6. **Gestão financeira, CSV e integrações:** relatórios gerenciais, controles de custo e taxa, importação/exportação e integrações externas somente após confirmar fornecedor, dados e obrigações.
+
+Cada etapa será entregue e explicada em sequência, com Preview e solicitação de confirmação antes de avançar para a etapa seguinte. Publicação pública não está autorizada neste plano: `auto_publish` está desativado e o sistema só será considerado publicado após uma ação e confirmação explícitas. O build web de produção também precisa ser preparado: hoje há Preview Expo e API, mas não há Dockerfile/configuração de publicação nem Express servindo o bundle web. A estratégia de servir frontend e API será validada antes de solicitar publicação.
+
+### Estrutura do projeto
+
+Manter a estrutura fixa do starter Mobile e separar claramente o produto comercial das telas locais existentes:
+
+- `app/(tabs)/`: telas legadas de orçamento/calendário/caixa local, mantidas durante a transição e sem envio silencioso ao servidor.
+- `app/gestao/`: login, dashboard e rotas web do caixa, posto, conveniência, troca de óleo, relatórios e administração de usuários; layout responsivo próprio, com side navigation em desktop e navegação compacta em celular.
+- `components/sobra/gestao/`: shell, tabelas/cartões, formulários, resumos, estados de autorização e componentes responsivos específicos do posto.
+- `hooks/`: sessão comercial, consultas/mutações com cache e invalidação, estado dos filtros e operações das telas.
+- `lib/business/`: tipos, validações e cálculos puros de centavos, volumes, margens, pagamentos e movimentos, sem dependência visual.
+- `server/auth/`: contas de senha, convites, sessões e permissões, separado do OAuth do starter.
+- `server/modules/`: routers e serviços por domínio, incluindo caixa, combustível/estoque, conveniência, ordens de serviço e relatórios; cada consulta impõe tenant/unidade e papel no servidor.
+- `drizzle/schema.ts` e `drizzle/`: tabelas e migrações aditivas para credenciais/sessões comerciais, organização, unidade, associação/papel, auditoria e entidades de negócio; manter os usuários OAuth legados e seus dados intactos.
+- `tests/`: unitários puros, adaptadores simulados e testes de autorização/escopo sem gravações no banco compartilhado.
+
+O processo e as portas Expo 8081 e API 3000 permanecem fixos. Diagnósticos TypeScript já estão registrados. Usar a base visual Sobra existente, sem gerar imagens decorativas para um painel operacional.
+
+### Direção visual da área Gestão
+
+**Movimento de design:** editorial operacional contemporâneo, com referências a painéis industriais limpos e livros-caixa, adaptado à marca Sobra.
+
+**Princípios:** leitura rápida dos números; diferenças e pendências sempre explícitas; ações críticas com revisão e autoria; densidade desktop sem sacrificar uso no celular.
+
+**Filosofia de cor:** manter creme e verde-profundo já aprovados para continuidade da marca; acrescentar âmbar para avisos operacionais e terracota apenas para erro/diferença, sem depender de cor isolada para comunicar estado.
+
+**Paradigma de layout:** navegação lateral persistente em desktop; área principal contextual por posto/turno; tabelas e comparativos lado a lado em telas largas; em celular, filtros recolhíveis e cartões/linhas por registro, sem tabelas ilegíveis ou rolagem horizontal desnecessária.
+
+**Elementos de assinatura:** marca Sobra com um traço de medidor/encerrante; selo textual de turno/unidade; indicadores de status com ícone, texto e cor.
+
+**Interações:** busca e filtros junto aos dados; confirmação clara em preço, estoque, fechamento e permissões; salvar primeiro e atualizar o estado confirmado somente após resposta do servidor; erros recuperáveis sem perder o formulário; estados de carregamento e acesso negado explícitos.
+
+**Animação:** transições discretas de 140–220 ms, sem contadores animados que atrasem números financeiros; respeitar redução de movimento; destacar mudança de status somente após persistência confirmada.
+
+**Tipografia:** manter Manrope para títulos/valores e DM Sans para rótulos e leitura operacional, já instaladas no projeto; numerais tabulares para moeda, litros e contadores; usar escala de texto legível em caixas e relatórios.
+
+**Essência da marca:** gestão clara e responsável para o dono e a equipe do posto. Personalidade: prática, confiável e precisa.
+
+**Voz:** direta, operacional e sem exagero. Exemplos: “A margem por litro caiu neste período.” e “Diferença registrada. Falta a justificativa do responsável.”
+
+**Wordmark:** manter o logotipo Sobra existente e aplicar a assinatura “GESTÃO DE POSTO” em layout, sem alterar o identificador nativo nem criar uma nova marca concorrente.
+
+**Cor de assinatura:** verde-floresta `#214D40`, com creme `#F6F5EF`, pistache `#DAE8B0`, âmbar `#D59A34` e terracota `#C86646` para estados excepcionais.
