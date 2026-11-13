@@ -11,6 +11,7 @@ import {
 } from "../../drizzle/schema";
 import {
   canOpenCash,
+  canReadCash,
   cashClockAt,
   cashOpenPayloadCanonical,
   CashDomainError,
@@ -172,10 +173,12 @@ function duplicateKey(error: unknown): boolean {
   return candidate.code === "ER_DUP_ENTRY" || candidate.errno === 1062;
 }
 
-function assertLockedIdentity(
+export function assertCashIdentity(
   identity: CashIdentitySnapshot | null,
   scope: CashScope,
   now: Date,
+  permission: "read" | "write" = "write",
+  writeAction: "open" | "movement" = "open",
 ): { operator: string; role: string } {
   if (!identity) {
     throw new CashServiceError(
@@ -212,10 +215,14 @@ function assertLockedIdentity(
       "A associação ativa desta conta não permite acessar o caixa desta unidade.",
     );
   }
-  if (!canOpenCash(identity.role)) {
+  if (!(permission === "read" ? canReadCash(identity.role) : canOpenCash(identity.role))) {
     throw new CashServiceError(
       "FORBIDDEN",
-      "Seu perfil pode consultar, mas não abrir o caixa.",
+      permission === "read"
+        ? "Seu perfil não pode consultar o caixa."
+        : writeAction === "open"
+          ? "Seu perfil pode consultar, mas não abrir o caixa."
+          : "Seu perfil pode consultar, mas não registrar movimentações no caixa.",
     );
   }
   const operator = identity.userName.trim();
@@ -312,7 +319,7 @@ export function createCashService(
 
           const identity = await tx.lockIdentity(scope);
           const identityNow = new Date(nowProvider().getTime());
-          const actor = assertLockedIdentity(identity, scope, identityNow);
+          const actor = assertCashIdentity(identity, scope, identityNow, "write");
 
           // Retry lookup precedes the current register, active slot, revision and
           // operating-window checks so a confirmed request survives lost replies.
@@ -336,7 +343,7 @@ export function createCashService(
             ? await tx.findActiveOpening(scope, existingRegister.id)
             : null;
           const committedNow = new Date(nowProvider().getTime());
-          assertLockedIdentity(identity, scope, committedNow);
+          assertCashIdentity(identity, scope, committedNow, "write");
 
           let clock;
           try {
@@ -464,7 +471,7 @@ export function createCashService(
 }
 
 type CashDb = Exclude<Awaited<ReturnType<typeof getDb>>, null>;
-type CashTx = Parameters<Parameters<CashDb["transaction"]>[0]>[0];
+export type CashTx = Parameters<Parameters<CashDb["transaction"]>[0]>[0];
 
 type CashRegisterRow = typeof businessCashRegisters.$inferSelect;
 type CashOpeningRow = typeof businessCashOpenings.$inferSelect;
@@ -517,90 +524,87 @@ function publicOpening(opening: CashStoredOpening): CashOpening {
   };
 }
 
+export async function lockCashLocation(tx: CashTx, scope: CashScope): Promise<boolean> {
+  const rows = await tx
+    .select({ id: businessLocations.id })
+    .from(businessLocations)
+    .where(
+      and(
+        eq(businessLocations.organizationId, scope.organizationId),
+        eq(businessLocations.id, scope.locationId),
+      ),
+    )
+    .limit(1)
+    .for("update");
+  return Boolean(rows[0]);
+}
+
+export async function lockCashIdentity(
+  tx: CashTx,
+  scope: CashScope,
+): Promise<CashIdentitySnapshot | null> {
+  const [user] = await tx
+    .select({ id: businessUsers.id, name: businessUsers.name, disabledAt: businessUsers.disabledAt })
+    .from(businessUsers)
+    .where(eq(businessUsers.id, scope.actorId))
+    .limit(1)
+    .for("update");
+  if (!user) return null;
+
+  const [membership] = await tx
+    .select({
+      userId: businessMemberships.userId,
+      organizationId: businessMemberships.organizationId,
+      locationId: businessMemberships.locationId,
+      active: businessMemberships.active,
+      role: businessMemberships.role,
+    })
+    .from(businessMemberships)
+    .where(and(
+      eq(businessMemberships.userId, scope.actorId),
+      eq(businessMemberships.organizationId, scope.organizationId),
+      eq(businessMemberships.locationId, scope.locationId),
+    ))
+    .limit(1)
+    .for("update");
+  if (!membership) return null;
+
+  // Match business-auth lock order: user, membership, then session.
+  const [session] = await tx
+    .select({
+      id: businessSessions.id,
+      userId: businessSessions.userId,
+      expiresAt: businessSessions.expiresAt,
+      revokedAt: businessSessions.revokedAt,
+    })
+    .from(businessSessions)
+    .where(and(
+      eq(businessSessions.id, scope.sessionId),
+      eq(businessSessions.userId, scope.actorId),
+    ))
+    .limit(1)
+    .for("update");
+  if (!session) return null;
+  return {
+    sessionId: session.id,
+    sessionUserId: session.userId,
+    sessionExpiresAt: session.expiresAt,
+    sessionRevokedAt: session.revokedAt,
+    userId: user.id,
+    userName: user.name,
+    userDisabledAt: user.disabledAt,
+    membershipUserId: membership.userId,
+    organizationId: membership.organizationId,
+    locationId: membership.locationId,
+    membershipActive: membership.active,
+    role: membership.role,
+  };
+}
+
 function drizzleTransaction(tx: CashTx): CashTransaction {
   return {
-    async lockLocation(scope) {
-      const rows = await tx
-        .select({ id: businessLocations.id })
-        .from(businessLocations)
-        .where(
-          and(
-            eq(businessLocations.organizationId, scope.organizationId),
-            eq(businessLocations.id, scope.locationId),
-          ),
-        )
-        .limit(1)
-        .for("update");
-      return Boolean(rows[0]);
-    },
-
-    async lockIdentity(scope) {
-      const [user] = await tx
-        .select({
-          id: businessUsers.id,
-          name: businessUsers.name,
-          disabledAt: businessUsers.disabledAt,
-        })
-        .from(businessUsers)
-        .where(eq(businessUsers.id, scope.actorId))
-        .limit(1)
-        .for("update");
-      if (!user) return null;
-
-      const [membership] = await tx
-        .select({
-          userId: businessMemberships.userId,
-          organizationId: businessMemberships.organizationId,
-          locationId: businessMemberships.locationId,
-          active: businessMemberships.active,
-          role: businessMemberships.role,
-        })
-        .from(businessMemberships)
-        .where(
-          and(
-            eq(businessMemberships.userId, scope.actorId),
-            eq(businessMemberships.organizationId, scope.organizationId),
-            eq(businessMemberships.locationId, scope.locationId),
-          ),
-        )
-        .limit(1)
-        .for("update");
-      if (!membership) return null;
-
-      // Match the business-auth lock order: user, membership, then sessions.
-      const [session] = await tx
-        .select({
-          id: businessSessions.id,
-          userId: businessSessions.userId,
-          expiresAt: businessSessions.expiresAt,
-          revokedAt: businessSessions.revokedAt,
-        })
-        .from(businessSessions)
-        .where(
-          and(
-            eq(businessSessions.id, scope.sessionId),
-            eq(businessSessions.userId, scope.actorId),
-          ),
-        )
-        .limit(1)
-        .for("update");
-      if (!session) return null;
-
-      return {
-        sessionId: session.id,
-        sessionUserId: session.userId,
-        sessionExpiresAt: session.expiresAt,
-        sessionRevokedAt: session.revokedAt,
-        userId: user.id,
-        userName: user.name,
-        userDisabledAt: user.disabledAt,
-        membershipUserId: membership.userId,
-        organizationId: membership.organizationId,
-        locationId: membership.locationId,
-        membershipActive: membership.active,
-        role: membership.role,
-      };
-    },
+    lockLocation: (scope) => lockCashLocation(tx, scope),
+    lockIdentity: (scope) => lockCashIdentity(tx, scope),
 
     async findOpeningByIntent(scope, intentId) {
       const rows = await tx

@@ -9,6 +9,13 @@ import {
   openCash,
   type CashScope,
 } from "./cash-service";
+import {
+  CashMovementServiceError,
+  getCashMovementHistory,
+  getCashTurnSnapshot,
+  recordCashMovement,
+} from "./cash-movement-service";
+import { validateCashMovementDraft } from "../../lib/business/cash-movement-domain";
 
 function scopeFrom(ctx: TrpcContext): CashScope {
   if (
@@ -35,7 +42,10 @@ async function cashError<T>(operation: () => Promise<T>): Promise<T> {
   try {
     return await operation();
   } catch (error) {
-    if (error instanceof CashServiceError) {
+    if (
+      error instanceof CashServiceError ||
+      error instanceof CashMovementServiceError
+    ) {
       throw new TRPCError({ code: error.code, message: error.message });
     }
     throw error;
@@ -76,11 +86,84 @@ const cashOpenInput = z
       .number()
       .int()
       .nonnegative()
-      .refine(Number.isSafeInteger, "O fundo precisa ser um inteiro seguro em centavos."),
+      .refine(
+        Number.isSafeInteger,
+        "O fundo precisa ser um inteiro seguro em centavos.",
+      ),
+  })
+  .strict();
+
+const cashMovementDraftSchema = z
+  .object({
+    type: z.enum(["recebimento", "sangria", "suprimento"]),
+    paymentMethod: z.enum(["dinheiro", "pix", "debito", "credito"]),
+    receiptNature: z.enum(["venda", "conta-anterior"]).nullable(),
+    amount: z
+      .number()
+      .int()
+      .positive()
+      .refine(
+        Number.isSafeInteger,
+        "O valor precisa ser um inteiro seguro em centavos.",
+      ),
+    description: z.string(),
+    reference: z.string(),
+    counterparty: z.string(),
+  })
+  .strict();
+const cashMovementInput = cashMovementDraftSchema
+  .extend({
+    intentId: z.string().uuid(),
+    expectedRevision: z
+      .number()
+      .int()
+      .nonnegative()
+      .refine(Number.isSafeInteger),
+    expectedActorId: z.number().int().positive().refine(Number.isSafeInteger),
+    openingId: z.number().int().positive().refine(Number.isSafeInteger),
+    operationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u),
+    shiftId: z.enum(["turno-1", "turno-2"]),
+  })
+  .strict();
+const movementHistoryInput = z
+  .object({
+    openingId: z.number().int().positive().refine(Number.isSafeInteger),
+    limit: z.number().int().positive().max(100).default(50),
+    cursor: z.number().int().positive().refine(Number.isSafeInteger).optional(),
   })
   .strict();
 
 export const cashRouter = router({
+  turnSnapshot: cashReadProcedure.query(({ ctx }) =>
+    cashError(() => getCashTurnSnapshot(scopeFrom(ctx))),
+  ),
+  movementHistory: cashReadProcedure
+    .input(movementHistoryInput)
+    .query(({ ctx, input }) =>
+      cashError(() => getCashMovementHistory(scopeFrom(ctx), input)),
+    ),
+  recordMovement: cashOpenProcedure
+    .input(cashMovementInput)
+    .mutation(({ ctx, input }) => {
+      try {
+        validateCashMovementDraft({
+          type: input.type,
+          paymentMethod: input.paymentMethod,
+          receiptNature: input.receiptNature,
+          amount: input.amount,
+          description: input.description,
+          reference: input.reference,
+          counterparty: input.counterparty,
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            error instanceof Error ? error.message : "Movimentação inválida.",
+        });
+      }
+      return cashError(() => recordCashMovement(scopeFrom(ctx), input));
+    }),
   position: cashReadProcedure.query(({ ctx }) =>
     cashError(() => getCashPosition(scopeFrom(ctx))),
   ),

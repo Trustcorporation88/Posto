@@ -1,14 +1,12 @@
 import React, { useState } from "react";
+import { usePathname } from "expo-router";
 import { ActivityIndicator, Text, View } from "react-native";
 import type {
   CashOpenInput,
   CashOpening,
   CashOpenResult,
 } from "@/lib/business/cash-domain";
-import {
-  canOpenCash,
-  canReadCash,
-} from "@/lib/business/cash-domain";
+import { canOpenCash, canReadCash } from "@/lib/business/cash-domain";
 import {
   Body,
   Button,
@@ -27,6 +25,7 @@ import {
 } from "@/components/sobra/gestao/gestao-shell";
 import { STATION_CALENDAR_META } from "@/lib/station-calendar";
 import { formatCents, moneyToCents } from "@/lib/business/fuel-domain";
+import { CashMovementsPanel } from "@/components/sobra/gestao/cash-movements-panel";
 import { trpc } from "@/lib/trpc";
 
 type OpeningReview = {
@@ -153,31 +152,39 @@ function OpeningCard({
     <Card style={{ gap: 16 }}>
       <SectionTitle title="Caixa principal aberto" eyebrow="ABERTURA CENTRAL" />
       <Notice>
-        Este turno permanece aberto depois do horário previsto. Ele não se encerra
-        automaticamente e bloqueia uma nova abertura até o fechamento, que será
-        tratado em uma etapa posterior.
+        Este turno permanece aberto depois do horário previsto. Ele não se
+        encerra automaticamente e bloqueia uma nova abertura até um fechamento
+        central futuro. Esta versão já oferece abertura e movimentos, sem
+        fechamento.
       </Notice>
       <DetailRow label="Identificador da abertura" value={String(opening.id)} />
       <DetailRow label="Unidade" value={unitName} />
-      <DetailRow label="Operador da sessão" value={`${opening.operator} · ID ${opening.operatorId}`} />
+      <DetailRow
+        label="Operador da sessão"
+        value={`${opening.operator} · ID ${opening.operatorId}`}
+      />
       <DetailRow
         label="Data operacional e turno"
         value={`${formatOperationDate(opening.operationDate)} · ${opening.shift.label} (${opening.shift.start}–${opening.shift.end})`}
       />
-      <DetailRow label="Aberto pelo servidor" value={formatServerDateTime(opening.openedAt)} />
+      <DetailRow
+        label="Aberto pelo servidor"
+        value={formatServerDateTime(opening.openedAt)}
+      />
       <DetailRow
         label="Fundo inicial"
         value={`${formatCents(opening.openingFloat)} · valor de custódia, não receita`}
       />
       <Notice warning>
-        Esta primeira entrega não oferece movimentos nem fechamento. Não use o
-        valor do fundo como receita ou como valor contado posteriormente.
+        O fundo é custódia, não receita nem valor contado posteriormente. Esta
+        versão oferece abertura e movimentos, sem fechamento centralizado.
       </Notice>
     </Card>
   );
 }
 
 export function CashManagementScreen() {
+  const isScreenActive = usePathname() === "/gestao/caixa";
   const session = useMe();
   const role = session.data?.role ?? "";
   const allowedToRead = canReadCash(role);
@@ -194,13 +201,13 @@ export function CashManagementScreen() {
   const [confirmedOpening, setConfirmedOpening] =
     useState<CashOpenResult | null>(null);
 
-  const position = trpc.cash.position.useQuery(undefined, {
-    enabled: Boolean(session.data && allowedToRead),
+  const position = trpc.cash.turnSnapshot.useQuery(undefined, {
+    enabled: Boolean(session.data && allowedToRead && isScreenActive),
     retry: false,
     gcTime: 0,
     refetchOnMount: "always",
-    refetchOnWindowFocus: true,
-    refetchInterval: 15_000,
+    refetchOnWindowFocus: isScreenActive,
+    refetchInterval: isScreenActive ? 15_000 : false,
     refetchIntervalInBackground: false,
   });
 
@@ -256,7 +263,8 @@ export function CashManagementScreen() {
   const activeOpening =
     positionData?.activeOpening ?? confirmedOpening?.opening ?? null;
   const csrfReady = Boolean(csrf.data?.token);
-  const sessionName = session.data?.name?.trim() || "Nome não informado na sessão";
+  const sessionName =
+    session.data?.name?.trim() || "Nome não informado na sessão";
   const unitName =
     session.data?.location?.name ||
     session.data?.organization?.name ||
@@ -264,21 +272,19 @@ export function CashManagementScreen() {
 
   const reviewIsStale = Boolean(
     review &&
-      positionData &&
-      (positionData.revision !== review.payload.expectedRevision ||
-        positionData.operationDate !== review.payload.operationDate ||
-        positionData.scheduledShift?.id !== review.payload.shiftId ||
-        positionData.activeOpening !== null),
+    positionData &&
+    (positionData.revision !== review.payload.expectedRevision ||
+      positionData.operationDate !== review.payload.operationDate ||
+      positionData.scheduledShift?.id !== review.payload.shiftId ||
+      positionData.activeOpening !== null),
   );
   const reviewNeedsRefresh = Boolean(
     review &&
-      !uncertainResult &&
-      (requiresRefresh || reviewIsStale || Boolean(position.error)),
+    !uncertainResult &&
+    (requiresRefresh || reviewIsStale || Boolean(position.error)),
   );
   const reviewBlocked = Boolean(
-    review &&
-      !uncertainResult &&
-      (reviewNeedsRefresh || position.isFetching),
+    review && !uncertainResult && (reviewNeedsRefresh || position.isFetching),
   );
 
   function createReview() {
@@ -299,7 +305,9 @@ export function CashManagementScreen() {
       return;
     }
     if (!positionData.scheduledShift) {
-      setFormError("O servidor informa que não há turno previsto para abertura agora.");
+      setFormError(
+        "O servidor informa que não há turno previsto para abertura agora.",
+      );
       return;
     }
     if (!session.data || !allowedToOpen) {
@@ -307,14 +315,18 @@ export function CashManagementScreen() {
       return;
     }
     if (!openingFloatText.trim()) {
-      setFormError("Informe o fundo contado. Use zero explicitamente se não houver valor inicial.");
+      setFormError(
+        "Informe o fundo contado. Use zero explicitamente se não houver valor inicial.",
+      );
       return;
     }
 
     try {
       const openingFloat = moneyToCents(openingFloatText, true);
       if (!Number.isSafeInteger(openingFloat) || openingFloat < 0) {
-        throw new Error("O fundo deve ser um valor não negativo em centavos seguros.");
+        throw new Error(
+          "O fundo deve ser um valor não negativo em centavos seguros.",
+        );
       }
       const payload: CashOpenInput = {
         intentId: createIntentId(),
@@ -347,7 +359,10 @@ export function CashManagementScreen() {
 
   function confirmOpening() {
     if (!review || openCash.isPending || !csrfReady) return;
-    if (!uncertainResult && (reviewBlocked || reviewIsStale || position.error)) {
+    if (
+      !uncertainResult &&
+      (reviewBlocked || reviewIsStale || position.error)
+    ) {
       setRequiresRefresh(true);
       setReviewError(
         "A revisão não pode ser enviada porque a posição pode ter mudado. Atualize o estado e faça uma nova revisão.",
@@ -402,8 +417,9 @@ export function CashManagementScreen() {
         subtitle="Consulta protegida do caixa principal desta unidade."
       >
         <Notice warning>
-          Seu perfil não tem acesso ao caixa multiusuário. O caixa está disponível
-          somente para proprietário, gerente, caixa e consulta financeira.
+          Seu perfil não tem acesso ao caixa multiusuário. O caixa está
+          disponível somente para proprietário, gerente, caixa e consulta
+          financeira.
         </Notice>
       </GestaoShell>
     );
@@ -416,12 +432,12 @@ export function CashManagementScreen() {
   return (
     <GestaoShell
       title="Caixa"
-      subtitle="Abertura autenticada do caixa principal da unidade."
+      subtitle="Abertura e movimentos autenticados do caixa principal da unidade."
     >
       <Notice>
-        A posição e o horário vêm do servidor. A consulta depende de conexão com a
-        internet; a atualização periódica não sincroniza o caixa quando o aparelho
-        fica offline.
+        A posição e o horário vêm do servidor. A consulta depende de conexão com
+        a internet; a atualização periódica não sincroniza o caixa quando o
+        aparelho fica offline.
         Ao entrar ou sair da conta em outra aba, esta página recarrega por segurança
         e descarta rascunhos ainda não enviados.
       </Notice>
@@ -435,9 +451,9 @@ export function CashManagementScreen() {
 
       {position.error ? (
         <Notice warning>
-          Não foi possível consultar a posição mais recente. Verifique a conexão e
-          atualize; uma falha de consulta não significa que uma abertura tenha sido
-          confirmada.
+          Não foi possível consultar a posição mais recente. Verifique a conexão
+          e atualize; uma falha de consulta não significa que uma abertura tenha
+          sido confirmada.
         </Notice>
       ) : null}
 
@@ -445,8 +461,8 @@ export function CashManagementScreen() {
         <Card style={{ gap: 14 }}>
           <SectionTitle title="Estado indisponível" eyebrow="CAIXA CENTRAL" />
           <Body>
-            Nenhuma posição atual foi recebida. Não há dados de demonstração e esta
-            tela não presume que o caixa esteja aberto ou fechado.
+            Nenhuma posição atual foi recebida. Não há dados de demonstração e
+            esta tela não presume que o caixa esteja aberto ou fechado.
           </Body>
           <Button
             variant="secondary"
@@ -461,7 +477,10 @@ export function CashManagementScreen() {
 
       {positionData ? (
         <Card style={{ gap: 16 }}>
-          <SectionTitle title="Caixa principal" eyebrow="ESTADO COMPARTILHADO" />
+          <SectionTitle
+            title="Caixa principal"
+            eyebrow="ESTADO COMPARTILHADO"
+          />
           <DetailRow label="Unidade" value={unitName} />
           <DetailRow
             label="Horário do servidor · Bauru (America/Sao_Paulo)"
@@ -480,7 +499,9 @@ export function CashManagementScreen() {
             }
           />
           {position.isFetching ? (
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 9 }}>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 9 }}
+            >
               <ActivityIndicator size="small" color={C.green} />
               <Body size={11}>Atualizando a posição do servidor…</Body>
             </View>
@@ -499,13 +520,35 @@ export function CashManagementScreen() {
       {statusNotice ? <Notice>{statusNotice}</Notice> : null}
 
       {activeOpening && !review ? (
-        <OpeningCard opening={activeOpening} unitName={unitName} />
+        <>
+          <OpeningCard opening={activeOpening} unitName={unitName} />
+          <CashMovementsPanel
+            snapshot={positionData}
+            snapshotError={Boolean(position.error)}
+            snapshotFetching={position.isFetching}
+            opening={activeOpening}
+            unitName={unitName}
+            responsibleId={session.data?.id ?? 0}
+            responsibleName={sessionName}
+            allowedToRead={allowedToRead}
+            allowedToRecord={allowedToOpen}
+            csrfReady={csrfReady}
+            screenActive={isScreenActive}
+            refreshSnapshot={async () => {
+              const refreshed = await position.refetch();
+              return { data: refreshed.data, error: refreshed.error };
+            }}
+          />
+        </>
       ) : null}
 
       {positionData && !activeOpening && !review ? (
         <>
           <Card style={{ gap: 16 }}>
-            <SectionTitle title="Nenhuma abertura ativa" eyebrow="CAIXA PRINCIPAL" />
+            <SectionTitle
+              title="Nenhuma abertura ativa"
+              eyebrow="CAIXA PRINCIPAL"
+            />
             {positionData.scheduledShift ? (
               <Body>
                 A posição atual não contém uma abertura ativa. Confira o fundo
@@ -519,8 +562,9 @@ export function CashManagementScreen() {
             )}
             {allowedToRead && !allowedToOpen ? (
               <Notice>
-                Seu perfil tem acesso somente para leitura. Proprietário, gerente ou
-                caixa podem iniciar uma abertura dentro do turno vigente.
+                Seu perfil tem acesso somente para leitura. Proprietário,
+                gerente ou caixa podem iniciar uma abertura dentro do turno
+                vigente.
               </Notice>
             ) : null}
           </Card>
@@ -529,9 +573,9 @@ export function CashManagementScreen() {
             <Card style={{ gap: 16 }}>
               <SectionTitle title="Fundo contado" eyebrow="NOVA ABERTURA" />
               <Body>
-                Digite o valor contado em dinheiro. O campo começa em branco; informe
-                zero de forma explícita quando o fundo for zero. O valor é um saldo
-                de custódia, não uma receita.
+                Digite o valor contado em dinheiro. O campo começa em branco;
+                informe zero de forma explícita quando o fundo for zero. O valor
+                é um saldo de custódia, não uma receita.
               </Body>
               <Field
                 label="Fundo inicial em dinheiro"
@@ -557,14 +601,14 @@ export function CashManagementScreen() {
               {formError ? <Notice warning>{formError}</Notice> : null}
               {!csrfReady && allowedToOpen ? (
                 <Notice warning>
-                  A proteção CSRF da sessão não está disponível. A abertura ficará
-                  desabilitada até o token seguro ser carregado.
+                  A proteção CSRF da sessão não está disponível. A abertura
+                  ficará desabilitada até o token seguro ser carregado.
                 </Notice>
               ) : null}
               {csrf.error && allowedToOpen ? (
                 <Notice warning>
-                  Não foi possível obter a proteção CSRF. Atualize a sessão e tente
-                  novamente; nenhuma abertura foi enviada.
+                  Não foi possível obter a proteção CSRF. Atualize a sessão e
+                  tente novamente; nenhuma abertura foi enviada.
                 </Notice>
               ) : null}
               <Button
@@ -588,16 +632,19 @@ export function CashManagementScreen() {
 
       {review ? (
         <Card style={{ gap: 17 }}>
-          <SectionTitle title="Revisão da abertura" eyebrow="CONFIRMAÇÃO EXPLÍCITA" />
+          <SectionTitle
+            title="Revisão da abertura"
+            eyebrow="CONFIRMAÇÃO EXPLÍCITA"
+          />
           <Body>
-            Confira os dados que serão enviados. Voltar ou cancelar não grava nada.
-            Somente “Confirmar e abrir caixa” envia a mutação ao servidor.
+            Confira os dados que serão enviados. Voltar ou cancelar não grava
+            nada. Somente “Confirmar e abrir caixa” envia a mutação ao servidor.
           </Body>
           <Notice warning>
-            Atenção: esta subentrega ainda não oferece movimentações nem
-            fechamento centralizados. Uma abertura real permanecerá ativa e
-            bloqueará novas aberturas até a entrega do fechamento. Não inicie a
-            rotina diária de caixa nesta versão parcial.
+            Atenção: esta versão oferece abertura e movimentos, sem fechamento
+            centralizado. Uma abertura real permanecerá ativa e bloqueará novas
+            aberturas até que o fechamento seja implementado. Não inicie a
+            rotina diária completa de caixa nesta versão parcial.
           </Notice>
           <DetailRow label="Unidade" value={review.unitName} />
           <DetailRow label="Caixa" value={review.registerName} />
@@ -625,22 +672,23 @@ export function CashManagementScreen() {
           {reviewError ? <Notice warning>{reviewError}</Notice> : null}
           {uncertainResult ? (
             <Notice warning>
-              A revisão e o identificador de intenção foram preservados. Não altere
-              os dados nem inicie outra revisão; uma repetição manual envia
-              exatamente o mesmo payload para recuperação idempotente.
+              A revisão e o identificador de intenção foram preservados. Não
+              altere os dados nem inicie outra revisão; uma repetição manual
+              envia exatamente o mesmo payload para recuperação idempotente.
             </Notice>
           ) : null}
           {reviewNeedsRefresh ? (
             <Notice warning>
-              Esta revisão não pode ser confirmada porque o estado mudou, a leitura
-              ficou desatualizada ou o turno pode ter expirado. Atualize o estado e
-              faça uma nova revisão; a revisão anterior não será reaproveitada.
+              Esta revisão não pode ser confirmada porque o estado mudou, a
+              leitura ficou desatualizada ou o turno pode ter expirado. Atualize
+              o estado e faça uma nova revisão; a revisão anterior não será
+              reaproveitada.
             </Notice>
           ) : null}
           {position.isFetching && !uncertainResult ? (
             <Notice>
-              Aguarde a consulta em andamento. A revisão permanece fixa enquanto os
-              dados novos são recebidos.
+              Aguarde a consulta em andamento. A revisão permanece fixa enquanto
+              os dados novos são recebidos.
             </Notice>
           ) : null}
 
@@ -701,8 +749,8 @@ export function CashManagementScreen() {
           </Button>
           {!csrfReady ? (
             <Notice warning>
-              A confirmação está desabilitada enquanto a proteção CSRF não estiver
-              disponível.
+              A confirmação está desabilitada enquanto a proteção CSRF não
+              estiver disponível.
             </Notice>
           ) : null}
         </Card>

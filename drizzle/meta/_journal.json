@@ -43,6 +43,13 @@
       "when": 1794593034053,
       "tag": "0005_cash_opening",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1794595729561,
+      "tag": "0006_silly_selene",
+      "breakpoints": true
     }
   ]
 }
