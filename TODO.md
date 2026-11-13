@@ -100,3 +100,11 @@ Fase 1 implementada no Preview. O proprietário pode concluir o primeiro cadastr
 Estado: checkpoint da Fase 2 confirmado pela solicitação de publicação, SHA `9e7c29d2700dfcb7622b360dc2d4ffab81f69d22`. Primeira tentativa autorizada falhou com `publish_contract_missing`, pois o projeto não possuía Dockerfile nem contrato deploy. Site existente não atualizado por essa tentativa.
 
 Evidências do reparo de publicação: 172 testes aprovados e 1 legado ignorado; TypeScript e lint sem erros. `build:production` exportou 20 páginas para `web-build/` e preservou `dist/index.js`. O entrypoint real de produção em listener temporário respondeu saúde 200, pista 200, JavaScript 200 e API desconhecida 404, sem login/consulta de linhas comerciais. Revisão independente confirmou a montagem de frontend/API e identificou retorno OAuth ao Preview; corrigido para `/` relativo em produção, preservando o retorno à configuração/recuperação já tratado no frontend e coberto por 3 regressões puras. Contrato deploy armazenado na revisão 3 com Dockerfile e `/api/health`; auto-publicação continua desligada. Publicação final ainda pendente.
+
+
+## Renomeação para GAS PUMP, solicitada em 13/11/2026
+
+- [x] **Marca visível e logo fornecido:** substituir nome de aplicação, cabeçalhos, entrada de login, mensagens de marca, metadados web e nome dos CSVs por GAS PUMP; aplicar o logo recebido no cabeçalho e nos ícones com proporção/conteúdo preservados e logoUrl HTTPS. Não alterar chaves de dados locais, bundle IDs, appSlug, deep links, nomes de campos de segurança nem comportamento comercial.
+- [ ] **Versão de marca salva e publicada:** validar a versão GAS PUMP, salvar checkpoint Manus, enviar o commit ao repositório Posto e publicar a versão atual, sem habilitar auto-publicação nem alegar teste nativo/APK.
+
+Evidências GAS PUMP: imagem enviada copiada sem alteração para `assets/images/gas-pump-logo.png`; seis assets de ícone adaptados com conteúdo/proporção preservados; título e rótulos visíveis atualizados, original mantido intacto. Nenhuma chave de dados ou identificador nativo alterado. TypeScript, lint, 172 testes (1 legado ignorado) e `build:production` concluídos; HTML de login exportado contém título GAS PUMP e assets compilados. A versão de marca será o próximo checkpoint publicado.

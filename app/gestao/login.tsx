@@ -12,6 +12,7 @@ import {
   Notice,
 } from "@/components/sobra/ui";
 import { businessAuth } from "@/components/sobra/gestao/gestao-shell";
+import { GasPumpBrand } from "@/components/sobra/gas-pump-brand";
 export default function GestaoLogin() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -34,7 +35,8 @@ export default function GestaoLogin() {
     >
       <Card style={{ width: "100%", maxWidth: 440, gap: 20, padding: 28 }}>
         <View style={{ gap: 8 }}>
-          <Label>SOBRA · GESTÃO DE POSTO</Label>
+          <GasPumpBrand width={210} />
+          <Label>GAS PUMP · GESTÃO DE POSTO</Label>
           <Text style={{ fontFamily: F.heading, color: C.ink, fontSize: 29 }}>
             Acesse sua equipe
           </Text>

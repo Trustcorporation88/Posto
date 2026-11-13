@@ -100,10 +100,10 @@ export function CsvTools() {
       await saveCSV(
         content,
         kind === "sample"
-          ? "sobra-modelo.csv"
+          ? "gas-pump-modelo.csv"
           : kind === "budgets"
-            ? "sobra-orcamentos.csv"
-            : "sobra-lancamentos.csv",
+            ? "gas-pump-orcamentos.csv"
+            : "gas-pump-lancamentos.csv",
       );
       notify(
         kind === "sample"

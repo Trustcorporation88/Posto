@@ -273,7 +273,7 @@ const businessAdmin = router({
         if (code === "BUSINESS_USER_EXISTS") {
           throw new TRPCError({
             code: "CONFLICT",
-            message: "Este e-mail já possui uma conta no Sobra Gestão.",
+            message: "Este e-mail já possui uma conta no GAS PUMP.",
           });
         }
         if (code === "INVITATION_PENDING") {

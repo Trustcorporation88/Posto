@@ -292,3 +292,10 @@ O usuário autorizou a publicação da versão atual. O checkpoint de Fase 2 `9e
 Preparar um container Node 22 com pnpm 9.12.0, lockfile e política de instalação existentes, exportar Expo Web em `web-build/` e compilar o servidor em `dist/`. Express servirá as páginas estáticas exportadas e a API no mesmo domínio HTTPS, mantendo Metro 8081 e API 3000 no Preview. O container usará PORT ou 3000 e health `/api/health`; não executará migrations, seeds nem gravações comerciais ao iniciar. Rotas desconhecidas de API/arquivos devem retornar 404, sem fallback HTML que disfarce falhas. Os arquivos HTML devem receber apenas configuração pública de OAuth obtida do ambiente runtime, nunca credenciais; o cliente publicado acessará a API por URL relativa, sem hostname temporário do Sandbox. As mutações continuam protegidas por sessão, escopo, CSRF e regras de origem. O login por e-mail/senha será preservado; OAuth permanece apenas para bootstrap/recuperação já aprovados.
 
 O reparo será salvo como novo checkpoint, copiado ao GitHub e publicado uma vez após a validação dos caminhos afetados. A confirmação de sucesso será obtida do resultado de publicação, não de Preview ou de push. Caixa centralizado, conveniência e troca de óleo seguem fora deste reparo.
+
+
+## Marca GAS PUMP solicitada em 13/11/2026 durante a publicação
+
+O usuário solicitou trocar o nome visível de Sobra para `GAS PUMP` e forneceu o logotipo horizontal. Aplicar o logo recebido ao login e aos cabeçalhos da gestão/app, atualizar nome exibido, metadados web e ícones mantendo todo o conteúdo da imagem proporcional. Não recriar a marca por IA nem recortar letras. A imagem original enviada permanece intacta; cópias e tamanhos de exibição serão usados nos assets.
+
+Preservar `appSlug`, bundle IDs, esquema de deep link, namespaces `sobra:*`, cabeçalhos de CSRF, sessionStorage e pastas internas existentes, pois a troca é de marca, não migração destrutiva de identidade técnica. Atualizar textos visíveis, nomes dos arquivos CSV exportados e logo HTTPS de projeto. A publicação solicitada deve usar o novo checkpoint GAS PUMP, sem mudança de domínio customizado ou de repositório canônico.

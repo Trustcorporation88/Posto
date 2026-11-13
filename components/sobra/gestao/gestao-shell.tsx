@@ -20,6 +20,7 @@ import {
 } from "@/components/sobra/ui";
 import { trpc } from "@/lib/trpc";
 import { setBusinessCsrfToken } from "@/lib/business-csrf";
+import { GasPumpBrand } from "@/components/sobra/gas-pump-brand";
 
 export const businessAuth = trpc.businessAuth;
 export const businessAdmin = trpc.businessAdmin;
@@ -122,34 +123,9 @@ export function GestaoShell({
         gap: 24,
       }}
     >
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-        <View
-          style={{
-            width: 36,
-            height: 36,
-            backgroundColor: C.lime,
-            borderRadius: 11,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Icon name="layers" color={C.green} />
-        </View>
-        <View>
-          <Text style={{ color: "white", fontFamily: F.heading, fontSize: 18 }}>
-            sobra
-          </Text>
-          <Text
-            style={{
-              color: C.lime,
-              fontFamily: F.bold,
-              fontSize: 9,
-              letterSpacing: 1.5,
-            }}
-          >
-            GESTÃO DE POSTO
-          </Text>
-        </View>
+      <View style={{ alignItems: wide ? "flex-start" : "center", gap: 10 }}>
+        <GasPumpBrand width={wide ? 204 : 170} />
+        <Label color={C.lime}>GESTÃO DE POSTO</Label>
       </View>
       {!wide && (
         <View style={{ flexDirection: "row", gap: 10 }}>

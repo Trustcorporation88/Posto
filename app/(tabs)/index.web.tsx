@@ -23,7 +23,7 @@ export default function WebEntryRedirect() {
 
   return (
     <View
-      accessibilityLabel="Abrindo Sobra Gestão"
+      accessibilityLabel="Abrindo GAS PUMP"
       style={{
         flex: 1,
         alignItems: "center",

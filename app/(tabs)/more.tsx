@@ -90,7 +90,7 @@ export default function More() {
             <View style={{ marginTop: 15 }}>
               <Body size={12}>
                 Armazenamento local não significa criptografia. Evite usar o
-                Sobra em dispositivos compartilhados. As análises são cálculos
+                GAS PUMP em dispositivos compartilhados. As análises são cálculos
                 locais, não recomendações de investimento.
               </Body>
             </View>
@@ -126,7 +126,7 @@ export default function More() {
               categorias
             </Text>
             <Text style={{ fontFamily: F.bold, color: C.muted, fontSize: 11 }}>
-              SOBRA 1.0
+              GAS PUMP 1.0
             </Text>
           </View>
         </View>

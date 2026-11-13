@@ -6,37 +6,15 @@ import {
   Pressable,
   useWindowDimensions,
   ActivityIndicator,
-  Image,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBudget } from "@/hooks/use-budget";
 import { changeMonth, monthTitle, currentMonth } from "@/lib/budget";
 import { C, F, Icon, Button, IconButton, Body, Label, Notice } from "./ui";
+import { GasPumpBrand } from "./gas-pump-brand";
 
 export function Brand({ small = false }: { small?: boolean }) {
-  return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-      <Image
-        source={require("@/assets/images/icon.png")}
-        style={{
-          width: small ? 30 : 37,
-          height: small ? 30 : 37,
-          borderRadius: 11,
-        }}
-        accessibilityLabel="Marca Sobra"
-      />
-      <Text
-        style={{
-          fontFamily: F.extra,
-          fontSize: small ? 25 : 29,
-          color: C.ink,
-          letterSpacing: -1.6,
-        }}
-      >
-        sobra<Text style={{ color: C.green }}>.</Text>
-      </Text>
-    </View>
-  );
+  return <GasPumpBrand width={small ? 130 : 170} />;
 }
 const links = [
   { name: "index", title: "Painel", icon: "grid" },
@@ -190,7 +168,7 @@ export function AppNav({ state, navigation }: NavProps) {
             <Body size={11}>Tudo fica neste dispositivo. Simples assim.</Body>
           </View>
           <Text style={{ fontFamily: F.regular, fontSize: 10, color: C.muted }}>
-            SOBRA · ORÇAMENTO PESSOAL
+            GAS PUMP · ORÇAMENTO LOCAL
           </Text>
         </View>
       )}
