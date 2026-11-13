@@ -17,6 +17,7 @@ import {
 } from "react-native-safe-area-context";
 import type { EdgeInsets, Metrics, Rect } from "react-native-safe-area-context";
 import { trpc, createTRPCClient } from "@/lib/trpc";
+import { installBusinessSessionEvents } from "@/lib/business-session-events";
 import {
   initManusRuntime,
   subscribeSafeAreaInsets,
@@ -48,6 +49,10 @@ export default function RootLayout() {
   const [frame, setFrame] = useState<Rect>(initialFrame);
   useEffect(() => {
     initManusRuntime();
+  }, []);
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    return installBusinessSessionEvents();
   }, []);
   const handleSafeAreaUpdate = useCallback((metrics: Metrics) => {
     setInsets(metrics.insets);

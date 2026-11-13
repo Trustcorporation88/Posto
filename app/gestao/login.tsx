@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Text, View } from "react-native";
 import { useRouter } from "expo-router";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Body,
   Button,
@@ -13,13 +14,23 @@ import {
 } from "@/components/sobra/ui";
 import { businessAuth } from "@/components/sobra/gestao/gestao-shell";
 import { GasPumpBrand } from "@/components/sobra/gas-pump-brand";
+import { clearBusinessQueryCache } from "@/lib/business-query-cache";
+import { setBusinessCsrfToken } from "@/lib/business-csrf";
+import { notifyBusinessSessionChanged } from "@/lib/business-session-events";
 export default function GestaoLogin() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const login = businessAuth.login.useMutation({
-    onSuccess: () => router.replace("/gestao" as any),
+    onSuccess: async () => {
+      setBusinessCsrfToken(null);
+      notifyBusinessSessionChanged();
+      await clearBusinessQueryCache(queryClient);
+      setPassword("");
+      router.replace("/gestao" as any);
+    },
     onError: (e: any) =>
       setError(e.message || "Não foi possível entrar. Tente novamente."),
   });
