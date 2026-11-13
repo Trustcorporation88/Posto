@@ -1,0 +1,2 @@
+DROP INDEX `fuel_price_scope_product_effective_idx` ON `business_fuel_prices`;--> statement-breakpoint
+ALTER TABLE `business_fuel_prices` ADD CONSTRAINT `fuel_price_scope_product_effective_uq` UNIQUE(`organizationId`,`locationId`,`productId`,`effectiveAt`);

@@ -38,6 +38,7 @@ import {
   setMemberRole,
   setMemberStatus,
 } from "./auth/service";
+import { fuelRouter } from "./modules/fuel";
 
 const loginRateLimiter = new LoginRateLimiter();
 const emailSchema = z.string().refine(validEmail, "E-mail inválido.");
@@ -383,6 +384,7 @@ export const appRouter = router({
   }),
   businessAuth,
   businessAdmin,
+  fuel: fuelRouter,
 });
 
 export type AppRouter = typeof appRouter;

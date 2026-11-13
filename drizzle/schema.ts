@@ -1,5 +1,8 @@
 import {
+  bigint,
   boolean,
+  decimal,
+  foreignKey,
   index,
   int,
   mysqlEnum,
@@ -61,6 +64,7 @@ export const businessLocations = mysqlTable(
   },
   (t) => [
     uniqueIndex("business_location_org_name_uq").on(t.organizationId, t.name),
+    uniqueIndex("business_location_scope_id_uq").on(t.organizationId, t.id),
     index("business_location_org_idx").on(t.organizationId),
   ],
 );
@@ -165,6 +169,604 @@ export const businessSessions = mysqlTable(
       t.revokedAt,
       t.expiresAt,
     ),
+  ],
+);
+export const businessFuelProducts = mysqlTable(
+  "business_fuel_products",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    code: varchar("code", { length: 32 }).notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    active: boolean("active").notNull().default(true),
+    createdBy: int("createdBy").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("fuel_product_scope_code_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.code,
+    ),
+    index("fuel_product_scope_active_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.active,
+    ),
+    uniqueIndex("fuel_product_scope_id_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.id,
+    ),
+    foreignKey({
+      name: "fuel_product_location_fk",
+      columns: [t.organizationId, t.locationId],
+      foreignColumns: [businessLocations.organizationId, businessLocations.id],
+    }),
+    foreignKey({
+      name: "fuel_product_author_fk",
+      columns: [t.createdBy],
+      foreignColumns: [businessUsers.id],
+    }),
+  ],
+);
+export const businessFuelTanks = mysqlTable(
+  "business_fuel_tanks",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    productId: int("productId").notNull(),
+    code: varchar("code", { length: 32 }).notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    capacityLiters: decimal("capacityLiters", {
+      precision: 18,
+      scale: 3,
+      mode: "string",
+    }),
+    active: boolean("active").notNull().default(true),
+    createdBy: int("createdBy").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("fuel_tank_scope_code_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.code,
+    ),
+    index("fuel_tank_scope_product_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.productId,
+      t.active,
+    ),
+    uniqueIndex("fuel_tank_scope_id_product_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.id,
+      t.productId,
+    ),
+    foreignKey({
+      name: "fuel_tank_location_fk",
+      columns: [t.organizationId, t.locationId],
+      foreignColumns: [businessLocations.organizationId, businessLocations.id],
+    }),
+    foreignKey({
+      name: "fuel_tank_product_fk",
+      columns: [t.organizationId, t.locationId, t.productId],
+      foreignColumns: [businessFuelProducts.organizationId, businessFuelProducts.locationId, businessFuelProducts.id],
+    }),
+    foreignKey({
+      name: "fuel_tank_author_fk",
+      columns: [t.createdBy],
+      foreignColumns: [businessUsers.id],
+    }),
+  ],
+);
+export const businessFuelPumps = mysqlTable(
+  "business_fuel_pumps",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    code: varchar("code", { length: 32 }).notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    active: boolean("active").notNull().default(true),
+    createdBy: int("createdBy").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("fuel_pump_scope_code_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.code,
+    ),
+    index("fuel_pump_scope_active_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.active,
+    ),
+    uniqueIndex("fuel_pump_scope_id_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.id,
+    ),
+    foreignKey({
+      name: "fuel_pump_location_fk",
+      columns: [t.organizationId, t.locationId],
+      foreignColumns: [businessLocations.organizationId, businessLocations.id],
+    }),
+    foreignKey({
+      name: "fuel_pump_author_fk",
+      columns: [t.createdBy],
+      foreignColumns: [businessUsers.id],
+    }),
+  ],
+);
+export const businessFuelNozzles = mysqlTable(
+  "business_fuel_nozzles",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    pumpId: int("pumpId").notNull(),
+    tankId: int("tankId").notNull(),
+    productId: int("productId").notNull(),
+    code: varchar("code", { length: 32 }).notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    active: boolean("active").notNull().default(true),
+    createdBy: int("createdBy").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("fuel_nozzle_scope_pump_code_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.pumpId,
+      t.code,
+    ),
+    index("fuel_nozzle_scope_tank_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.tankId,
+      t.active,
+    ),
+    index("fuel_nozzle_scope_product_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.productId,
+      t.active,
+    ),
+    uniqueIndex("fuel_nozzle_scope_relation_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.id,
+      t.pumpId,
+      t.tankId,
+      t.productId,
+    ),
+    foreignKey({
+      name: "fuel_nozzle_location_fk",
+      columns: [t.organizationId, t.locationId],
+      foreignColumns: [businessLocations.organizationId, businessLocations.id],
+    }),
+    foreignKey({
+      name: "fuel_nozzle_pump_fk",
+      columns: [t.organizationId, t.locationId, t.pumpId],
+      foreignColumns: [businessFuelPumps.organizationId, businessFuelPumps.locationId, businessFuelPumps.id],
+    }),
+    foreignKey({
+      name: "fuel_nozzle_tank_product_fk",
+      columns: [t.organizationId, t.locationId, t.tankId, t.productId],
+      foreignColumns: [businessFuelTanks.organizationId, businessFuelTanks.locationId, businessFuelTanks.id, businessFuelTanks.productId],
+    }),
+    foreignKey({
+      name: "fuel_nozzle_author_fk",
+      columns: [t.createdBy],
+      foreignColumns: [businessUsers.id],
+    }),
+  ],
+);
+export const businessFuelPrices = mysqlTable(
+  "business_fuel_prices",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    productId: int("productId").notNull(),
+    priceCentsPerLiter: int("priceCentsPerLiter").notNull(),
+    effectiveAt: timestamp("effectiveAt").notNull(),
+    createdBy: int("createdBy").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("fuel_price_scope_product_effective_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.productId,
+      t.effectiveAt,
+    ),
+    uniqueIndex("fuel_price_scope_id_product_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.id,
+      t.productId,
+    ),
+    foreignKey({
+      name: "fuel_price_location_fk",
+      columns: [t.organizationId, t.locationId],
+      foreignColumns: [businessLocations.organizationId, businessLocations.id],
+    }),
+    foreignKey({
+      name: "fuel_price_product_fk",
+      columns: [t.organizationId, t.locationId, t.productId],
+      foreignColumns: [businessFuelProducts.organizationId, businessFuelProducts.locationId, businessFuelProducts.id],
+    }),
+    foreignKey({
+      name: "fuel_price_author_fk",
+      columns: [t.createdBy],
+      foreignColumns: [businessUsers.id],
+    }),
+  ],
+);
+export const businessFuelReceipts = mysqlTable(
+  "business_fuel_receipts",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    productId: int("productId").notNull(),
+    tankId: int("tankId").notNull(),
+    supplier: varchar("supplier", { length: 160 }).notNull(),
+    documentReference: varchar("documentReference", { length: 120 }),
+    quantityLiters: decimal("quantityLiters", {
+      precision: 18,
+      scale: 3,
+      mode: "string",
+    }).notNull(),
+    unitCostCentsPerLiter: int("unitCostCentsPerLiter").notNull(),
+    totalCostCents: bigint("totalCostCents", { mode: "bigint" }).notNull(),
+    receivedAt: timestamp("receivedAt").notNull(),
+    createdBy: int("createdBy").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [
+    index("fuel_receipt_scope_time_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.receivedAt,
+    ),
+    index("fuel_receipt_scope_product_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.productId,
+      t.receivedAt,
+    ),
+    foreignKey({
+      name: "fuel_receipt_location_fk",
+      columns: [t.organizationId, t.locationId],
+      foreignColumns: [businessLocations.organizationId, businessLocations.id],
+    }),
+    foreignKey({
+      name: "fuel_receipt_tank_product_fk",
+      columns: [t.organizationId, t.locationId, t.tankId, t.productId],
+      foreignColumns: [businessFuelTanks.organizationId, businessFuelTanks.locationId, businessFuelTanks.id, businessFuelTanks.productId],
+    }),
+    foreignKey({
+      name: "fuel_receipt_author_fk",
+      columns: [t.createdBy],
+      foreignColumns: [businessUsers.id],
+    }),
+  ],
+);
+export const businessFuelReadings = mysqlTable(
+  "business_fuel_readings",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    nozzleId: int("nozzleId").notNull(),
+    pumpId: int("pumpId").notNull(),
+    tankId: int("tankId").notNull(),
+    productId: int("productId").notNull(),
+    kind: mysqlEnum("kind", ["baseline", "interval", "reset"]).notNull(),
+    previousCounterLiters: decimal("previousCounterLiters", {
+      precision: 18,
+      scale: 3,
+      mode: "string",
+    }),
+    counterLiters: decimal("counterLiters", {
+      precision: 18,
+      scale: 3,
+      mode: "string",
+    }).notNull(),
+    quantityLiters: decimal("quantityLiters", {
+      precision: 18,
+      scale: 3,
+      mode: "string",
+    }).notNull(),
+    priceId: int("priceId"),
+    priceCentsPerLiter: int("priceCentsPerLiter"),
+    revenueCents: bigint("revenueCents", { mode: "bigint" }),
+    costCents: bigint("costCents", { mode: "bigint" }),
+    reason: varchar("reason", { length: 500 }),
+    measuredAt: timestamp("measuredAt").notNull(),
+    createdBy: int("createdBy").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [
+    index("fuel_reading_scope_nozzle_time_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.nozzleId,
+      t.measuredAt,
+    ),
+    index("fuel_reading_scope_period_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.measuredAt,
+    ),
+    index("fuel_reading_scope_product_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.productId,
+      t.measuredAt,
+    ),
+    foreignKey({
+      name: "fuel_reading_location_fk",
+      columns: [t.organizationId, t.locationId],
+      foreignColumns: [businessLocations.organizationId, businessLocations.id],
+    }),
+    foreignKey({
+      name: "fuel_reading_nozzle_relation_fk",
+      columns: [t.organizationId, t.locationId, t.nozzleId, t.pumpId, t.tankId, t.productId],
+      foreignColumns: [businessFuelNozzles.organizationId, businessFuelNozzles.locationId, businessFuelNozzles.id, businessFuelNozzles.pumpId, businessFuelNozzles.tankId, businessFuelNozzles.productId],
+    }),
+    foreignKey({
+      name: "fuel_reading_price_product_fk",
+      columns: [t.organizationId, t.locationId, t.priceId, t.productId],
+      foreignColumns: [businessFuelPrices.organizationId, businessFuelPrices.locationId, businessFuelPrices.id, businessFuelPrices.productId],
+    }),
+    foreignKey({
+      name: "fuel_reading_author_fk",
+      columns: [t.createdBy],
+      foreignColumns: [businessUsers.id],
+    }),
+  ],
+);
+export const businessFuelTankMeasurements = mysqlTable(
+  "business_fuel_tank_measurements",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    tankId: int("tankId").notNull(),
+    productId: int("productId").notNull(),
+    measuredLiters: decimal("measuredLiters", {
+      precision: 18,
+      scale: 3,
+      mode: "string",
+    }).notNull(),
+    theoreticalLiters: decimal("theoreticalLiters", {
+      precision: 18,
+      scale: 3,
+      mode: "string",
+    }).notNull(),
+    varianceLiters: decimal("varianceLiters", {
+      precision: 18,
+      scale: 3,
+      mode: "string",
+    }).notNull(),
+    status: mysqlEnum("status", ["matched", "pending"]).notNull(),
+    reason: varchar("reason", { length: 500 }),
+    measuredAt: timestamp("measuredAt").notNull(),
+    createdBy: int("createdBy").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [
+    index("fuel_tank_measure_scope_tank_time_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.tankId,
+      t.measuredAt,
+    ),
+    index("fuel_tank_measure_scope_period_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.measuredAt,
+    ),
+    foreignKey({
+      name: "fuel_tank_measure_location_fk",
+      columns: [t.organizationId, t.locationId],
+      foreignColumns: [businessLocations.organizationId, businessLocations.id],
+    }),
+    foreignKey({
+      name: "fuel_tank_measure_tank_product_fk",
+      columns: [t.organizationId, t.locationId, t.tankId, t.productId],
+      foreignColumns: [businessFuelTanks.organizationId, businessFuelTanks.locationId, businessFuelTanks.id, businessFuelTanks.productId],
+    }),
+    foreignKey({
+      name: "fuel_tank_measure_author_fk",
+      columns: [t.createdBy],
+      foreignColumns: [businessUsers.id],
+    }),
+  ],
+);
+export const businessFuelAdjustments = mysqlTable(
+  "business_fuel_adjustments",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    tankId: int("tankId").notNull(),
+    productId: int("productId").notNull(),
+    direction: mysqlEnum("direction", ["add", "remove"]).notNull(),
+    quantityLiters: decimal("quantityLiters", {
+      precision: 18,
+      scale: 3,
+      mode: "string",
+    }).notNull(),
+    unitCostCentsPerLiter: int("unitCostCentsPerLiter"),
+    reason: varchar("reason", { length: 500 }).notNull(),
+    recordedAt: timestamp("recordedAt").notNull(),
+    authorizedBy: int("authorizedBy").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [
+    index("fuel_adjustment_scope_tank_time_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.tankId,
+      t.recordedAt,
+    ),
+    foreignKey({
+      name: "fuel_adjustment_location_fk",
+      columns: [t.organizationId, t.locationId],
+      foreignColumns: [businessLocations.organizationId, businessLocations.id],
+    }),
+    foreignKey({
+      name: "fuel_adjustment_tank_product_fk",
+      columns: [t.organizationId, t.locationId, t.tankId, t.productId],
+      foreignColumns: [businessFuelTanks.organizationId, businessFuelTanks.locationId, businessFuelTanks.id, businessFuelTanks.productId],
+    }),
+    foreignKey({
+      name: "fuel_adjustment_author_fk",
+      columns: [t.authorizedBy],
+      foreignColumns: [businessUsers.id],
+    }),
+  ],
+);
+export const businessFuelInventoryMovements = mysqlTable(
+  "business_fuel_inventory_movements",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    productId: int("productId").notNull(),
+    tankId: int("tankId").notNull(),
+    movementType: mysqlEnum("movementType", [
+      "receipt",
+      "nozzle_sale",
+      "adjustment_add",
+      "adjustment_remove",
+    ]).notNull(),
+    quantityLiters: decimal("quantityLiters", {
+      precision: 18,
+      scale: 3,
+      mode: "string",
+    }).notNull(),
+    movementCostCents: bigint("movementCostCents", { mode: "bigint" }),
+    sourceType: varchar("sourceType", { length: 32 }).notNull(),
+    sourceId: int("sourceId").notNull(),
+    occurredAt: timestamp("occurredAt").notNull(),
+    createdBy: int("createdBy").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("fuel_movement_source_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.sourceType,
+      t.sourceId,
+    ),
+    index("fuel_movement_scope_product_time_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.productId,
+      t.occurredAt,
+    ),
+    index("fuel_movement_scope_tank_time_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.tankId,
+      t.occurredAt,
+    ),
+    foreignKey({
+      name: "fuel_movement_location_fk",
+      columns: [t.organizationId, t.locationId],
+      foreignColumns: [businessLocations.organizationId, businessLocations.id],
+    }),
+    foreignKey({
+      name: "fuel_movement_tank_product_fk",
+      columns: [t.organizationId, t.locationId, t.tankId, t.productId],
+      foreignColumns: [businessFuelTanks.organizationId, businessFuelTanks.locationId, businessFuelTanks.id, businessFuelTanks.productId],
+    }),
+    foreignKey({
+      name: "fuel_movement_author_fk",
+      columns: [t.createdBy],
+      foreignColumns: [businessUsers.id],
+    }),
+  ],
+);
+export const businessFuelTankInventoryStates = mysqlTable(
+  "business_fuel_tank_inventory_states",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    tankId: int("tankId").notNull(),
+    quantityLiters: decimal("quantityLiters", {
+      precision: 18,
+      scale: 3,
+      mode: "string",
+    }).notNull().default("0.000"),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("fuel_tank_inventory_tank_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.tankId,
+    ),
+    foreignKey({
+      name: "fuel_tank_inventory_location_fk",
+      columns: [t.organizationId, t.locationId],
+      foreignColumns: [businessLocations.organizationId, businessLocations.id],
+    }),
+    foreignKey({
+      name: "fuel_tank_inventory_tank_fk",
+      columns: [t.organizationId, t.locationId, t.tankId],
+      foreignColumns: [businessFuelTanks.organizationId, businessFuelTanks.locationId, businessFuelTanks.id],
+    }),
+  ],
+);
+export const businessFuelCostStates = mysqlTable(
+  "business_fuel_cost_states",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    productId: int("productId").notNull(),
+    quantityLiters: decimal("quantityLiters", {
+      precision: 18,
+      scale: 3,
+      mode: "string",
+    }).notNull().default("0.000"),
+    inventoryValueCents: bigint("inventoryValueCents", { mode: "bigint" }),
+    costKnown: boolean("costKnown").notNull().default(true),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("fuel_cost_state_product_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.productId,
+    ),
+    foreignKey({
+      name: "fuel_cost_state_location_fk",
+      columns: [t.organizationId, t.locationId],
+      foreignColumns: [businessLocations.organizationId, businessLocations.id],
+    }),
+    foreignKey({
+      name: "fuel_cost_state_product_fk",
+      columns: [t.organizationId, t.locationId, t.productId],
+      foreignColumns: [businessFuelProducts.organizationId, businessFuelProducts.locationId, businessFuelProducts.id],
+    }),
   ],
 );
 export const businessAudit = mysqlTable(

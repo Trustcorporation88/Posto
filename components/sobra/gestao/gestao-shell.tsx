@@ -42,7 +42,7 @@ export function useBusinessCsrf(enabled = true) {
 }
 
 const nav = [
-  { path: "/gestao", label: "Painel", icon: "grid" },
+  { path: "/gestao/pista", label: "Combustíveis", icon: "droplet" },
   { path: "/gestao/equipe", label: "Equipe", icon: "users" },
 ] as const;
 
@@ -106,12 +106,12 @@ export function GestaoShell({
     );
 
   const profile = session.data as any;
-  const visibleNav = nav.filter(
-    (item) =>
-      item.path !== "/gestao/equipe" ||
-      profile.role === "owner" ||
-      profile.role === "manager",
-  );
+  const visibleNav = nav.filter((item) => {
+    if (item.path === "/gestao/equipe") {
+      return profile.role === "owner" || profile.role === "manager";
+    }
+    return ["owner", "manager", "attendant", "finance_viewer"].includes(profile.role);
+  });
   const aside = (
     <View
       style={{
@@ -286,8 +286,8 @@ export function GestaoShell({
           </View>
           {children}
           <Notice>
-            Área de gestão em implantação por etapas. Os módulos operacionais
-            serão habilitados somente quando estiverem disponíveis.
+            Combustíveis e pista estão disponíveis para esta unidade. Conveniência,
+            troca de óleo e demais módulos serão habilitados nas próximas fases.
           </Notice>
         </View>
       </ScrollView>
