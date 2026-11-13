@@ -9,14 +9,24 @@ const timestamp = bundleId.split(".").pop()?.replace(/^t/, "") ?? "";
 const schemeFromBundleId = `manus${timestamp}`;
 
 const extra = (Constants.expoConfig?.extra ?? {}) as Record<string, string | undefined>;
+const publishedRuntime = ReactNative.Platform.OS === "web"
+  ? (globalThis as typeof globalThis & {
+      __SOBRA_PUBLIC_CONFIG__?: {
+        oauthPortalUrl: string;
+        oauthServerUrl: string;
+        appId: string;
+        apiBaseUrl: string;
+      };
+    }).__SOBRA_PUBLIC_CONFIG__
+  : undefined;
 
 const env = {
-  portal: extra.oauthPortalUrl ?? process.env.EXPO_PUBLIC_OAUTH_PORTAL_URL ?? "",
-  server: extra.oauthServerUrl ?? process.env.EXPO_PUBLIC_OAUTH_SERVER_URL ?? "",
-  appId: extra.appId ?? process.env.EXPO_PUBLIC_APP_ID ?? "",
+  portal: publishedRuntime?.oauthPortalUrl ?? extra.oauthPortalUrl ?? process.env.EXPO_PUBLIC_OAUTH_PORTAL_URL ?? "",
+  server: publishedRuntime?.oauthServerUrl ?? extra.oauthServerUrl ?? process.env.EXPO_PUBLIC_OAUTH_SERVER_URL ?? "",
+  appId: publishedRuntime?.appId ?? extra.appId ?? process.env.EXPO_PUBLIC_APP_ID ?? "",
   ownerId: process.env.EXPO_PUBLIC_OWNER_OPEN_ID ?? "",
   ownerName: process.env.EXPO_PUBLIC_OWNER_NAME ?? "",
-  apiBaseUrl: extra.apiBaseUrl ?? process.env.EXPO_PUBLIC_API_BASE_URL ?? "",
+  apiBaseUrl: publishedRuntime?.apiBaseUrl ?? extra.apiBaseUrl ?? process.env.EXPO_PUBLIC_API_BASE_URL ?? "",
   deepLinkScheme: schemeFromBundleId,
 };
 
@@ -73,7 +83,11 @@ const encodeState = (value: string) => {
  */
 export const getRedirectUri = () => {
   if (ReactNative.Platform.OS === "web") {
-    return `${getApiBaseUrl()}/api/oauth/callback`;
+    const base = getApiBaseUrl();
+    const callback = `${base}/api/oauth/callback`;
+    return !base && typeof window !== "undefined"
+      ? new URL(callback, window.location.origin).toString()
+      : callback;
   } else {
     return Linking.createURL("/oauth/callback", {
       scheme: env.deepLinkScheme,

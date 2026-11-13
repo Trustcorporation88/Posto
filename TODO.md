@@ -89,3 +89,14 @@ Fase 1 implementada no Preview. O proprietário pode concluir o primeiro cadastr
 
 
 **Conferência operacional:** todos os formulários do módulo agora exibem associações, timestamps, volumes e valores calculados quando aplicáveis; a mutação só ocorre ao acionar “Confirmar e registrar”. O usuário pode voltar ao formulário, corrigir valores com resumo atualizado ou cancelar sem persistência.
+
+
+## Publicação web autorizada em 13/11/2026
+
+- [x] **Build de produção e servidor único:** instalação reproduzível com Node 22/pnpm 9.12.0 e lockfile; frontend Expo exportado separado do bundle de servidor; Dockerfile e contrato deploy com health `/api/health`; Express entrega páginas e assets com API no mesmo domínio, honrando PORT, sem iniciar Metro em produção.
+- [x] **Acesso e segurança no site publicado:** configurar apenas valores públicos de OAuth no runtime, sem segredos ou origem temporária no cliente publicado; API relativa ao domínio atual; aceitar requisições same-origin sem abrir CORS, mantendo sessão/CSRF/papéis/tenant. Rotas desconhecidas e APIs ausentes retornam 404 em vez de página de sucesso.
+- [ ] **Checkpoint, cópia GitHub e publicação confirmada:** salvar reparo no remoto Manus, enviar main ao repositório Posto sem force-push, publicar após checks e declarar o URL somente com resultado confirmado. Manter auto_publish desativado; preservar dados locais e comerciais, sem migrations/seeds de startup nem testes de escrita no banco.
+
+Estado: checkpoint da Fase 2 confirmado pela solicitação de publicação, SHA `9e7c29d2700dfcb7622b360dc2d4ffab81f69d22`. Primeira tentativa autorizada falhou com `publish_contract_missing`, pois o projeto não possuía Dockerfile nem contrato deploy. Site existente não atualizado por essa tentativa.
+
+Evidências do reparo de publicação: 172 testes aprovados e 1 legado ignorado; TypeScript e lint sem erros. `build:production` exportou 20 páginas para `web-build/` e preservou `dist/index.js`. O entrypoint real de produção em listener temporário respondeu saúde 200, pista 200, JavaScript 200 e API desconhecida 404, sem login/consulta de linhas comerciais. Revisão independente confirmou a montagem de frontend/API e identificou retorno OAuth ao Preview; corrigido para `/` relativo em produção, preservando o retorno à configuração/recuperação já tratado no frontend e coberto por 3 regressões puras. Contrato deploy armazenado na revisão 3 com Dockerfile e `/api/health`; auto-publicação continua desligada. Publicação final ainda pendente.

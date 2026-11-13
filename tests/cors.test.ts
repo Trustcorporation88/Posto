@@ -181,6 +181,21 @@ describe("Mobile API origin and cookie isolation", () => {
     expect(native.headers.get("access-control-allow-origin")).toBeNull();
   });
 
+  it("allows browser same-origin writes without granting cross-origin access", async () => {
+    const base = await testServer(false, new Set());
+    const same = await fetch(`${base}/write`, {
+      method: "POST",
+      headers: { Origin: "https://station.example.test", "Sec-Fetch-Site": "same-origin" },
+    });
+    expect(same.status).toBe(200);
+    expect(same.headers.get("access-control-allow-origin")).toBeNull();
+    const cross = await fetch(`${base}/write`, {
+      method: "POST",
+      headers: { Origin: "https://evil.example.test", "Sec-Fetch-Site": "cross-site" },
+    });
+    expect(cross.status).toBe(403);
+  });
+
   it("keeps session cookies host-only across different sandbox API hosts", () => {
     for (const hostname of [
       "3000-sandbox-a.preview.example.test",

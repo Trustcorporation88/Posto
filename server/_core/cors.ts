@@ -99,6 +99,12 @@ export function createCorsMiddleware(
       next();
       return;
     }
+    // Fetch Metadata is browser-controlled. Same-origin needs no CORS grant.
+    // Business mutations still validate their independent session and CSRF token.
+    if (req.headers["sec-fetch-site"] === "same-origin") {
+      next();
+      return;
+    }
     const loopbackOrigin = originHasLoopbackHostname(origin);
     const allowedLocalOrigin =
       localApiRequest(req.hostname) &&

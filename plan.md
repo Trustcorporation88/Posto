@@ -283,3 +283,12 @@ O processo e as portas Expo 8081 e API 3000 permanecem fixos. Diagnósticos Type
 **Wordmark:** manter o logotipo Sobra existente e aplicar a assinatura “GESTÃO DE POSTO” em layout, sem alterar o identificador nativo nem criar uma nova marca concorrente.
 
 **Cor de assinatura:** verde-floresta `#214D40`, com creme `#F6F5EF`, pistache `#DAE8B0`, âmbar `#D59A34` e terracota `#C86646` para estados excepcionais.
+
+
+## Publicação web autorizada em 13/11/2026 às 11h06
+
+O usuário autorizou a publicação da versão atual. O checkpoint de Fase 2 `9e7c29d2700dfcb7622b360dc2d4ffab81f69d22` foi confirmado pela resposta persistida da solicitação de publicação; o commit também está na branch main do repositório GitHub indicado pelo usuário. A primeira tentativa falhou antes do build por ausência de contrato deploy. Esta autorização substitui somente a restrição anterior de não publicar, sem autorizar ativar auto-publicação ou implementar a Fase 3.
+
+Preparar um container Node 22 com pnpm 9.12.0, lockfile e política de instalação existentes, exportar Expo Web em `web-build/` e compilar o servidor em `dist/`. Express servirá as páginas estáticas exportadas e a API no mesmo domínio HTTPS, mantendo Metro 8081 e API 3000 no Preview. O container usará PORT ou 3000 e health `/api/health`; não executará migrations, seeds nem gravações comerciais ao iniciar. Rotas desconhecidas de API/arquivos devem retornar 404, sem fallback HTML que disfarce falhas. Os arquivos HTML devem receber apenas configuração pública de OAuth obtida do ambiente runtime, nunca credenciais; o cliente publicado acessará a API por URL relativa, sem hostname temporário do Sandbox. As mutações continuam protegidas por sessão, escopo, CSRF e regras de origem. O login por e-mail/senha será preservado; OAuth permanece apenas para bootstrap/recuperação já aprovados.
+
+O reparo será salvo como novo checkpoint, copiado ao GitHub e publicado uma vez após a validação dos caminhos afetados. A confirmação de sucesso será obtida do resultado de publicação, não de Preview ou de push. Caixa centralizado, conveniência e troca de óleo seguem fora deste reparo.

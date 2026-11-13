@@ -6,6 +6,7 @@ import {
   getSessionCookieOptions,
 } from "./cookies";
 import { sdk } from "./sdk";
+import { oauthFrontendRedirect } from "./oauth-return";
 
 function getQueryParam(req: Request, key: string): string | undefined {
   const value = req.query[key];
@@ -89,13 +90,8 @@ export function registerOAuthRoutes(app: Express) {
         maxAge: ONE_YEAR_MS,
       });
 
-      // Redirect to the paired Expo web origin. The session cookie remains host-only on
-      // the API origin and is sent back by credentialed API requests.
-      const frontendUrl =
-        process.env.EXPO_WEB_PREVIEW_URL ||
-        process.env.EXPO_PACKAGER_PROXY_URL ||
-        "http://localhost:8081";
-      res.redirect(302, frontendUrl);
+      // Same-origin fixed path in production; paired Expo frontend only in development.
+      res.redirect(302, oauthFrontendRedirect());
     } catch {
       console.error("[OAuth] Callback failed");
       res.status(500).json({ error: "OAuth callback failed" });
