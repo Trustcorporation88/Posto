@@ -117,10 +117,14 @@ export function GestaoShell({
       return profile.role === "owner" || profile.role === "manager";
     }
     if (item.path === "/gestao/caixa") {
-      return ["owner", "manager", "cashier", "finance_viewer"].includes(profile.role);
+      return ["owner", "manager", "cashier", "finance_viewer"].includes(
+        profile.role,
+      );
     }
     if (item.path === "/gestao/pista") {
-      return ["owner", "manager", "attendant", "finance_viewer"].includes(profile.role);
+      return ["owner", "manager", "attendant", "finance_viewer"].includes(
+        profile.role,
+      );
     }
     return false;
   });
@@ -273,10 +277,10 @@ export function GestaoShell({
           </View>
           {children}
           <Notice>
-            Caixa multiusuário está na primeira etapa de abertura autenticada. Esta
-            entrega não oferece movimentos nem fechamento. Combustíveis e pista
-            permanecem disponíveis; conveniência e troca de óleo seguem em etapas
-            futuras.
+            O caixa multiusuário oferece abertura e movimentos, sem fechamento
+            centralizado; esta versão não conclui a rotina diária. Combustíveis
+            e pista permanecem disponíveis; conveniência e troca de óleo seguem
+            em etapas futuras.
           </Notice>
         </View>
       </ScrollView>

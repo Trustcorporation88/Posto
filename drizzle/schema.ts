@@ -969,3 +969,111 @@ export const businessCashOpeningAudits = mysqlTable(
     }),
   ],
 );
+
+export const businessCashMovements = mysqlTable(
+  "business_cash_movements",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    registerId: int("registerId").notNull(),
+    openingId: int("openingId").notNull(),
+    responsibleId: int("responsibleId").notNull(),
+    responsible: varchar("responsible", { length: 120 }).notNull(),
+    type: mysqlEnum("type", ["recebimento", "sangria", "suprimento"]).notNull(),
+    paymentMethod: mysqlEnum("paymentMethod", ["dinheiro", "pix", "debito", "credito"]).notNull(),
+    receiptNature: mysqlEnum("receiptNature", ["venda", "conta-anterior"]),
+    amountCents: bigint("amountCents", { mode: "bigint" }).notNull(),
+    description: varchar("description", { length: 200 }).notNull(),
+    reference: varchar("reference", { length: 120 }).notNull().default(""),
+    referenceDigest: varchar("referenceDigest", { length: 64 }),
+    counterparty: varchar("counterparty", { length: 120 }).notNull().default(""),
+    intentId: varchar("intentId", { length: 36 }).notNull(),
+    payloadDigest: varchar("payloadDigest", { length: 64 }).notNull(),
+    resultRevision: int("resultRevision").notNull(),
+    recordedAt: timestamp("recordedAt", { fsp: 3 }).notNull(),
+    createdAt: timestamp("createdAt", { fsp: 3 })
+      .default(sql`CURRENT_TIMESTAMP(3)`)
+      .notNull(),
+  },
+  (t) => [
+    uniqueIndex("cash_movement_scope_id_uq").on(t.organizationId, t.locationId, t.id),
+    uniqueIndex("cash_movement_intent_scope_uq").on(t.organizationId, t.locationId, t.intentId),
+    uniqueIndex("cash_movement_reference_scope_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.openingId,
+      t.paymentMethod,
+      t.referenceDigest,
+    ),
+    index("cash_movement_opening_id_idx").on(t.organizationId, t.locationId, t.openingId, t.id),
+    index("cash_movement_opening_time_idx").on(t.organizationId, t.locationId, t.openingId, t.recordedAt),
+    foreignKey({
+      name: "cash_movement_location_fk",
+      columns: [t.organizationId, t.locationId],
+      foreignColumns: [businessLocations.organizationId, businessLocations.id],
+    }),
+    foreignKey({
+      name: "cash_movement_register_fk",
+      columns: [t.organizationId, t.locationId, t.registerId],
+      foreignColumns: [businessCashRegisters.organizationId, businessCashRegisters.locationId, businessCashRegisters.id],
+    }),
+    foreignKey({
+      name: "cash_movement_opening_fk",
+      columns: [t.organizationId, t.locationId, t.openingId],
+      foreignColumns: [businessCashOpenings.organizationId, businessCashOpenings.locationId, businessCashOpenings.id],
+    }),
+    foreignKey({
+      name: "cash_movement_author_membership_fk",
+      columns: [t.organizationId, t.locationId, t.responsibleId],
+      foreignColumns: [businessMemberships.organizationId, businessMemberships.locationId, businessMemberships.userId],
+    }),
+  ],
+);
+
+export const businessCashMovementAudits = mysqlTable(
+  "business_cash_movement_audits",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    registerId: int("registerId").notNull(),
+    openingId: int("openingId").notNull(),
+    movementId: int("movementId").notNull(),
+    actorId: int("actorId").notNull(),
+    event: varchar("event", { length: 80 }).notNull(),
+    revision: int("revision").notNull(),
+    payloadDigest: varchar("payloadDigest", { length: 64 }).notNull(),
+    metadata: text("metadata"),
+    createdAt: timestamp("createdAt", { fsp: 3 }).notNull(),
+  },
+  (t) => [
+    uniqueIndex("cash_movement_audit_event_uq").on(t.organizationId, t.locationId, t.movementId, t.event),
+    index("cash_movement_audit_scope_time_idx").on(t.organizationId, t.locationId, t.createdAt),
+    foreignKey({
+      name: "cash_movement_audit_location_fk",
+      columns: [t.organizationId, t.locationId],
+      foreignColumns: [businessLocations.organizationId, businessLocations.id],
+    }),
+    foreignKey({
+      name: "cash_movement_audit_register_fk",
+      columns: [t.organizationId, t.locationId, t.registerId],
+      foreignColumns: [businessCashRegisters.organizationId, businessCashRegisters.locationId, businessCashRegisters.id],
+    }),
+    foreignKey({
+      name: "cash_movement_audit_opening_fk",
+      columns: [t.organizationId, t.locationId, t.openingId],
+      foreignColumns: [businessCashOpenings.organizationId, businessCashOpenings.locationId, businessCashOpenings.id],
+    }),
+    foreignKey({
+      name: "cash_movement_audit_movement_fk",
+      columns: [t.organizationId, t.locationId, t.movementId],
+      foreignColumns: [businessCashMovements.organizationId, businessCashMovements.locationId, businessCashMovements.id],
+    }),
+    foreignKey({
+      name: "cash_movement_audit_actor_fk",
+      columns: [t.organizationId, t.locationId, t.actorId],
+      foreignColumns: [businessMemberships.organizationId, businessMemberships.locationId, businessMemberships.userId],
+    }),
+  ],
+);
