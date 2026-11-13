@@ -36,6 +36,13 @@
       "when": 1794573714323,
       "tag": "0004_huge_mach_iv",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1794593034053,
+      "tag": "0005_cash_opening",
+      "breakpoints": true
     }
   ]
 }

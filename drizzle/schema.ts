@@ -1,6 +1,8 @@
+import { sql } from "drizzle-orm";
 import {
   bigint,
   boolean,
+  date,
   decimal,
   foreignKey,
   index,
@@ -97,6 +99,11 @@ export const businessMemberships = mysqlTable(
       t.userId,
     ),
     index("business_membership_user_active_idx").on(t.userId, t.active),
+    uniqueIndex("business_membership_scope_user_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.userId,
+    ),
   ],
 );
 export const businessInvitations = mysqlTable(
@@ -788,5 +795,177 @@ export const businessAudit = mysqlTable(
       t.createdAt,
     ),
     index("business_audit_actor_idx").on(t.actorUserId, t.createdAt),
+  ],
+);
+
+export const businessCashRegisters = mysqlTable(
+  "business_cash_registers",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    revision: int("revision").notNull().default(0),
+    createdBy: int("createdBy").notNull(),
+    createdAt: timestamp("createdAt", { fsp: 3 })
+      .default(sql`CURRENT_TIMESTAMP(3)`)
+      .notNull(),
+  },
+  (t) => [
+    uniqueIndex("cash_register_location_uq").on(
+      t.organizationId,
+      t.locationId,
+    ),
+    uniqueIndex("cash_register_scope_id_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.id,
+    ),
+    index("cash_register_creator_idx").on(t.createdBy, t.createdAt),
+    foreignKey({
+      name: "cash_register_location_fk",
+      columns: [t.organizationId, t.locationId],
+      foreignColumns: [businessLocations.organizationId, businessLocations.id],
+    }),
+    foreignKey({
+      name: "cash_register_creator_membership_fk",
+      columns: [t.organizationId, t.locationId, t.createdBy],
+      foreignColumns: [
+        businessMemberships.organizationId,
+        businessMemberships.locationId,
+        businessMemberships.userId,
+      ],
+    }),
+  ],
+);
+
+export const businessCashOpenings = mysqlTable(
+  "business_cash_openings",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    registerId: int("registerId").notNull(),
+    operatorId: int("operatorId").notNull(),
+    operator: varchar("operator", { length: 120 }).notNull(),
+    openingFloatCents: bigint("openingFloatCents", { mode: "bigint" }).notNull(),
+    operationDate: date("operationDate", { mode: "string" }).notNull(),
+    timeZone: varchar("timeZone", { length: 64 })
+      .notNull()
+      .default("America/Sao_Paulo"),
+    shiftId: mysqlEnum("shiftId", ["turno-1", "turno-2"]).notNull(),
+    shiftLabel: varchar("shiftLabel", { length: 40 }).notNull(),
+    shiftStart: varchar("shiftStart", { length: 5 }).notNull(),
+    shiftEnd: varchar("shiftEnd", { length: 5 }).notNull(),
+    openedAt: timestamp("openedAt", { fsp: 3 }).notNull(),
+    activeSlot: varchar("activeSlot", { length: 16 }).default("active"),
+    intentId: varchar("intentId", { length: 36 }).notNull(),
+    payloadDigest: varchar("payloadDigest", { length: 64 }).notNull(),
+    resultRevision: int("resultRevision").notNull(),
+  },
+  (t) => [
+    uniqueIndex("cash_opening_intent_scope_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.intentId,
+    ),
+    uniqueIndex("cash_opening_active_slot_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.registerId,
+      t.activeSlot,
+    ),
+    uniqueIndex("cash_opening_scope_id_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.id,
+    ),
+    index("cash_opening_operator_time_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.operatorId,
+      t.openedAt,
+    ),
+    index("cash_opening_register_time_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.registerId,
+      t.openedAt,
+    ),
+    foreignKey({
+      name: "cash_opening_register_fk",
+      columns: [t.organizationId, t.locationId, t.registerId],
+      foreignColumns: [
+        businessCashRegisters.organizationId,
+        businessCashRegisters.locationId,
+        businessCashRegisters.id,
+      ],
+    }),
+    foreignKey({
+      name: "cash_opening_operator_membership_fk",
+      columns: [t.organizationId, t.locationId, t.operatorId],
+      foreignColumns: [
+        businessMemberships.organizationId,
+        businessMemberships.locationId,
+        businessMemberships.userId,
+      ],
+    }),
+  ],
+);
+
+export const businessCashOpeningAudits = mysqlTable(
+  "business_cash_opening_audits",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    organizationId: int("organizationId").notNull(),
+    locationId: int("locationId").notNull(),
+    registerId: int("registerId").notNull(),
+    openingId: int("openingId").notNull(),
+    actorId: int("actorId").notNull(),
+    event: varchar("event", { length: 80 }).notNull(),
+    revision: int("revision").notNull(),
+    payloadDigest: varchar("payloadDigest", { length: 64 }).notNull(),
+    metadata: text("metadata"),
+    createdAt: timestamp("createdAt", { fsp: 3 }).notNull(),
+  },
+  (t) => [
+    uniqueIndex("cash_opening_audit_event_uq").on(
+      t.organizationId,
+      t.locationId,
+      t.openingId,
+      t.event,
+    ),
+    index("cash_opening_audit_scope_time_idx").on(
+      t.organizationId,
+      t.locationId,
+      t.createdAt,
+    ),
+    foreignKey({
+      name: "cash_opening_audit_opening_fk",
+      columns: [t.organizationId, t.locationId, t.openingId],
+      foreignColumns: [
+        businessCashOpenings.organizationId,
+        businessCashOpenings.locationId,
+        businessCashOpenings.id,
+      ],
+    }),
+    foreignKey({
+      name: "cash_opening_audit_register_fk",
+      columns: [t.organizationId, t.locationId, t.registerId],
+      foreignColumns: [
+        businessCashRegisters.organizationId,
+        businessCashRegisters.locationId,
+        businessCashRegisters.id,
+      ],
+    }),
+    foreignKey({
+      name: "cash_opening_audit_actor_membership_fk",
+      columns: [t.organizationId, t.locationId, t.actorId],
+      foreignColumns: [
+        businessMemberships.organizationId,
+        businessMemberships.locationId,
+        businessMemberships.userId,
+      ],
+    }),
   ],
 );

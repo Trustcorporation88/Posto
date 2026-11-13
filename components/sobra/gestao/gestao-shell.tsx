@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import { Link, usePathname, useRouter } from "expo-router";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   C,
   F,
@@ -21,6 +22,7 @@ import {
 import { trpc } from "@/lib/trpc";
 import { setBusinessCsrfToken } from "@/lib/business-csrf";
 import { GasPumpBrand } from "@/components/sobra/gas-pump-brand";
+import { clearBusinessQueryCache } from "@/lib/business-query-cache";
 
 export const businessAuth = trpc.businessAuth;
 export const businessAdmin = trpc.businessAdmin;
@@ -43,6 +45,7 @@ export function useBusinessCsrf(enabled = true) {
 }
 
 const nav = [
+  { path: "/gestao/caixa", label: "Caixa", icon: "dollar-sign" },
   { path: "/gestao/pista", label: "Combustíveis", icon: "droplet" },
   { path: "/gestao/equipe", label: "Equipe", icon: "users" },
 ] as const;
@@ -58,11 +61,13 @@ export function GestaoShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const session = useMe();
   const csrf = useBusinessCsrf(Boolean(session.data));
   const logout = businessAuth.logout.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       setBusinessCsrfToken(null);
+      await clearBusinessQueryCache(queryClient);
       router.replace("/gestao/login" as any);
     },
   });
@@ -111,7 +116,13 @@ export function GestaoShell({
     if (item.path === "/gestao/equipe") {
       return profile.role === "owner" || profile.role === "manager";
     }
-    return ["owner", "manager", "attendant", "finance_viewer"].includes(profile.role);
+    if (item.path === "/gestao/caixa") {
+      return ["owner", "manager", "cashier", "finance_viewer"].includes(profile.role);
+    }
+    if (item.path === "/gestao/pista") {
+      return ["owner", "manager", "attendant", "finance_viewer"].includes(profile.role);
+    }
+    return false;
   });
   const aside = (
     <View
@@ -128,7 +139,7 @@ export function GestaoShell({
         <Label color={C.lime}>GESTÃO DE POSTO</Label>
       </View>
       {!wide && (
-        <View style={{ flexDirection: "row", gap: 10 }}>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
           {visibleNav.map((item) => (
             <Link key={item.path} href={item.path as any} asChild>
               <Pressable
@@ -262,8 +273,10 @@ export function GestaoShell({
           </View>
           {children}
           <Notice>
-            Combustíveis e pista estão disponíveis para esta unidade. Conveniência,
-            troca de óleo e demais módulos serão habilitados nas próximas fases.
+            Caixa multiusuário está na primeira etapa de abertura autenticada. Esta
+            entrega não oferece movimentos nem fechamento. Combustíveis e pista
+            permanecem disponíveis; conveniência e troca de óleo seguem em etapas
+            futuras.
           </Notice>
         </View>
       </ScrollView>
