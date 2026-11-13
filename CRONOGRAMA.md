@@ -172,3 +172,9 @@ Terceira subentrega da Fase 3 concluída tecnicamente no Preview, menu Caixa: co
 Validação final: 292 testes aprovados, 1 legado ignorado, TypeScript/lint/build/Drizzle concluídos; migração 0007 aditiva aplicada com duas tabelas/nove FKs e todas as 26 tabelas anteriores preservadas. Testes usaram mocks/adapter em memória; não houve operação comercial real de teste, conta real, publicação ou APK. A Fase 3 ainda aguarda o aceite do fechamento pelo usuário. Estoque geral, conveniência e OS não foram iniciados e suas decisões operacionais pendentes continuam pendentes. Auto_publicação segue desligada; salvar no remoto Manus sem confundir aceite remoto com recibo formal de checkpoint.
 
 **Salvamento da implementação:** commit `a1c377679e85ac089f56b44e471042a9232c36ad` aceito na main do remoto canônico Manus, sem publicação nesta tarefa. A documentação deste resultado segue em commit posterior. Recibo formal de checkpoint não retornou; não confundir aceite remoto com registro confirmado em Version history. Aguardar aceite do fechamento antes do estoque geral/conveniência/OS.
+
+## 13. Aceite do caixa e início da definição do estoque, 13/11/2026 às 20h01
+
+O usuário aprovou o fechamento central entregue no menu Caixa. Esse aceite encerra a terceira subentrega da Fase 3. Também iniciou a definição do estoque geral, mas não aprova automaticamente todo o cronograma de 12 semanas nem autoriza sua implementação. Conveniência e ordens de serviço continuam como etapas futuras, dependentes das regras e de autorização separada.
+
+A primeira política pendente é a saída acima do disponível, calculado como quantidade em mãos menos quantidade reservada pelas ordens aprovadas. Decidir entre bloquear toda venda/consumo acima desse saldo ou permitir exceção restrita a proprietário/gerente, com justificativa e alerta auditável. Recomendação inicial: bloquear, sem exceções, para proteger reservas e evitar saldo negativo até haver rotina deliberada de correção.
