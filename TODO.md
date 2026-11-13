@@ -188,4 +188,4 @@ A revisão independente confirmou que o fallback local restaurava abertura antig
 
 - [ ] Aceite do usuário para o fechamento central antes de definir/implementar estoque geral, conveniência ou ordens de serviço.
 
-**Entrega:** preparada no Preview, menu Caixa, aguardando aceite e salvamento no remoto Manus. Confirmar checkpoint apenas por recibo de Version history/cartão, não por sucesso local. A versão pública continua a Fase 2, com auto_publicação desligada.
+**Entrega:** implementação enviada à main do remoto canônico Manus no commit `a1c377679e85ac089f56b44e471042a9232c36ad`, com aceite remoto comprovado e árvore limpa. Disponível no Preview, menu Caixa, aguardando aceite do usuário. O cartão/recibo formal de checkpoint não retornou nesta sessão; o item de entrega verificada permanece parcialmente aberto somente por essa confirmação, não por defeito funcional conhecido. Não afirmar checkpoint confirmado apenas por Git. Esta entrega não foi publicada nesta tarefa e auto_publicação está desligada.
