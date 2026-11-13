@@ -299,3 +299,10 @@ O reparo será salvo como novo checkpoint, copiado ao GitHub e publicado uma vez
 O usuário solicitou trocar o nome visível de Sobra para `GAS PUMP` e forneceu o logotipo horizontal. Aplicar o logo recebido ao login e aos cabeçalhos da gestão/app, atualizar nome exibido, metadados web e ícones mantendo todo o conteúdo da imagem proporcional. Não recriar a marca por IA nem recortar letras. A imagem original enviada permanece intacta; cópias e tamanhos de exibição serão usados nos assets.
 
 Preservar `appSlug`, bundle IDs, esquema de deep link, namespaces `sobra:*`, cabeçalhos de CSRF, sessionStorage e pastas internas existentes, pois a troca é de marca, não migração destrutiva de identidade técnica. Atualizar textos visíveis, nomes dos arquivos CSV exportados e logo HTTPS de projeto. A publicação solicitada deve usar o novo checkpoint GAS PUMP, sem mudança de domínio customizado ou de repositório canônico.
+
+
+### Entrega confirmada GAS PUMP, 13/11/2026 às 11h39
+
+Versão publicada `3369202514b205f3f53a8d81e23d140029e3ec9d`, deploy 70210794, URL `https://sobraapp-9bikkgdf.manus.space`, login em `/gestao/login`. Confirmação do job Manus seguida de conferência externa somente leitura: título único GAS PUMP, login/JavaScript 200 e saúde OK, configuração pública OAuth e API no mesmo domínio. O ajuste final utiliza Head do Expo para impedir que um título vazio anterior fosse substituído pelo nome histórico do projeto no gateway. O hostname original permanece válido; não foi solicitado domínio customizado novo.
+
+A implementação final está no GitHub Posto e no remoto Manus, com 172 testes passando, 1 teste legado ignorado, TypeScript/lint/build aprovados. A troca de marca não renomeou identificadores, chaves locais ou contratos de segurança. A Fase 2 cobre combustíveis/pista, equipe e autenticação da Fase 1; conveniência, troca de óleo e caixa centralizado permanecem nas fases futuras. Não afirmar sistema empresarial completo além dos módulos entregues. Auto-publicação continua desligada. O registro final de documentação é separado da versão publicada e não requer novo deploy.
