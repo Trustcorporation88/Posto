@@ -4,8 +4,11 @@ import { ActivityIndicator, Text, View } from "react-native";
 import type {
   CashOpenInput,
   CashOpening,
-  CashOpenResult,
 } from "@/lib/business/cash-domain";
+import type {
+  CashCloseResult,
+  CashClosing,
+} from "@/lib/business/cash-closing-domain";
 import { canOpenCash, canReadCash } from "@/lib/business/cash-domain";
 import {
   Body,
@@ -26,6 +29,8 @@ import {
 import { STATION_CALENDAR_META } from "@/lib/station-calendar";
 import { formatCents, moneyToCents } from "@/lib/business/fuel-domain";
 import { CashMovementsPanel } from "@/components/sobra/gestao/cash-movements-panel";
+import { CashClosingPanel } from "@/components/sobra/gestao/cash-closing-panel";
+import { CashClosingHistory } from "@/components/sobra/gestao/cash-closing-history";
 import { trpc } from "@/lib/trpc";
 
 type OpeningReview = {
@@ -152,10 +157,9 @@ function OpeningCard({
     <Card style={{ gap: 16 }}>
       <SectionTitle title="Caixa principal aberto" eyebrow="ABERTURA CENTRAL" />
       <Notice>
-        Este turno permanece aberto depois do horário previsto. Ele não se
-        encerra automaticamente e bloqueia uma nova abertura até um fechamento
-        central futuro. Esta versão já oferece abertura e movimentos, sem
-        fechamento.
+        O turno permanece aberto depois do horário previsto até que uma pessoa
+        autorizada confirme o fechamento. A operação conserva a data e o turno
+        originais da abertura.
       </Notice>
       <DetailRow label="Identificador da abertura" value={String(opening.id)} />
       <DetailRow label="Unidade" value={unitName} />
@@ -176,8 +180,8 @@ function OpeningCard({
         value={`${formatCents(opening.openingFloat)} · valor de custódia, não receita`}
       />
       <Notice warning>
-        O fundo é custódia, não receita nem valor contado posteriormente. Esta
-        versão oferece abertura e movimentos, sem fechamento centralizado.
+        O fundo é custódia e integra o dinheiro físico esperado. No fechamento,
+        a contagem deve incluir o valor físico do fundo.
       </Notice>
     </Card>
   );
@@ -189,7 +193,10 @@ export function CashManagementScreen() {
   const role = session.data?.role ?? "";
   const allowedToRead = canReadCash(role);
   const allowedToOpen = canOpenCash(role);
-  const csrf = useBusinessCsrf(Boolean(session.data && allowedToOpen));
+  const allowedToClose = canOpenCash(role);
+  const csrf = useBusinessCsrf(
+    Boolean(session.data && (allowedToOpen || allowedToClose)),
+  );
   const [openingFloatText, setOpeningFloatText] = useState("");
   const [review, setReview] = useState<OpeningReview | null>(null);
   const [formError, setFormError] = useState("");
@@ -198,10 +205,11 @@ export function CashManagementScreen() {
   const [requiresRefresh, setRequiresRefresh] = useState(false);
   const [uncertainResult, setUncertainResult] = useState(false);
   const [refreshingReview, setRefreshingReview] = useState(false);
-  const [confirmedOpening, setConfirmedOpening] =
-    useState<CashOpenResult | null>(null);
+  const [confirmedClosing, setConfirmedClosing] =
+    useState<CashCloseResult | null>(null);
+  const [closingRecoveryPending, setClosingRecoveryPending] = useState(false);
 
-  const position = trpc.cash.turnSnapshot.useQuery(undefined, {
+  const position = trpc.cash.closingState.useQuery(undefined, {
     enabled: Boolean(session.data && allowedToRead && isScreenActive),
     retry: false,
     gcTime: 0,
@@ -213,7 +221,8 @@ export function CashManagementScreen() {
 
   const openCash = trpc.cash.open.useMutation({
     onSuccess: (result) => {
-      setConfirmedOpening(result);
+      setOpeningFloatText("");
+      setConfirmedClosing(null);
       setReview(null);
       setReviewError("");
       setRequiresRefresh(false);
@@ -260,8 +269,14 @@ export function CashManagementScreen() {
   });
 
   const positionData = position.data;
-  const activeOpening =
-    positionData?.activeOpening ?? confirmedOpening?.opening ?? null;
+  const snapshotOpening = positionData?.activeOpening ?? null;
+  const closureHidesStaleOpening = Boolean(
+    snapshotOpening &&
+    confirmedClosing?.closing.openingId === snapshotOpening.id,
+  );
+  const activeOpening = closureHidesStaleOpening
+    ? null
+    : snapshotOpening;
   const csrfReady = Boolean(csrf.data?.token);
   const sessionName =
     session.data?.name?.trim() || "Nome não informado na sessão";
@@ -269,6 +284,15 @@ export function CashManagementScreen() {
     session.data?.location?.name ||
     session.data?.organization?.name ||
     "Unidade vinculada à sessão";
+  const snapshotLatestClosing = positionData?.latestClosing ?? null;
+  const localClosingIsLatest = Boolean(
+    confirmedClosing &&
+    (!snapshotLatestClosing ||
+      confirmedClosing.revision >= snapshotLatestClosing.revision),
+  );
+  const latestClosing: CashClosing | null = localClosingIsLatest
+    ? (confirmedClosing?.closing ?? null)
+    : snapshotLatestClosing;
 
   const reviewIsStale = Boolean(
     review &&
@@ -291,6 +315,13 @@ export function CashManagementScreen() {
     setFormError("");
     setReviewError("");
     setStatusNotice("");
+
+    if (closingRecoveryPending) {
+      setFormError(
+        "Resolva primeiro a tentativa incerta de fechamento repetindo somente o mesmo payload pela conta original. Nenhuma nova abertura será iniciada enquanto isso.",
+      );
+      return;
+    }
 
     if (position.isFetching || position.error) {
       setFormError("Atualize a posição do caixa antes de iniciar uma revisão.");
@@ -359,6 +390,7 @@ export function CashManagementScreen() {
 
   function confirmOpening() {
     if (!review || openCash.isPending || !csrfReady) return;
+    if (closingRecoveryPending) return;
     if (
       !uncertainResult &&
       (reviewBlocked || reviewIsStale || position.error)
@@ -410,6 +442,21 @@ export function CashManagementScreen() {
     );
   }
 
+  function handleClosed(result: CashCloseResult) {
+    setConfirmedClosing(result);
+    setOpeningFloatText("");
+    setReview(null);
+    setReviewError("");
+    setRequiresRefresh(false);
+    setUncertainResult(false);
+    setStatusNotice(
+      result.closing.status === "diferenca-pendente"
+        ? "Fechamento confirmado pelo servidor com diferença pendente; o turno foi encerrado sem ajuste automático."
+        : "Fechamento confirmado pelo servidor. O turno foi encerrado sem confirmação bancária automática.",
+    );
+    void position.refetch();
+  }
+
   if (session.data && !allowedToRead) {
     return (
       <GestaoShell
@@ -432,14 +479,13 @@ export function CashManagementScreen() {
   return (
     <GestaoShell
       title="Caixa"
-      subtitle="Abertura e movimentos autenticados do caixa principal da unidade."
+      subtitle="Abertura, movimentos, conferência e histórico do caixa principal da unidade."
     >
       <Notice>
         A posição e o horário vêm do servidor. A consulta depende de conexão com
         a internet; a atualização periódica não sincroniza o caixa quando o
-        aparelho fica offline.
-        Ao entrar ou sair da conta em outra aba, esta página recarrega por segurança
-        e descarta rascunhos ainda não enviados.
+        aparelho fica offline. Ao entrar ou sair da conta em outra aba, esta
+        página recarrega por segurança e descarta rascunhos ainda não enviados.
       </Notice>
 
       {position.isLoading && !positionData ? (
@@ -542,6 +588,28 @@ export function CashManagementScreen() {
         </>
       ) : null}
 
+      <CashClosingPanel
+        state={positionData}
+        stateError={Boolean(position.error)}
+        stateFetching={position.isFetching}
+        opening={activeOpening}
+        unitName={unitName}
+        actorId={session.data?.id ?? 0}
+        actorName={session.data?.name?.trim() ?? ""}
+        allowedToClose={
+          allowedToClose &&
+          Boolean(session.data && !session.error && !session.isLoading)
+        }
+        csrfReady={csrfReady}
+        screenActive={isScreenActive}
+        refreshState={async () => {
+          const refreshed = await position.refetch();
+          return { data: refreshed.data, error: refreshed.error };
+        }}
+        onClosed={handleClosed}
+        onRecoveryPending={setClosingRecoveryPending}
+      />
+
       {positionData && !activeOpening && !review ? (
         <>
           <Card style={{ gap: 16 }}>
@@ -569,7 +637,7 @@ export function CashManagementScreen() {
             ) : null}
           </Card>
 
-          {allowedToOpen ? (
+          {allowedToOpen && !closingRecoveryPending ? (
             <Card style={{ gap: 16 }}>
               <SectionTitle title="Fundo contado" eyebrow="NOVA ABERTURA" />
               <Body>
@@ -619,13 +687,21 @@ export function CashManagementScreen() {
                   Boolean(positionData.activeOpening) ||
                   position.isFetching ||
                   Boolean(position.error) ||
-                  openCash.isPending
+                  openCash.isPending ||
+                  closingRecoveryPending
                 }
                 onPress={createReview}
               >
                 Revisar abertura
               </Button>
             </Card>
+          ) : null}
+          {allowedToOpen && closingRecoveryPending ? (
+            <Notice warning>
+              Uma tentativa de fechamento ainda tem resultado incerto. Resolva-a
+              pela repetição manual do mesmo payload e da conta original antes
+              de iniciar uma nova abertura.
+            </Notice>
           ) : null}
         </>
       ) : null}
@@ -641,10 +717,9 @@ export function CashManagementScreen() {
             nada. Somente “Confirmar e abrir caixa” envia a mutação ao servidor.
           </Body>
           <Notice warning>
-            Atenção: esta versão oferece abertura e movimentos, sem fechamento
-            centralizado. Uma abertura real permanecerá ativa e bloqueará novas
-            aberturas até que o fechamento seja implementado. Não inicie a
-            rotina diária completa de caixa nesta versão parcial.
+            A abertura será registrada somente após confirmação do servidor. O
+            fechamento é uma etapa operacional separada e nunca ocorre
+            automaticamente.
           </Notice>
           <DetailRow label="Unidade" value={review.unitName} />
           <DetailRow label="Caixa" value={review.registerName} />
@@ -670,6 +745,13 @@ export function CashManagementScreen() {
           />
 
           {reviewError ? <Notice warning>{reviewError}</Notice> : null}
+          {closingRecoveryPending ? (
+            <Notice warning>
+              Resolva primeiro a tentativa incerta de fechamento repetindo o
+              mesmo payload pela conta original. Esta abertura não será enviada
+              enquanto a recuperação estiver pendente.
+            </Notice>
+          ) : null}
           {uncertainResult ? (
             <Notice warning>
               A revisão e o identificador de intenção foram preservados. Não
@@ -736,6 +818,7 @@ export function CashManagementScreen() {
             disabled={
               !csrfReady ||
               openCash.isPending ||
+              closingRecoveryPending ||
               refreshingReview ||
               (reviewBlocked && !uncertainResult)
             }
@@ -761,6 +844,17 @@ export function CashManagementScreen() {
           title="Posição do caixa indisponível"
           text="A consulta falhou. Atualize quando a conexão estiver disponível; nenhum estado vazio fictício foi exibido como resultado real."
           icon="wifi-off"
+        />
+      ) : null}
+      {allowedToRead ? (
+        <CashClosingHistory
+          latestClosing={latestClosing}
+          confirmedReceipt={confirmedClosing?.closing ?? null}
+          latestConfirmed={localClosingIsLatest}
+          snapshotError={Boolean(position.error)}
+          unitName={unitName}
+          allowedToRead={allowedToRead}
+          screenActive={isScreenActive}
         />
       ) : null}
     </GestaoShell>

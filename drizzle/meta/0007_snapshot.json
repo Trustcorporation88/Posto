@@ -1,0 +1,4274 @@
+{
+  "version": "5",
+  "dialect": "mysql",
+  "id": "d28434cf-7a04-406d-9972-493d886a0a89",
+  "prevId": "22ba3a40-263b-46ec-9167-59df15ccd267",
+  "tables": {
+    "business_audit": {
+      "name": "business_audit",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "actorUserId": {
+          "name": "actorUserId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "event": {
+          "name": "event",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "targetId": {
+          "name": "targetId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "business_audit_scope_time_idx": {
+          "name": "business_audit_scope_time_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "createdAt"
+          ],
+          "isUnique": false
+        },
+        "business_audit_actor_idx": {
+          "name": "business_audit_actor_idx",
+          "columns": [
+            "actorUserId",
+            "createdAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "business_audit_id": {
+          "name": "business_audit_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_cash_closing_audits": {
+      "name": "business_cash_closing_audits",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "registerId": {
+          "name": "registerId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "openingId": {
+          "name": "openingId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "closingId": {
+          "name": "closingId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "actorId": {
+          "name": "actorId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "event": {
+          "name": "event",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "revision": {
+          "name": "revision",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payloadDigest": {
+          "name": "payloadDigest",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP(3)"
+        }
+      },
+      "indexes": {
+        "cash_closing_audit_event_uq": {
+          "name": "cash_closing_audit_event_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "closingId",
+            "event"
+          ],
+          "isUnique": true
+        },
+        "cash_closing_audit_scope_time_idx": {
+          "name": "cash_closing_audit_scope_time_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "createdAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "cash_closing_audit_location_fk": {
+          "name": "cash_closing_audit_location_fk",
+          "tableFrom": "business_cash_closing_audits",
+          "tableTo": "business_locations",
+          "columnsFrom": [
+            "organizationId",
+            "locationId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_closing_audit_register_fk": {
+          "name": "cash_closing_audit_register_fk",
+          "tableFrom": "business_cash_closing_audits",
+          "tableTo": "business_cash_registers",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "registerId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_closing_audit_opening_fk": {
+          "name": "cash_closing_audit_opening_fk",
+          "tableFrom": "business_cash_closing_audits",
+          "tableTo": "business_cash_openings",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "openingId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_closing_audit_closure_fk": {
+          "name": "cash_closing_audit_closure_fk",
+          "tableFrom": "business_cash_closing_audits",
+          "tableTo": "business_cash_closings",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "closingId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_closing_audit_actor_membership_fk": {
+          "name": "cash_closing_audit_actor_membership_fk",
+          "tableFrom": "business_cash_closing_audits",
+          "tableTo": "business_memberships",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "actorId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "userId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_cash_closing_audits_id": {
+          "name": "business_cash_closing_audits_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_cash_closings": {
+      "name": "business_cash_closings",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "registerId": {
+          "name": "registerId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "openingId": {
+          "name": "openingId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "closedById": {
+          "name": "closedById",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "closedBy": {
+          "name": "closedBy",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "closedAt": {
+          "name": "closedAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP(3)"
+        },
+        "openingSnapshot": {
+          "name": "openingSnapshot",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "summarySnapshot": {
+          "name": "summarySnapshot",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "totalsSnapshot": {
+          "name": "totalsSnapshot",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "varianceReason": {
+          "name": "varianceReason",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "enum('fechado','diferenca-pendente')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "lastMovementId": {
+          "name": "lastMovementId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "movementCount": {
+          "name": "movementCount",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "revision": {
+          "name": "revision",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "intentId": {
+          "name": "intentId",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payloadDigest": {
+          "name": "payloadDigest",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "cash_closing_scope_id_uq": {
+          "name": "cash_closing_scope_id_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "cash_closing_opening_uq": {
+          "name": "cash_closing_opening_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "openingId"
+          ],
+          "isUnique": true
+        },
+        "cash_closing_intent_scope_uq": {
+          "name": "cash_closing_intent_scope_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "intentId"
+          ],
+          "isUnique": true
+        },
+        "cash_closing_scope_time_idx": {
+          "name": "cash_closing_scope_time_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "cash_closing_register_fk": {
+          "name": "cash_closing_register_fk",
+          "tableFrom": "business_cash_closings",
+          "tableTo": "business_cash_registers",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "registerId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_closing_opening_fk": {
+          "name": "cash_closing_opening_fk",
+          "tableFrom": "business_cash_closings",
+          "tableTo": "business_cash_openings",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "openingId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_closing_actor_membership_fk": {
+          "name": "cash_closing_actor_membership_fk",
+          "tableFrom": "business_cash_closings",
+          "tableTo": "business_memberships",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "closedById"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "userId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_closing_last_movement_fk": {
+          "name": "cash_closing_last_movement_fk",
+          "tableFrom": "business_cash_closings",
+          "tableTo": "business_cash_movements",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "lastMovementId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_cash_closings_id": {
+          "name": "business_cash_closings_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_cash_movement_audits": {
+      "name": "business_cash_movement_audits",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "registerId": {
+          "name": "registerId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "openingId": {
+          "name": "openingId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "movementId": {
+          "name": "movementId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "actorId": {
+          "name": "actorId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "event": {
+          "name": "event",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "revision": {
+          "name": "revision",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payloadDigest": {
+          "name": "payloadDigest",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "cash_movement_audit_event_uq": {
+          "name": "cash_movement_audit_event_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "movementId",
+            "event"
+          ],
+          "isUnique": true
+        },
+        "cash_movement_audit_scope_time_idx": {
+          "name": "cash_movement_audit_scope_time_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "createdAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "cash_movement_audit_location_fk": {
+          "name": "cash_movement_audit_location_fk",
+          "tableFrom": "business_cash_movement_audits",
+          "tableTo": "business_locations",
+          "columnsFrom": [
+            "organizationId",
+            "locationId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_movement_audit_register_fk": {
+          "name": "cash_movement_audit_register_fk",
+          "tableFrom": "business_cash_movement_audits",
+          "tableTo": "business_cash_registers",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "registerId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_movement_audit_opening_fk": {
+          "name": "cash_movement_audit_opening_fk",
+          "tableFrom": "business_cash_movement_audits",
+          "tableTo": "business_cash_openings",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "openingId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_movement_audit_movement_fk": {
+          "name": "cash_movement_audit_movement_fk",
+          "tableFrom": "business_cash_movement_audits",
+          "tableTo": "business_cash_movements",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "movementId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_movement_audit_actor_fk": {
+          "name": "cash_movement_audit_actor_fk",
+          "tableFrom": "business_cash_movement_audits",
+          "tableTo": "business_memberships",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "actorId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "userId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_cash_movement_audits_id": {
+          "name": "business_cash_movement_audits_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_cash_movements": {
+      "name": "business_cash_movements",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "registerId": {
+          "name": "registerId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "openingId": {
+          "name": "openingId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "responsibleId": {
+          "name": "responsibleId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "responsible": {
+          "name": "responsible",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "type": {
+          "name": "type",
+          "type": "enum('recebimento','sangria','suprimento')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paymentMethod": {
+          "name": "paymentMethod",
+          "type": "enum('dinheiro','pix','debito','credito')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "receiptNature": {
+          "name": "receiptNature",
+          "type": "enum('venda','conta-anterior')",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "amountCents": {
+          "name": "amountCents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "reference": {
+          "name": "reference",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "referenceDigest": {
+          "name": "referenceDigest",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "counterparty": {
+          "name": "counterparty",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "intentId": {
+          "name": "intentId",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payloadDigest": {
+          "name": "payloadDigest",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "resultRevision": {
+          "name": "resultRevision",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "recordedAt": {
+          "name": "recordedAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP(3)"
+        }
+      },
+      "indexes": {
+        "cash_movement_scope_id_uq": {
+          "name": "cash_movement_scope_id_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "cash_movement_intent_scope_uq": {
+          "name": "cash_movement_intent_scope_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "intentId"
+          ],
+          "isUnique": true
+        },
+        "cash_movement_reference_scope_uq": {
+          "name": "cash_movement_reference_scope_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "openingId",
+            "paymentMethod",
+            "referenceDigest"
+          ],
+          "isUnique": true
+        },
+        "cash_movement_opening_id_idx": {
+          "name": "cash_movement_opening_id_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "openingId",
+            "id"
+          ],
+          "isUnique": false
+        },
+        "cash_movement_opening_time_idx": {
+          "name": "cash_movement_opening_time_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "openingId",
+            "recordedAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "cash_movement_location_fk": {
+          "name": "cash_movement_location_fk",
+          "tableFrom": "business_cash_movements",
+          "tableTo": "business_locations",
+          "columnsFrom": [
+            "organizationId",
+            "locationId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_movement_register_fk": {
+          "name": "cash_movement_register_fk",
+          "tableFrom": "business_cash_movements",
+          "tableTo": "business_cash_registers",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "registerId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_movement_opening_fk": {
+          "name": "cash_movement_opening_fk",
+          "tableFrom": "business_cash_movements",
+          "tableTo": "business_cash_openings",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "openingId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_movement_author_membership_fk": {
+          "name": "cash_movement_author_membership_fk",
+          "tableFrom": "business_cash_movements",
+          "tableTo": "business_memberships",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "responsibleId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "userId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_cash_movements_id": {
+          "name": "business_cash_movements_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_cash_opening_audits": {
+      "name": "business_cash_opening_audits",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "registerId": {
+          "name": "registerId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "openingId": {
+          "name": "openingId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "actorId": {
+          "name": "actorId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "event": {
+          "name": "event",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "revision": {
+          "name": "revision",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payloadDigest": {
+          "name": "payloadDigest",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "cash_opening_audit_event_uq": {
+          "name": "cash_opening_audit_event_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "openingId",
+            "event"
+          ],
+          "isUnique": true
+        },
+        "cash_opening_audit_scope_time_idx": {
+          "name": "cash_opening_audit_scope_time_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "createdAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "cash_opening_audit_opening_fk": {
+          "name": "cash_opening_audit_opening_fk",
+          "tableFrom": "business_cash_opening_audits",
+          "tableTo": "business_cash_openings",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "openingId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_opening_audit_register_fk": {
+          "name": "cash_opening_audit_register_fk",
+          "tableFrom": "business_cash_opening_audits",
+          "tableTo": "business_cash_registers",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "registerId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_opening_audit_actor_membership_fk": {
+          "name": "cash_opening_audit_actor_membership_fk",
+          "tableFrom": "business_cash_opening_audits",
+          "tableTo": "business_memberships",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "actorId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "userId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_cash_opening_audits_id": {
+          "name": "business_cash_opening_audits_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_cash_openings": {
+      "name": "business_cash_openings",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "registerId": {
+          "name": "registerId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "operatorId": {
+          "name": "operatorId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "operator": {
+          "name": "operator",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "openingFloatCents": {
+          "name": "openingFloatCents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "operationDate": {
+          "name": "operationDate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "timeZone": {
+          "name": "timeZone",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'America/Sao_Paulo'"
+        },
+        "shiftId": {
+          "name": "shiftId",
+          "type": "enum('turno-1','turno-2')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "shiftLabel": {
+          "name": "shiftLabel",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "shiftStart": {
+          "name": "shiftStart",
+          "type": "varchar(5)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "shiftEnd": {
+          "name": "shiftEnd",
+          "type": "varchar(5)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "openedAt": {
+          "name": "openedAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "activeSlot": {
+          "name": "activeSlot",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'active'"
+        },
+        "intentId": {
+          "name": "intentId",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payloadDigest": {
+          "name": "payloadDigest",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "resultRevision": {
+          "name": "resultRevision",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "cash_opening_intent_scope_uq": {
+          "name": "cash_opening_intent_scope_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "intentId"
+          ],
+          "isUnique": true
+        },
+        "cash_opening_active_slot_uq": {
+          "name": "cash_opening_active_slot_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "registerId",
+            "activeSlot"
+          ],
+          "isUnique": true
+        },
+        "cash_opening_scope_id_uq": {
+          "name": "cash_opening_scope_id_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "cash_opening_operator_time_idx": {
+          "name": "cash_opening_operator_time_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "operatorId",
+            "openedAt"
+          ],
+          "isUnique": false
+        },
+        "cash_opening_register_time_idx": {
+          "name": "cash_opening_register_time_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "registerId",
+            "openedAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "cash_opening_register_fk": {
+          "name": "cash_opening_register_fk",
+          "tableFrom": "business_cash_openings",
+          "tableTo": "business_cash_registers",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "registerId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_opening_operator_membership_fk": {
+          "name": "cash_opening_operator_membership_fk",
+          "tableFrom": "business_cash_openings",
+          "tableTo": "business_memberships",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "operatorId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "userId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_cash_openings_id": {
+          "name": "business_cash_openings_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_cash_registers": {
+      "name": "business_cash_registers",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "revision": {
+          "name": "revision",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP(3)"
+        }
+      },
+      "indexes": {
+        "cash_register_location_uq": {
+          "name": "cash_register_location_uq",
+          "columns": [
+            "organizationId",
+            "locationId"
+          ],
+          "isUnique": true
+        },
+        "cash_register_scope_id_uq": {
+          "name": "cash_register_scope_id_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "cash_register_creator_idx": {
+          "name": "cash_register_creator_idx",
+          "columns": [
+            "createdBy",
+            "createdAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "cash_register_location_fk": {
+          "name": "cash_register_location_fk",
+          "tableFrom": "business_cash_registers",
+          "tableTo": "business_locations",
+          "columnsFrom": [
+            "organizationId",
+            "locationId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "cash_register_creator_membership_fk": {
+          "name": "cash_register_creator_membership_fk",
+          "tableFrom": "business_cash_registers",
+          "tableTo": "business_memberships",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "createdBy"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "userId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_cash_registers_id": {
+          "name": "business_cash_registers_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_fuel_adjustments": {
+      "name": "business_fuel_adjustments",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tankId": {
+          "name": "tankId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "productId": {
+          "name": "productId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "direction": {
+          "name": "direction",
+          "type": "enum('add','remove')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "quantityLiters": {
+          "name": "quantityLiters",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "unitCostCentsPerLiter": {
+          "name": "unitCostCentsPerLiter",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "reason": {
+          "name": "reason",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "recordedAt": {
+          "name": "recordedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "authorizedBy": {
+          "name": "authorizedBy",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "fuel_adjustment_scope_tank_time_idx": {
+          "name": "fuel_adjustment_scope_tank_time_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "tankId",
+            "recordedAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fuel_adjustment_location_fk": {
+          "name": "fuel_adjustment_location_fk",
+          "tableFrom": "business_fuel_adjustments",
+          "tableTo": "business_locations",
+          "columnsFrom": [
+            "organizationId",
+            "locationId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_adjustment_tank_product_fk": {
+          "name": "fuel_adjustment_tank_product_fk",
+          "tableFrom": "business_fuel_adjustments",
+          "tableTo": "business_fuel_tanks",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "tankId",
+            "productId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id",
+            "productId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_adjustment_author_fk": {
+          "name": "fuel_adjustment_author_fk",
+          "tableFrom": "business_fuel_adjustments",
+          "tableTo": "business_users",
+          "columnsFrom": [
+            "authorizedBy"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_fuel_adjustments_id": {
+          "name": "business_fuel_adjustments_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_fuel_cost_states": {
+      "name": "business_fuel_cost_states",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "productId": {
+          "name": "productId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "quantityLiters": {
+          "name": "quantityLiters",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0.000'"
+        },
+        "inventoryValueCents": {
+          "name": "inventoryValueCents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "costKnown": {
+          "name": "costKnown",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "fuel_cost_state_product_uq": {
+          "name": "fuel_cost_state_product_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "productId"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "fuel_cost_state_location_fk": {
+          "name": "fuel_cost_state_location_fk",
+          "tableFrom": "business_fuel_cost_states",
+          "tableTo": "business_locations",
+          "columnsFrom": [
+            "organizationId",
+            "locationId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_cost_state_product_fk": {
+          "name": "fuel_cost_state_product_fk",
+          "tableFrom": "business_fuel_cost_states",
+          "tableTo": "business_fuel_products",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "productId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_fuel_cost_states_id": {
+          "name": "business_fuel_cost_states_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_fuel_inventory_movements": {
+      "name": "business_fuel_inventory_movements",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "productId": {
+          "name": "productId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tankId": {
+          "name": "tankId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "movementType": {
+          "name": "movementType",
+          "type": "enum('receipt','nozzle_sale','adjustment_add','adjustment_remove')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "quantityLiters": {
+          "name": "quantityLiters",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "movementCostCents": {
+          "name": "movementCostCents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "sourceType": {
+          "name": "sourceType",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "sourceId": {
+          "name": "sourceId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "occurredAt": {
+          "name": "occurredAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "fuel_movement_source_uq": {
+          "name": "fuel_movement_source_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "sourceType",
+            "sourceId"
+          ],
+          "isUnique": true
+        },
+        "fuel_movement_scope_product_time_idx": {
+          "name": "fuel_movement_scope_product_time_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "productId",
+            "occurredAt"
+          ],
+          "isUnique": false
+        },
+        "fuel_movement_scope_tank_time_idx": {
+          "name": "fuel_movement_scope_tank_time_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "tankId",
+            "occurredAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fuel_movement_location_fk": {
+          "name": "fuel_movement_location_fk",
+          "tableFrom": "business_fuel_inventory_movements",
+          "tableTo": "business_locations",
+          "columnsFrom": [
+            "organizationId",
+            "locationId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_movement_tank_product_fk": {
+          "name": "fuel_movement_tank_product_fk",
+          "tableFrom": "business_fuel_inventory_movements",
+          "tableTo": "business_fuel_tanks",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "tankId",
+            "productId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id",
+            "productId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_movement_author_fk": {
+          "name": "fuel_movement_author_fk",
+          "tableFrom": "business_fuel_inventory_movements",
+          "tableTo": "business_users",
+          "columnsFrom": [
+            "createdBy"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_fuel_inventory_movements_id": {
+          "name": "business_fuel_inventory_movements_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_fuel_nozzles": {
+      "name": "business_fuel_nozzles",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "pumpId": {
+          "name": "pumpId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tankId": {
+          "name": "tankId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "productId": {
+          "name": "productId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active": {
+          "name": "active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "fuel_nozzle_scope_pump_code_uq": {
+          "name": "fuel_nozzle_scope_pump_code_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "pumpId",
+            "code"
+          ],
+          "isUnique": true
+        },
+        "fuel_nozzle_scope_tank_idx": {
+          "name": "fuel_nozzle_scope_tank_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "tankId",
+            "active"
+          ],
+          "isUnique": false
+        },
+        "fuel_nozzle_scope_product_idx": {
+          "name": "fuel_nozzle_scope_product_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "productId",
+            "active"
+          ],
+          "isUnique": false
+        },
+        "fuel_nozzle_scope_relation_uq": {
+          "name": "fuel_nozzle_scope_relation_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "id",
+            "pumpId",
+            "tankId",
+            "productId"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "fuel_nozzle_location_fk": {
+          "name": "fuel_nozzle_location_fk",
+          "tableFrom": "business_fuel_nozzles",
+          "tableTo": "business_locations",
+          "columnsFrom": [
+            "organizationId",
+            "locationId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_nozzle_pump_fk": {
+          "name": "fuel_nozzle_pump_fk",
+          "tableFrom": "business_fuel_nozzles",
+          "tableTo": "business_fuel_pumps",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "pumpId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_nozzle_tank_product_fk": {
+          "name": "fuel_nozzle_tank_product_fk",
+          "tableFrom": "business_fuel_nozzles",
+          "tableTo": "business_fuel_tanks",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "tankId",
+            "productId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id",
+            "productId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_nozzle_author_fk": {
+          "name": "fuel_nozzle_author_fk",
+          "tableFrom": "business_fuel_nozzles",
+          "tableTo": "business_users",
+          "columnsFrom": [
+            "createdBy"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_fuel_nozzles_id": {
+          "name": "business_fuel_nozzles_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_fuel_prices": {
+      "name": "business_fuel_prices",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "productId": {
+          "name": "productId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "priceCentsPerLiter": {
+          "name": "priceCentsPerLiter",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "effectiveAt": {
+          "name": "effectiveAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "fuel_price_scope_product_effective_uq": {
+          "name": "fuel_price_scope_product_effective_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "productId",
+            "effectiveAt"
+          ],
+          "isUnique": true
+        },
+        "fuel_price_scope_id_product_uq": {
+          "name": "fuel_price_scope_id_product_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "id",
+            "productId"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "fuel_price_location_fk": {
+          "name": "fuel_price_location_fk",
+          "tableFrom": "business_fuel_prices",
+          "tableTo": "business_locations",
+          "columnsFrom": [
+            "organizationId",
+            "locationId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_price_product_fk": {
+          "name": "fuel_price_product_fk",
+          "tableFrom": "business_fuel_prices",
+          "tableTo": "business_fuel_products",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "productId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_price_author_fk": {
+          "name": "fuel_price_author_fk",
+          "tableFrom": "business_fuel_prices",
+          "tableTo": "business_users",
+          "columnsFrom": [
+            "createdBy"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_fuel_prices_id": {
+          "name": "business_fuel_prices_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_fuel_products": {
+      "name": "business_fuel_products",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active": {
+          "name": "active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "fuel_product_scope_code_uq": {
+          "name": "fuel_product_scope_code_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "code"
+          ],
+          "isUnique": true
+        },
+        "fuel_product_scope_active_idx": {
+          "name": "fuel_product_scope_active_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "active"
+          ],
+          "isUnique": false
+        },
+        "fuel_product_scope_id_uq": {
+          "name": "fuel_product_scope_id_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "fuel_product_location_fk": {
+          "name": "fuel_product_location_fk",
+          "tableFrom": "business_fuel_products",
+          "tableTo": "business_locations",
+          "columnsFrom": [
+            "organizationId",
+            "locationId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_product_author_fk": {
+          "name": "fuel_product_author_fk",
+          "tableFrom": "business_fuel_products",
+          "tableTo": "business_users",
+          "columnsFrom": [
+            "createdBy"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_fuel_products_id": {
+          "name": "business_fuel_products_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_fuel_pumps": {
+      "name": "business_fuel_pumps",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active": {
+          "name": "active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "fuel_pump_scope_code_uq": {
+          "name": "fuel_pump_scope_code_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "code"
+          ],
+          "isUnique": true
+        },
+        "fuel_pump_scope_active_idx": {
+          "name": "fuel_pump_scope_active_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "active"
+          ],
+          "isUnique": false
+        },
+        "fuel_pump_scope_id_uq": {
+          "name": "fuel_pump_scope_id_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "fuel_pump_location_fk": {
+          "name": "fuel_pump_location_fk",
+          "tableFrom": "business_fuel_pumps",
+          "tableTo": "business_locations",
+          "columnsFrom": [
+            "organizationId",
+            "locationId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_pump_author_fk": {
+          "name": "fuel_pump_author_fk",
+          "tableFrom": "business_fuel_pumps",
+          "tableTo": "business_users",
+          "columnsFrom": [
+            "createdBy"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_fuel_pumps_id": {
+          "name": "business_fuel_pumps_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_fuel_readings": {
+      "name": "business_fuel_readings",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "nozzleId": {
+          "name": "nozzleId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "pumpId": {
+          "name": "pumpId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tankId": {
+          "name": "tankId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "productId": {
+          "name": "productId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "kind": {
+          "name": "kind",
+          "type": "enum('baseline','interval','reset')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "previousCounterLiters": {
+          "name": "previousCounterLiters",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "counterLiters": {
+          "name": "counterLiters",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "quantityLiters": {
+          "name": "quantityLiters",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "priceId": {
+          "name": "priceId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "priceCentsPerLiter": {
+          "name": "priceCentsPerLiter",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "revenueCents": {
+          "name": "revenueCents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "costCents": {
+          "name": "costCents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "reason": {
+          "name": "reason",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "measuredAt": {
+          "name": "measuredAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "fuel_reading_scope_nozzle_time_idx": {
+          "name": "fuel_reading_scope_nozzle_time_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "nozzleId",
+            "measuredAt"
+          ],
+          "isUnique": false
+        },
+        "fuel_reading_scope_period_idx": {
+          "name": "fuel_reading_scope_period_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "measuredAt"
+          ],
+          "isUnique": false
+        },
+        "fuel_reading_scope_product_idx": {
+          "name": "fuel_reading_scope_product_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "productId",
+            "measuredAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fuel_reading_location_fk": {
+          "name": "fuel_reading_location_fk",
+          "tableFrom": "business_fuel_readings",
+          "tableTo": "business_locations",
+          "columnsFrom": [
+            "organizationId",
+            "locationId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_reading_nozzle_relation_fk": {
+          "name": "fuel_reading_nozzle_relation_fk",
+          "tableFrom": "business_fuel_readings",
+          "tableTo": "business_fuel_nozzles",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "nozzleId",
+            "pumpId",
+            "tankId",
+            "productId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id",
+            "pumpId",
+            "tankId",
+            "productId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_reading_price_product_fk": {
+          "name": "fuel_reading_price_product_fk",
+          "tableFrom": "business_fuel_readings",
+          "tableTo": "business_fuel_prices",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "priceId",
+            "productId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id",
+            "productId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_reading_author_fk": {
+          "name": "fuel_reading_author_fk",
+          "tableFrom": "business_fuel_readings",
+          "tableTo": "business_users",
+          "columnsFrom": [
+            "createdBy"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_fuel_readings_id": {
+          "name": "business_fuel_readings_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_fuel_receipts": {
+      "name": "business_fuel_receipts",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "productId": {
+          "name": "productId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tankId": {
+          "name": "tankId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "supplier": {
+          "name": "supplier",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "documentReference": {
+          "name": "documentReference",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "quantityLiters": {
+          "name": "quantityLiters",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "unitCostCentsPerLiter": {
+          "name": "unitCostCentsPerLiter",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "totalCostCents": {
+          "name": "totalCostCents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "receivedAt": {
+          "name": "receivedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "fuel_receipt_scope_time_idx": {
+          "name": "fuel_receipt_scope_time_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "receivedAt"
+          ],
+          "isUnique": false
+        },
+        "fuel_receipt_scope_product_idx": {
+          "name": "fuel_receipt_scope_product_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "productId",
+            "receivedAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fuel_receipt_location_fk": {
+          "name": "fuel_receipt_location_fk",
+          "tableFrom": "business_fuel_receipts",
+          "tableTo": "business_locations",
+          "columnsFrom": [
+            "organizationId",
+            "locationId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_receipt_tank_product_fk": {
+          "name": "fuel_receipt_tank_product_fk",
+          "tableFrom": "business_fuel_receipts",
+          "tableTo": "business_fuel_tanks",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "tankId",
+            "productId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id",
+            "productId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_receipt_author_fk": {
+          "name": "fuel_receipt_author_fk",
+          "tableFrom": "business_fuel_receipts",
+          "tableTo": "business_users",
+          "columnsFrom": [
+            "createdBy"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_fuel_receipts_id": {
+          "name": "business_fuel_receipts_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_fuel_tank_inventory_states": {
+      "name": "business_fuel_tank_inventory_states",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tankId": {
+          "name": "tankId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "quantityLiters": {
+          "name": "quantityLiters",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0.000'"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "fuel_tank_inventory_tank_uq": {
+          "name": "fuel_tank_inventory_tank_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "tankId"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "fuel_tank_inventory_location_fk": {
+          "name": "fuel_tank_inventory_location_fk",
+          "tableFrom": "business_fuel_tank_inventory_states",
+          "tableTo": "business_locations",
+          "columnsFrom": [
+            "organizationId",
+            "locationId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_tank_inventory_tank_fk": {
+          "name": "fuel_tank_inventory_tank_fk",
+          "tableFrom": "business_fuel_tank_inventory_states",
+          "tableTo": "business_fuel_tanks",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "tankId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_fuel_tank_inventory_states_id": {
+          "name": "business_fuel_tank_inventory_states_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_fuel_tank_measurements": {
+      "name": "business_fuel_tank_measurements",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tankId": {
+          "name": "tankId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "productId": {
+          "name": "productId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "measuredLiters": {
+          "name": "measuredLiters",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "theoreticalLiters": {
+          "name": "theoreticalLiters",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "varianceLiters": {
+          "name": "varianceLiters",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "enum('matched','pending')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "reason": {
+          "name": "reason",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "measuredAt": {
+          "name": "measuredAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "fuel_tank_measure_scope_tank_time_idx": {
+          "name": "fuel_tank_measure_scope_tank_time_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "tankId",
+            "measuredAt"
+          ],
+          "isUnique": false
+        },
+        "fuel_tank_measure_scope_period_idx": {
+          "name": "fuel_tank_measure_scope_period_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "measuredAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "fuel_tank_measure_location_fk": {
+          "name": "fuel_tank_measure_location_fk",
+          "tableFrom": "business_fuel_tank_measurements",
+          "tableTo": "business_locations",
+          "columnsFrom": [
+            "organizationId",
+            "locationId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_tank_measure_tank_product_fk": {
+          "name": "fuel_tank_measure_tank_product_fk",
+          "tableFrom": "business_fuel_tank_measurements",
+          "tableTo": "business_fuel_tanks",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "tankId",
+            "productId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id",
+            "productId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_tank_measure_author_fk": {
+          "name": "fuel_tank_measure_author_fk",
+          "tableFrom": "business_fuel_tank_measurements",
+          "tableTo": "business_users",
+          "columnsFrom": [
+            "createdBy"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_fuel_tank_measurements_id": {
+          "name": "business_fuel_tank_measurements_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_fuel_tanks": {
+      "name": "business_fuel_tanks",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "productId": {
+          "name": "productId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "capacityLiters": {
+          "name": "capacityLiters",
+          "type": "decimal(18,3)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "active": {
+          "name": "active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "fuel_tank_scope_code_uq": {
+          "name": "fuel_tank_scope_code_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "code"
+          ],
+          "isUnique": true
+        },
+        "fuel_tank_scope_product_idx": {
+          "name": "fuel_tank_scope_product_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "productId",
+            "active"
+          ],
+          "isUnique": false
+        },
+        "fuel_tank_scope_id_product_uq": {
+          "name": "fuel_tank_scope_id_product_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "id",
+            "productId"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "fuel_tank_location_fk": {
+          "name": "fuel_tank_location_fk",
+          "tableFrom": "business_fuel_tanks",
+          "tableTo": "business_locations",
+          "columnsFrom": [
+            "organizationId",
+            "locationId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_tank_product_fk": {
+          "name": "fuel_tank_product_fk",
+          "tableFrom": "business_fuel_tanks",
+          "tableTo": "business_fuel_products",
+          "columnsFrom": [
+            "organizationId",
+            "locationId",
+            "productId"
+          ],
+          "columnsTo": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fuel_tank_author_fk": {
+          "name": "fuel_tank_author_fk",
+          "tableFrom": "business_fuel_tanks",
+          "tableTo": "business_users",
+          "columnsFrom": [
+            "createdBy"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "business_fuel_tanks_id": {
+          "name": "business_fuel_tanks_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_invitations": {
+      "name": "business_invitations",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(320)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "enum('manager','cashier','attendant','oil_technician','finance_viewer')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tokenHash": {
+          "name": "tokenHash",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "expiresAt": {
+          "name": "expiresAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "acceptedAt": {
+          "name": "acceptedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "business_invitation_token_uq": {
+          "name": "business_invitation_token_uq",
+          "columns": [
+            "tokenHash"
+          ],
+          "isUnique": true
+        },
+        "business_invitation_scope_idx": {
+          "name": "business_invitation_scope_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "acceptedAt"
+          ],
+          "isUnique": false
+        },
+        "business_invitation_email_idx": {
+          "name": "business_invitation_email_idx",
+          "columns": [
+            "email"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "business_invitations_id": {
+          "name": "business_invitations_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_locations": {
+      "name": "business_locations",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "city": {
+          "name": "city",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'Bauru'"
+        },
+        "state": {
+          "name": "state",
+          "type": "varchar(2)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'SP'"
+        },
+        "timezone": {
+          "name": "timezone",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'America/Sao_Paulo'"
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "business_location_org_name_uq": {
+          "name": "business_location_org_name_uq",
+          "columns": [
+            "organizationId",
+            "name"
+          ],
+          "isUnique": true
+        },
+        "business_location_scope_id_uq": {
+          "name": "business_location_scope_id_uq",
+          "columns": [
+            "organizationId",
+            "id"
+          ],
+          "isUnique": true
+        },
+        "business_location_org_idx": {
+          "name": "business_location_org_idx",
+          "columns": [
+            "organizationId"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "business_locations_id": {
+          "name": "business_locations_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_memberships": {
+      "name": "business_memberships",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "enum('owner','manager','cashier','attendant','oil_technician','finance_viewer')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active": {
+          "name": "active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "business_membership_user_location_uq": {
+          "name": "business_membership_user_location_uq",
+          "columns": [
+            "userId",
+            "locationId"
+          ],
+          "isUnique": true
+        },
+        "business_membership_scope_idx": {
+          "name": "business_membership_scope_idx",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "userId"
+          ],
+          "isUnique": false
+        },
+        "business_membership_user_active_idx": {
+          "name": "business_membership_user_active_idx",
+          "columns": [
+            "userId",
+            "active"
+          ],
+          "isUnique": false
+        },
+        "business_membership_scope_user_uq": {
+          "name": "business_membership_scope_user_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "userId"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "business_memberships_id": {
+          "name": "business_memberships_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_organizations": {
+      "name": "business_organizations",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "singletonKey": {
+          "name": "singletonKey",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'primary'"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "business_organizations_id": {
+          "name": "business_organizations_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "business_organizations_singletonKey_unique": {
+          "name": "business_organizations_singletonKey_unique",
+          "columns": [
+            "singletonKey"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
+    "business_password_resets": {
+      "name": "business_password_resets",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "organizationId": {
+          "name": "organizationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "locationId": {
+          "name": "locationId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tokenHash": {
+          "name": "tokenHash",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "expiresAt": {
+          "name": "expiresAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "usedAt": {
+          "name": "usedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "business_password_reset_token_uq": {
+          "name": "business_password_reset_token_uq",
+          "columns": [
+            "tokenHash"
+          ],
+          "isUnique": true
+        },
+        "business_password_reset_user_state_idx": {
+          "name": "business_password_reset_user_state_idx",
+          "columns": [
+            "userId",
+            "usedAt",
+            "expiresAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "business_password_resets_id": {
+          "name": "business_password_resets_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_sessions": {
+      "name": "business_sessions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "tokenHash": {
+          "name": "tokenHash",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "userId": {
+          "name": "userId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "csrfHash": {
+          "name": "csrfHash",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "expiresAt": {
+          "name": "expiresAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "revokedAt": {
+          "name": "revokedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "business_session_token_uq": {
+          "name": "business_session_token_uq",
+          "columns": [
+            "tokenHash"
+          ],
+          "isUnique": true
+        },
+        "business_session_user_state_idx": {
+          "name": "business_session_user_state_idx",
+          "columns": [
+            "userId",
+            "revokedAt",
+            "expiresAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "business_sessions_id": {
+          "name": "business_sessions_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "business_users": {
+      "name": "business_users",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(320)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "passwordHash": {
+          "name": "passwordHash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "disabledAt": {
+          "name": "disabledAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "business_users_email_uq": {
+          "name": "business_users_email_uq",
+          "columns": [
+            "email"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "business_users_id": {
+          "name": "business_users_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "users": {
+      "name": "users",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "openId": {
+          "name": "openId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(320)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "loginMethod": {
+          "name": "loginMethod",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "enum('user','admin')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'user'"
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        },
+        "lastSignedIn": {
+          "name": "lastSignedIn",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "users_id": {
+          "name": "users_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "users_openId_unique": {
+          "name": "users_openId_unique",
+          "columns": [
+            "openId"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    }
+  },
+  "views": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "tables": {},
+    "indexes": {}
+  }
+}

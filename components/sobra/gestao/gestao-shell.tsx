@@ -279,10 +279,10 @@ export function GestaoShell({
           </View>
           {children}
           <Notice>
-            O caixa multiusuário oferece abertura e movimentos, sem fechamento
-            centralizado; esta versão não conclui a rotina diária. Combustíveis
-            e pista permanecem disponíveis; conveniência e troca de óleo seguem
-            em etapas futuras.
+            O fechamento é manual e registra diferença pendente quando os
+            valores não coincidem; não confirma banco, TEF, POS ou documento
+            fiscal. Combustíveis e pista permanecem disponíveis; conveniência e
+            troca de óleo seguem em etapas futuras.
           </Notice>
         </View>
       </ScrollView>

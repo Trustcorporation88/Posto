@@ -202,6 +202,7 @@ export function CashMovementsPanel({
       setUncertainResult(false);
       setCursorState({ openingId: opening.id, stack: [] });
       void Promise.all([
+        utils.cash.closingState.invalidate(),
         utils.cash.turnSnapshot.invalidate(),
         utils.cash.movementHistory.invalidate(),
         utils.cash.position.invalidate(),

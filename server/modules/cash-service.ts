@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
-import { and, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import {
+  businessCashClosings,
   businessCashOpeningAudits,
   businessCashOpenings,
   businessCashRegisters,
@@ -23,6 +24,7 @@ import {
   type CashPosition,
 } from "../../lib/business/cash-domain";
 import { getDb } from "../db";
+import { CASH_WRITE_TRANSACTION_CONFIG } from "./cash-transactions";
 
 export type CashScope = {
   organizationId: number;
@@ -132,6 +134,7 @@ export interface CashTransaction {
     scope: CashScope,
     registerId: number,
   ): Promise<CashOpening | null>;
+  latestClosingAt(scope: CashScope, registerId: number): Promise<Date | null>;
   createRegister(
     scope: CashScope,
     name: string,
@@ -178,7 +181,7 @@ export function assertCashIdentity(
   scope: CashScope,
   now: Date,
   permission: "read" | "write" = "write",
-  writeAction: "open" | "movement" = "open",
+  writeAction: "open" | "movement" | "close" = "open",
 ): { operator: string; role: string } {
   if (!identity) {
     throw new CashServiceError(
@@ -222,7 +225,9 @@ export function assertCashIdentity(
         ? "Seu perfil não pode consultar o caixa."
         : writeAction === "open"
           ? "Seu perfil pode consultar, mas não abrir o caixa."
-          : "Seu perfil pode consultar, mas não registrar movimentações no caixa.",
+          : writeAction === "close"
+            ? "Seu perfil pode consultar, mas não fechar o caixa."
+            : "Seu perfil pode consultar, mas não registrar movimentações no caixa.",
     );
   }
   const operator = identity.userName.trim();
@@ -342,6 +347,9 @@ export function createCashService(
           const activeOpening = existingRegister
             ? await tx.findActiveOpening(scope, existingRegister.id)
             : null;
+          const latestClosingAt = existingRegister
+            ? await tx.latestClosingAt(scope, existingRegister.id)
+            : null;
           const committedNow = new Date(nowProvider().getTime());
           assertCashIdentity(identity, scope, committedNow, "write");
 
@@ -380,6 +388,21 @@ export function createCashService(
           if (activeOpening) {
             conflict(
               "Já existe um turno aberto no caixa principal. Ele não é encerrado automaticamente e impede uma nova abertura.",
+            );
+          }
+          if (
+            latestClosingAt !== null &&
+            (!(latestClosingAt instanceof Date) ||
+              !Number.isFinite(latestClosingAt.getTime()))
+          ) {
+            throw unavailable();
+          }
+          if (
+            latestClosingAt &&
+            committedNow.getTime() < latestClosingAt.getTime()
+          ) {
+            conflict(
+              "O relógio do servidor está antes do último fechamento; a nova abertura não pode ser registrada.",
             );
           }
 
@@ -654,6 +677,26 @@ function drizzleTransaction(tx: CashTx): CashTransaction {
       return rows[0] ? publicOpening(openingFromRow(rows[0])) : null;
     },
 
+    async latestClosingAt(scope, registerId) {
+      const rows = await tx
+        .select({ closedAt: businessCashClosings.closedAt })
+        .from(businessCashClosings)
+        .where(
+          and(
+            eq(businessCashClosings.organizationId, scope.organizationId),
+            eq(businessCashClosings.locationId, scope.locationId),
+            eq(businessCashClosings.registerId, registerId),
+          ),
+        )
+        .orderBy(
+          desc(businessCashClosings.closedAt),
+          desc(businessCashClosings.id),
+        )
+        .limit(1)
+        .for("update");
+      return rows[0]?.closedAt ?? null;
+    },
+
     async createRegister(scope, name) {
       const [created] = await tx
         .insert(businessCashRegisters)
@@ -777,7 +820,10 @@ function drizzleRepository(db: CashDb): CashRepository {
     },
 
     transaction(operation) {
-      return db.transaction((tx) => operation(drizzleTransaction(tx)));
+      return db.transaction(
+        (tx) => operation(drizzleTransaction(tx)),
+        CASH_WRITE_TRANSACTION_CONFIG,
+      );
     },
   };
 }

@@ -1,7 +1,8 @@
 import { createHash } from "node:crypto";
-import { and, desc, eq, lt, sql } from "drizzle-orm";
+import { and, desc, eq, lt, lte, sql } from "drizzle-orm";
 import {
   businessCashMovementAudits,
+  businessCashClosings,
   businessCashMovements,
   businessCashOpenings,
   businessCashRegisters,
@@ -36,6 +37,7 @@ import {
   type CashTx,
 } from "./cash-service";
 import { getDb } from "../db";
+import { CASH_WRITE_TRANSACTION_CONFIG } from "./cash-transactions";
 
 export { CashScope };
 
@@ -458,7 +460,7 @@ export function createCashMovementService(
   };
 }
 
-function openingFromRow(
+export function cashOpeningFromRow(
   row: typeof businessCashOpenings.$inferSelect,
 ): CashMovementOpening {
   const openingFloat = checkedNumber(
@@ -491,6 +493,7 @@ function openingFromRow(
     activeSlot: row.activeSlot,
   };
 }
+const openingFromRow = cashOpeningFromRow;
 function movementFromRow(
   row: typeof businessCashMovements.$inferSelect,
 ): CashStoredMovement {
@@ -625,6 +628,65 @@ function aggregateQuery(tx: CashTx, scope: CashScope, openingId: number) {
         eq(table.openingId, openingId),
       ),
     );
+}
+
+/** Shared exact aggregate used by snapshots and the closing transaction. */
+export async function aggregateCashOpening(
+  tx: CashTx,
+  scope: CashScope,
+  opening: CashMovementOpening,
+): Promise<CashMovementSummary> {
+  const rows = await aggregateQuery(tx, scope, opening.id);
+  if (!rows[0]) unavailable();
+  return cashMovementSummaryFromAggregate(
+    rows[0] as Record<string, unknown>,
+    BigInt(opening.openingFloat),
+  );
+}
+
+export type CashMovementLedgerCutoff = {
+  lastMovementId: number | null;
+  lastMovementAt: Date | null;
+};
+
+/** Capture the immutable-ID boundary and latest timestamp without materializing the ledger. */
+export async function cashMovementLedgerCutoff(
+  tx: CashTx,
+  scope: CashScope,
+  openingId: number,
+): Promise<CashMovementLedgerCutoff> {
+  const scoped = and(
+    eq(businessCashMovements.organizationId, scope.organizationId),
+    eq(businessCashMovements.locationId, scope.locationId),
+    eq(businessCashMovements.openingId, openingId),
+  );
+  const [idRows, timeRows] = await Promise.all([
+    tx
+      .select({ id: businessCashMovements.id })
+      .from(businessCashMovements)
+      .where(scoped)
+      .orderBy(desc(businessCashMovements.id))
+      .limit(1),
+    tx
+      .select({ recordedAt: businessCashMovements.recordedAt })
+      .from(businessCashMovements)
+      .where(scoped)
+      .orderBy(
+        desc(businessCashMovements.recordedAt),
+        desc(businessCashMovements.id),
+      )
+      .limit(1),
+  ]);
+  const id = idRows[0]?.id ?? null;
+  const recordedAt = timeRows[0]?.recordedAt ?? null;
+  if (
+    (id !== null && (!Number.isSafeInteger(id) || id <= 0)) ||
+    (recordedAt !== null &&
+      (!(recordedAt instanceof Date) || !Number.isFinite(recordedAt.getTime())))
+  ) {
+    unavailableWithMessage("O corte do histórico de movimentos está inválido.");
+  }
+  return { lastMovementId: id, lastMovementAt: recordedAt };
 }
 
 type CashDb = Exclude<Awaited<ReturnType<typeof getDb>>, null>;
@@ -903,10 +965,31 @@ function drizzleRepository(db: CashDb): CashMovementRepository {
             "NOT_FOUND",
             "A abertura solicitada não pertence a este caixa.",
           );
+        const closingRows = await tx
+          .select({
+            lastMovementId: businessCashClosings.lastMovementId,
+            movementCount: businessCashClosings.movementCount,
+          })
+          .from(businessCashClosings)
+          .where(
+            and(
+              eq(businessCashClosings.organizationId, scope.organizationId),
+              eq(businessCashClosings.locationId, scope.locationId),
+              eq(businessCashClosings.registerId, register.id),
+              eq(businessCashClosings.openingId, openingId),
+            ),
+          )
+          .limit(1);
+        const frozenCutoff = closingRows[0] ?? null;
         const where = and(
           eq(businessCashMovements.organizationId, scope.organizationId),
           eq(businessCashMovements.locationId, scope.locationId),
           eq(businessCashMovements.openingId, openingId),
+          frozenCutoff
+            ? frozenCutoff.lastMovementId === null
+              ? eq(businessCashMovements.id, 0)
+              : lte(businessCashMovements.id, frozenCutoff.lastMovementId)
+            : undefined,
           cursor === undefined
             ? undefined
             : lt(businessCashMovements.id, cursor),
@@ -918,23 +1001,33 @@ function drizzleRepository(db: CashDb): CashMovementRepository {
             .where(where)
             .orderBy(desc(businessCashMovements.id))
             .limit(limit + 1),
-          tx
-            .select({ total: sql<string>`CAST(COUNT(*) AS CHAR)` })
-            .from(businessCashMovements)
-            .where(
-              and(
-                eq(businessCashMovements.organizationId, scope.organizationId),
-                eq(businessCashMovements.locationId, scope.locationId),
-                eq(businessCashMovements.openingId, openingId),
-              ),
-            ),
+          frozenCutoff
+            ? Promise.resolve([])
+            : tx
+                .select({ total: sql<string>`CAST(COUNT(*) AS CHAR)` })
+                .from(businessCashMovements)
+                .where(
+                  and(
+                    eq(businessCashMovements.organizationId, scope.organizationId),
+                    eq(businessCashMovements.locationId, scope.locationId),
+                    eq(businessCashMovements.openingId, openingId),
+                  ),
+                ),
         ]);
         const hasMore = pageRows.length > limit;
         const selected = pageRows.slice(0, limit).map(mapMovementRow);
-        const totalCount = checkedNumber(
-          toExactBigInt(countRows[0]?.total, "quantidade de movimentos"),
-          "quantidade de movimentos",
-        );
+        const totalCount = frozenCutoff
+          ? checkedNumber(
+              toExactBigInt(
+                frozenCutoff.movementCount as unknown,
+                "quantidade congelada de movimentos",
+              ),
+              "quantidade congelada de movimentos",
+            )
+          : checkedNumber(
+              toExactBigInt(countRows[0]?.total, "quantidade de movimentos"),
+              "quantidade de movimentos",
+            );
         return {
           openingId,
           items: selected,
@@ -947,8 +1040,9 @@ function drizzleRepository(db: CashDb): CashMovementRepository {
       });
     },
     transaction<T>(operation: (tx: CashMovementTransaction) => Promise<T>) {
-      return db.transaction((tx) =>
-        operation(drizzleMovementTransaction(tx as CashTx)),
+      return db.transaction(
+        (tx) => operation(drizzleMovementTransaction(tx as CashTx)),
+        CASH_WRITE_TRANSACTION_CONFIG,
       );
     },
   };

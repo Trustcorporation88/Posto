@@ -58,6 +58,7 @@ type Store = {
   identity: CashIdentitySnapshot | null;
   register: StoredRegister | null;
   openings: CashStoredOpening[];
+  latestClosedAt: Date | null;
   audits: CashAuditInsert[];
   nextRegisterId: number;
   nextOpeningId: number;
@@ -73,6 +74,9 @@ function cloneStore(store: Store): Store {
       ...opening,
       shift: { ...opening.shift },
     })),
+    latestClosedAt: store.latestClosedAt
+      ? new Date(store.latestClosedAt)
+      : null,
     audits: store.audits.map((audit) => ({ ...audit })),
   };
 }
@@ -87,6 +91,7 @@ class MemoryCashRepository implements CashRepository {
       identity,
       register: null,
       openings: [],
+      latestClosedAt: null,
       audits: [],
       nextRegisterId: 100,
       nextOpeningId: 200,
@@ -108,6 +113,19 @@ class MemoryCashRepository implements CashRepository {
 
   failAuditWrite() {
     this.store.failAudit = true;
+  }
+
+  // Test-adapter helper; this is not the production closing API.
+  recordTestClosing(closedAt: Date) {
+    const active = this.store.openings.find(
+      (opening) => opening.activeSlot === "active",
+    );
+    if (!active || !this.store.register) {
+      throw new Error("test closing requires an active opening and register");
+    }
+    active.activeSlot = null;
+    this.store.register.revision += 1;
+    this.store.latestClosedAt = new Date(closedAt);
   }
 
   async readCurrent(requestScope: CashScope): Promise<CashCurrentSnapshot> {
@@ -197,6 +215,17 @@ class MemoryCashRepository implements CashRepository {
               openedAt: found.openedAt,
             }
           : null;
+      },
+      latestClosingAt: async (requestScope, registerId) => {
+        if (
+          !draft.register ||
+          draft.register.id !== registerId ||
+          draft.register.organizationId !== requestScope.organizationId ||
+          draft.register.locationId !== requestScope.locationId
+        ) {
+          return null;
+        }
+        return draft.latestClosedAt ? new Date(draft.latestClosedAt) : null;
       },
       createRegister: async (requestScope) => {
         if (draft.register) throw new Error("duplicate register");
@@ -337,6 +366,62 @@ describe("serviço do caixa central", () => {
     expect(retry).toEqual({ ...original, replayed: true });
     expect(repository.state.openings).toHaveLength(1);
     expect(repository.state.audits).toHaveLength(1);
+  });
+
+  it("bloqueia abertura antes do último fechamento, permite no fechamento e preserva replay sem duplicar", async () => {
+    const repository = new MemoryCashRepository();
+    const original = await service(repository).open(scope, openingInput);
+    const lastClosedAt = new Date("2026-11-13T09:30:00.000Z");
+    repository.recordTestClosing(lastClosedAt);
+    lastClosedAt.setTime(lastClosedAt.getTime() + 60_000);
+    expect(repository.state.latestClosedAt).toEqual(
+      new Date("2026-11-13T09:30:00.000Z"),
+    );
+    expect(repository.state.latestClosedAt).not.toBe(lastClosedAt);
+    expect(repository.state.openings[0]?.activeSlot).toBeNull();
+    expect(repository.state.register?.revision).toBe(2);
+
+    const nextOpeningInput = {
+      ...openingInput,
+      intentId: "123e4567-e89b-42d3-a456-426614174003",
+      expectedRevision: 2,
+      openingFloat: 250,
+    };
+    let beforeCloseClockCalls = 0;
+    await expectCashCode(
+      service(repository, () => {
+        beforeCloseClockCalls += 1;
+        return beforeCloseClockCalls === 1
+          ? new Date("2026-11-13T09:45:00.000Z")
+          : new Date("2026-11-13T09:29:59.999Z");
+      }).open(scope, nextOpeningInput),
+      "CONFLICT",
+    );
+    expect(beforeCloseClockCalls).toBe(2);
+    expect(repository.state.openings).toHaveLength(1);
+    expect(repository.state.register?.revision).toBe(2);
+
+    const afterClose = await service(
+      repository,
+      () => new Date("2026-11-13T09:30:00.000Z"),
+    ).open(scope, nextOpeningInput);
+    expect(afterClose).toMatchObject({
+      revision: 3,
+      replayed: false,
+      opening: { id: 201, openingFloat: 250 },
+    });
+    expect(repository.state.openings).toHaveLength(2);
+    expect(repository.state.openings[1]?.activeSlot).toBe("active");
+
+    let replayClockCalls = 0;
+    const replay = await service(repository, () => {
+      replayClockCalls += 1;
+      return new Date("2026-11-13T09:29:00.000Z");
+    }).open(scope, openingInput);
+    expect(replay).toEqual({ ...original, replayed: true });
+    expect(replayClockCalls).toBe(1);
+    expect(repository.state.openings).toHaveLength(2);
+    expect(repository.state.register?.revision).toBe(3);
   });
 
   it("rejeita payload divergente ou reuso da intenção por outro autor", async () => {

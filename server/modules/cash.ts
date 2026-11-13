@@ -16,6 +16,12 @@ import {
   recordCashMovement,
 } from "./cash-movement-service";
 import { validateCashMovementDraft } from "../../lib/business/cash-movement-domain";
+import {
+  CashClosingServiceError,
+  closeCash,
+  getCashClosingHistory,
+  getCashClosingState,
+} from "./cash-closing-service";
 
 function scopeFrom(ctx: TrpcContext): CashScope {
   if (
@@ -44,7 +50,8 @@ async function cashError<T>(operation: () => Promise<T>): Promise<T> {
   } catch (error) {
     if (
       error instanceof CashServiceError ||
-      error instanceof CashMovementServiceError
+      error instanceof CashMovementServiceError ||
+      error instanceof CashClosingServiceError
     ) {
       throw new TRPCError({ code: error.code, message: error.message });
     }
@@ -71,6 +78,7 @@ const cashOpenProcedure = businessProcedure.use(({ ctx, next }) => {
   }
   return next();
 });
+const cashCloseProcedure = cashOpenProcedure;
 
 const cashOpenInput = z
   .object({
@@ -133,10 +141,54 @@ const movementHistoryInput = z
   })
   .strict();
 
+const closingCountsInput = z
+  .object({
+    dinheiro: z.number().int().nonnegative().refine(Number.isSafeInteger),
+    pix: z.number().int().nonnegative().refine(Number.isSafeInteger),
+    debito: z.number().int().nonnegative().refine(Number.isSafeInteger),
+    credito: z.number().int().nonnegative().refine(Number.isSafeInteger),
+  })
+  .strict();
+const cashCloseInput = z
+  .object({
+    countedByMethod: closingCountsInput,
+    varianceReason: z.string(),
+    intentId: z.string().uuid(),
+    expectedRevision: z
+      .number()
+      .int()
+      .nonnegative()
+      .refine(Number.isSafeInteger, "A revisão precisa ser um inteiro seguro."),
+    expectedActorId: z.number().int().positive().refine(Number.isSafeInteger),
+    openingId: z.number().int().positive().refine(Number.isSafeInteger),
+    operationDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/u),
+    shiftId: z.enum(["turno-1", "turno-2"]),
+  })
+  .strict();
+const closingHistoryInput = z
+  .object({
+    limit: z.number().int().positive().max(100).default(20),
+    cursor: z.number().int().positive().refine(Number.isSafeInteger).optional(),
+  })
+  .strict();
+
 export const cashRouter = router({
   turnSnapshot: cashReadProcedure.query(({ ctx }) =>
     cashError(() => getCashTurnSnapshot(scopeFrom(ctx))),
   ),
+  closingState: cashReadProcedure.query(({ ctx }) =>
+    cashError(() => getCashClosingState(scopeFrom(ctx))),
+  ),
+  closingHistory: cashReadProcedure
+    .input(closingHistoryInput)
+    .query(({ ctx, input }) =>
+      cashError(() => getCashClosingHistory(scopeFrom(ctx), input)),
+    ),
+  close: cashCloseProcedure
+    .input(cashCloseInput)
+    .mutation(({ ctx, input }) =>
+      cashError(() => closeCash(scopeFrom(ctx), input)),
+    ),
   movementHistory: cashReadProcedure
     .input(movementHistoryInput)
     .query(({ ctx, input }) =>
