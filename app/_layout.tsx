@@ -3,6 +3,7 @@ import "@/lib/_core/nativewind-pressable";
 import "react-native-reanimated";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
+import Head from "expo-router/head";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -81,6 +82,12 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <QueryClientProvider client={queryClient}>
+          {Platform.OS === "web" && (
+            <Head>
+              <title>GAS PUMP | Gestão de postos</title>
+              <meta name="description" content="GAS PUMP, gestão de equipe, pista, combustíveis e estoque do posto." />
+            </Head>
+          )}
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="gestao" />
