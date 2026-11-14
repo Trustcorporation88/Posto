@@ -406,3 +406,10 @@ A próxima regra pendente é quando reservar produtos para uma ordem de serviço
 O usuário definiu que a ordem de serviço reserva os itens no momento em que o cliente aprova o orçamento. A reserva reduz o disponível, sem baixar o saldo físico. Se a quantidade aprovada exceder o que está disponível, a ordem fica aguardando reposição ou substituição aprovada; não há consumo automático nesta etapa. Esta é uma decisão de regra, não uma autorização para implementar.
 
 A próxima decisão pendente é o padrão de unidades: recomendar uma unidade-base por item e conversões explícitas/confirmadas para cada embalagem, usando unidade para peças e mililitros para lubrificantes. Nenhum fator de embalagem ou saldo real deve ser presumido.
+
+
+## Definição de estoque, atualização de 13/11/2026 às 23h42
+
+O usuário escolheu unidade-base e conversões explícitas. Cada item/SKU terá unidade-base própria; conversões por embalagem serão registradas somente quando confirmadas. Itens discretos serão contados em unidade e lubrificantes em mL. Não inferir fator de embalagem nem cadastrar saldo real sem dados confirmados.
+
+A próxima decisão pendente é o saldo inicial do estoque: realizar contagem física inicial autorizada ou começar com saldo zero e aumentá-lo somente pelos recebimentos. CSV ou dados locais não serão importados automaticamente. Esta definição não autoriza implementação.

@@ -76,7 +76,7 @@ Para a primeira entrega, **cadastro, recebimento, posição/movimentações, ven
 ## 5. Decisões a fechar antes do início
 
 1. O cronograma-base de 12 semanas e a dependência de concluir caixa multiusuário antes de vendas integradas estão aprovados?
-2. Quais categorias, produtos, SKUs, códigos de barras, embalagens e unidades de medida existem na conveniência e na troca de óleo?
+2. **Modelo de unidade definido pelo usuário em 13/11/2026 às 23h42:** uma unidade-base por item/SKU e conversões explícitas, confirmadas por embalagem; itens discretos em unidade e lubrificantes em mL, sem inferir fatores. Ainda falta identificar categorias, produtos, códigos de barras, embalagens reais e seus fatores.
 3. **Definido pelo usuário em 13/11/2026 às 21h12:** proprietário/gerente poderá autorizar exceção a uma saída acima do disponível, com justificativa obrigatória, aviso explícito e auditoria; a exceção pode deixar saldo disponível negativo e afetar quantidades prometidas. Caixa e técnico não ganham essa autorização.
 4. **Definido pelo usuário em 13/11/2026 às 21h15:** reservar os itens quando o cliente aprovar o orçamento. A reserva reduz o disponível, não a quantidade física em mãos. Se faltar estoque, a ordem aguarda reposição ou substituição aprovada.
 5. Que regras valem para descontos, devolução, item aberto/avariado, troca por produto equivalente e formas de pagamento?
@@ -192,3 +192,10 @@ Por decisão do usuário, proprietário/gerente poderá autorizar venda ou consu
 O usuário decidiu que a reserva dos itens ocorrerá quando o cliente aprovar o orçamento. Isso reduz o disponível, mas não baixa o saldo físico. Se faltar quantidade, a OS aguarda reposição ou uma substituição aprovada. Não há baixa de consumo nesta transição e a decisão não autoriza implementação.
 
 **Próxima decisão:** padrão de unidades-base e conversões explícitas por embalagem. Recomendação: unidade para peças e mililitros para lubrificantes, com fatores cadastrados somente após confirmação das embalagens reais.
+
+
+## 16. Unidade-base e conversões definidas em 13/11/2026 às 23h42
+
+Cada item/SKU terá uma unidade-base e fatores explícitos por embalagem. Itens discretos serão contados em unidade e lubrificantes em mL; só usar fatores confirmados, sem inferir equivalências. A decisão não autoriza implementação nem carga de estoque.
+
+**Próxima decisão:** iniciar com uma contagem física inicial autorizada ou começar com saldo zero e aumentar somente por recebimentos. CSV e dados locais permanecem sem importação automática.
