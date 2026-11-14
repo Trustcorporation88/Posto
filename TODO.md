@@ -140,7 +140,8 @@ A revisão independente não encontrou falhas na abertura e confirmou um problem
 - [x] Saldo inicial: estabelecer por contagem física inicial auditada, na unidade-base confirmada de cada item, identificando responsável autenticado e data/hora. Não presumir quantidades ou conversões; não importar CSV/dados locais sem autorização explícita, prévia e validação. Esta decisão não autoriza lançar saldo real nem iniciar a implementação.
 - [x] Reposição: registrar a entrada somente quando a mercadoria chegar; não criar pedido de compra prévio no sistema nem aumentar saldo por itens não entregues.
 - [x] Entregas parciais: permitir lançamentos separados para cada chegada, aumentando o saldo somente pelas quantidades efetivamente recebidas e conferidas naquela entrega; itens ausentes não entram no saldo.
-- [ ] Autorização de recebimento: definir quais perfis podem registrar e confirmar entrada física de mercadoria.
+- [x] Autorização de recebimento: proprietário, gerente ou caixa podem registrar e confirmar recebimento físico; autoria sempre vinculada à identidade autenticada e auditada.
+- [ ] Referência do recebimento: decidir se número de nota/romaneio/comprovante do fornecedor é obrigatório em cada lançamento ou opcional quando disponível.
 - [ ] Catálogo real, fornecedores, recebimento, devoluções, ajustes e regras de contagem continuam pendentes. Não iniciar implementação sem decisões e autorização explícita.
 - [ ] Conveniência e ordens de serviço: permanecem fora da implementação até conclusão das decisões do estoque e autorização explícita separada.
 

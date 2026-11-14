@@ -434,3 +434,10 @@ A próxima decisão pendente é aceitar recebimentos parciais, registrando apena
 O usuário decidiu permitir recebimentos parciais. Cada chegada será registrada em lançamento separado, acrescentando somente as quantidades fisicamente recebidas e conferidas naquele momento; itens não entregues não aumentam o saldo e podem ser registrados em outro lançamento quando chegarem. O fluxo segue sem pedido de compra prévio no sistema. Esta decisão não autoriza implementação.
 
 A próxima decisão pendente é quais perfis podem registrar e confirmar uma entrada física de mercadoria.
+
+
+## Definição de estoque, atualização de 14/11/2026 às 09h02
+
+O usuário autorizou proprietário, gerente ou caixa a registrar e confirmar recebimentos físicos. Cada confirmação permanece atribuída à identidade autenticada, nunca a um nome digitado ou presumido. Esta decisão não autoriza implementação.
+
+A próxima decisão pendente é exigir em cada recebimento a referência da nota, romaneio ou comprovante do fornecedor, ou deixá-la opcional quando disponível.
