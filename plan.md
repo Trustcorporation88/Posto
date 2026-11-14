@@ -399,3 +399,10 @@ O usuário aprovou o fechamento central, concluindo sua entrega incremental. A e
 O usuário definiu que proprietário/gerente pode autorizar exceção a uma saída acima de `em mãos - reservado`. Exigir justificativa, aviso explícito antes da confirmação e auditoria; permitir que a operação deixe saldo disponível negativo e afete quantidades prometidas. Caixa e técnico não recebem essa permissão. Essa decisão define a política, mas não autoriza código.
 
 A próxima regra pendente é quando reservar produtos para uma ordem de serviço: na aprovação do orçamento pelo cliente (recomendado, reduz disponível sem reduzir o saldo físico) ou somente quando o técnico iniciar o serviço (mantém estoque disponível para balcão durante a espera).
+
+
+## Definição de estoque, atualização de 13/11/2026 às 21h15
+
+O usuário definiu que a ordem de serviço reserva os itens no momento em que o cliente aprova o orçamento. A reserva reduz o disponível, sem baixar o saldo físico. Se a quantidade aprovada exceder o que está disponível, a ordem fica aguardando reposição ou substituição aprovada; não há consumo automático nesta etapa. Esta é uma decisão de regra, não uma autorização para implementar.
+
+A próxima decisão pendente é o padrão de unidades: recomendar uma unidade-base por item e conversões explícitas/confirmadas para cada embalagem, usando unidade para peças e mililitros para lubrificantes. Nenhum fator de embalagem ou saldo real deve ser presumido.

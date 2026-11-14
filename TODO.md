@@ -135,7 +135,8 @@ A revisão independente não encontrou falhas na abertura e confirmou um problem
 
 - [x] Fechamento/conferência compartilhados: implementados, verificados e aprovados pelo usuário em 13/11/2026 às 20h01, com proprietário/gerente/caixa fechando e conferindo sozinho pela sessão autenticada.
 - [x] Exceção de estoque: proprietário/gerente pode autorizar saída acima de `em mãos - reservado`, com justificativa obrigatória, aviso explícito antes da confirmação e evento de auditoria. A exceção pode produzir saldo disponível negativo e afetar quantidades prometidas. Caixa e técnico não recebem essa permissão.
-- [ ] Reserva de estoque para OS: decidir se acontece quando o cliente aprova o orçamento ou somente quando o técnico inicia o serviço; a recomendação é reservar na aprovação.
+- [x] Reserva de estoque para OS: criar a reserva quando o cliente aprovar o orçamento. A reserva reduz o disponível, sem baixar o saldo físico. Se faltar estoque, a OS aguarda reposição ou substituição aprovada; não presumir consumo.
+- [ ] Unidades e conversões: definir a unidade-base por item e como cadastrar fatores de conversão confirmados para cada embalagem antes de cadastrar estoque real.
 - [ ] Demais regras de catálogo, fornecedores, unidades/conversões, recebimento, devoluções e contagem continuam pendentes. Não iniciar implementação sem as decisões e autorização explícita.
 - [ ] Conveniência e ordens de serviço: permanecem fora da implementação até conclusão das decisões do estoque e autorização explícita separada.
 
