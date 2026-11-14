@@ -455,3 +455,10 @@ A próxima decisão pendente é se o custo unitário real precisa estar disponí
 O usuário decidiu permitir a entrada física mesmo quando o custo unitário ainda não estiver disponível. Marcar o custo como pendente; não presumir custo anterior ou aproximado e não calcular custo/margem dessa quantidade até receber o custo unitário real e regularizá-lo.
 
 A próxima decisão pendente é quais perfis podem preencher ou corrigir um custo pendente depois do recebimento. Nenhuma implementação foi autorizada.
+
+
+## Definição de estoque, atualização de 14/11/2026 às 10h00
+
+O usuário autorizou proprietário, gerente ou caixa a preencher ou corrigir posteriormente o custo unitário pendente. Cada alteração deve ficar vinculada à identidade autenticada e registrada no histórico, sem apagar o estado anterior. A autorização não define o método de valoração e não inicia implementação.
+
+A próxima decisão pendente é o método de custo: média móvel por item (recomendado para simplicidade operacional) ou FIFO por lote/recebimento (mantém o custo de cada chegada separado).

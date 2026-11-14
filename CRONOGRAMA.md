@@ -97,7 +97,7 @@ Emissão de NF-e/NFC-e/NFS-e, cálculo ou declaração fiscal automática, integ
 | Fornecedores atuais | Nomes dos fornecedores de conveniência, lubrificantes e filtros; se enviam catálogo/preço em Excel, CSV, PDF ou portal; periodicidade e identificação de SKU usada por eles. | Cadastrar fornecedor manualmente e aceitar importação de catálogo somente com prévia/validação, depois que recebermos amostras reais dos arquivos. Sem integração automática no MVP. |
 | Identificação dos itens | Se cada item já tem EAN/GTIN, código interno ou códigos diferentes por fornecedor; quais variações de marca/modelo precisam continuar separadas. | Guardar SKU interno e permitir múltiplos códigos de barras/fornecedor apontando para o mesmo produto, com alerta de duplicidade antes de unificar. Não usar descrição como chave. |
 | Embalagens e unidade-base | Como cada produto é comprado, vendido e usado: caixa, pacote, unidade, frasco de 1/4/5 L, bombona ou granel; fator de conversão e precisão permitida. | Cada conversão é explícita e revisável. Peças contam em unidades; lubrificante a granel em mL escalados. Não presumir conversão que o fornecedor/embalagem não confirme. |
-| Recebimento e compra | Definido pelo usuário em 14/11/2026: lançar somente na chegada, sem pedido de compra prévio; permitir recebimentos parciais em lançamentos separados; proprietário, gerente ou caixa podem registrar e confirmar; referência opcional; aceitar custo pendente. Permanece pendente definir quem regulariza o custo e o método de valoração. | Cada lançamento aumenta o saldo somente pela quantidade fisicamente recebida e conferida naquela entrega. Sem custo ou margem calculados para quantidade com custo pendente; não inventar documento nem custo; sem emissão de NF-e/NFC-e. |
+| Recebimento e compra | Definido pelo usuário em 14/11/2026: lançar somente na chegada, sem pedido de compra prévio; permitir recebimentos parciais; proprietário, gerente ou caixa podem confirmar e preencher/corrigir custo pendente; referência opcional; permitir custo pendente. O histórico registra autoria da alteração. Permanece pendente o método de valoração. | Cada lançamento aumenta o saldo apenas pelo recebido/conferido. Sem custo ou margem calculados para quantidade com custo pendente; não inventar documento nem custo; sem emissão de NF-e/NFC-e. |
 | Reposição e aprovação | Quem define estoque mínimo, quem pode pedir/comprar, valor que requer aprovação e se há limite máximo desejado. | Gerente define mínimos e prepara sugestão; proprietário/gerente autoriza compra. Não enviar pedido ao fornecedor automaticamente. |
 | Devolução, avaria e validade | Prazo e procedimento de devolução a fornecedor; como lidar com avaria, produto aberto, vencimento e itens consignados. | Movimentação separada e motivo obrigatório; item não retorna ao disponível até inspeção/decisão autorizada. Lote/validade pode começar obrigatório somente nas categorias em que você o exigir. |
 
@@ -247,3 +247,10 @@ A referência de nota, romaneio ou comprovante do fornecedor será opcional; arm
 O usuário decidiu que a entrada física pode ser registrada sem custo unitário. Marcar custo como pendente; não herdar custo anterior nem usar estimativa. Não calcular custo ou margem dessa quantidade até que o custo unitário real seja atribuído e auditado. A decisão não autoriza implementação.
 
 **Próxima decisão:** quais perfis podem preencher ou corrigir posteriormente o custo unitário pendente?
+
+
+## 24. Autorização de custo pendente definida em 14/11/2026 às 10h00
+
+O usuário decidiu que proprietário, gerente ou caixa podem preencher ou corrigir o custo unitário pendente depois do recebimento. O histórico deve manter a identidade autenticada de quem alterou e preservar a alteração; custo pendente continua fora do cálculo de custo/margem até ser regularizado.
+
+**Próxima decisão:** valoração por média móvel de custo por item ou FIFO por lote/recebimento?

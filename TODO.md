@@ -143,7 +143,8 @@ A revisão independente não encontrou falhas na abertura e confirmou um problem
 - [x] Autorização de recebimento: proprietário, gerente ou caixa podem registrar e confirmar recebimento físico; autoria sempre vinculada à identidade autenticada e auditada.
 - [x] Referência do recebimento: opcional; registrar número ou documento do fornecedor quando disponível, mas não impedir recebimento se não houver referência.
 - [x] Custo do recebimento: permitir entrada da quantidade fisicamente recebida com custo marcado como pendente. Não presumir custo anterior ou aproximado; não calcular custo/margem da quantidade pendente até regularizar o custo unitário real.
-- [ ] Autorização de custo: decidir quais perfis podem preencher ou corrigir posteriormente o custo unitário pendente.
+- [x] Autorização de custo: proprietário, gerente ou caixa podem preencher e corrigir custo pendente; cada alteração é atribuída à identidade autenticada e preservada no histórico.
+- [ ] Valoração de estoque: decidir custo médio móvel por item ou FIFO por lote/recebimento. Quantidades com custo pendente não participam do custo/margem até regularização.
 - [ ] Catálogo real, fornecedores, recebimento, devoluções, ajustes e regras de contagem continuam pendentes. Não iniciar implementação sem decisões e autorização explícita.
 - [ ] Conveniência e ordens de serviço: permanecem fora da implementação até conclusão das decisões do estoque e autorização explícita separada.
 
