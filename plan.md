@@ -420,3 +420,10 @@ A próxima decisão pendente é o saldo inicial do estoque: realizar contagem f�
 O usuário escolheu estabelecer o saldo inicial por contagem física auditada. Cada quantidade deve ser informada na unidade-base confirmada do item, vinculada a responsável autenticado e data/hora, com trilha de auditoria. Não presumir quantidades nem fatores de conversão, e não importar CSV ou dados locais sem autorização explícita, prévia e validação. A decisão define a política, não autoriza registrar saldos reais nem iniciar a implementação.
 
 A próxima decisão pendente é o fluxo de reposição: pedido de compra prévio no sistema, com recebimento separado (recomendado), ou lançamento somente no ato da entrega.
+
+
+## Definição de estoque, atualização de 14/11/2026 às 08h58
+
+O usuário decidiu registrar a entrada somente quando a mercadoria chegar, sem criar pedido de compra prévio no sistema. A entrada deve refletir apenas a quantidade fisicamente recebida, sem aumentar saldo por itens ainda não entregues. Essa decisão não autoriza implementação.
+
+A próxima decisão pendente é aceitar recebimentos parciais, registrando apenas o que chegou e permitindo complemento posterior, ou exigir uma única conferência completa antes de lançar a entrega.

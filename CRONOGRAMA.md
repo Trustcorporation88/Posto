@@ -97,7 +97,7 @@ Emissão de NF-e/NFC-e/NFS-e, cálculo ou declaração fiscal automática, integ
 | Fornecedores atuais | Nomes dos fornecedores de conveniência, lubrificantes e filtros; se enviam catálogo/preço em Excel, CSV, PDF ou portal; periodicidade e identificação de SKU usada por eles. | Cadastrar fornecedor manualmente e aceitar importação de catálogo somente com prévia/validação, depois que recebermos amostras reais dos arquivos. Sem integração automática no MVP. |
 | Identificação dos itens | Se cada item já tem EAN/GTIN, código interno ou códigos diferentes por fornecedor; quais variações de marca/modelo precisam continuar separadas. | Guardar SKU interno e permitir múltiplos códigos de barras/fornecedor apontando para o mesmo produto, com alerta de duplicidade antes de unificar. Não usar descrição como chave. |
 | Embalagens e unidade-base | Como cada produto é comprado, vendido e usado: caixa, pacote, unidade, frasco de 1/4/5 L, bombona ou granel; fator de conversão e precisão permitida. | Cada conversão é explícita e revisável. Peças contam em unidades; lubrificante a granel em mL escalados. Não presumir conversão que o fornecedor/embalagem não confirme. |
-| Recebimento e compra | Se compra começa por pedido no sistema ou lançamento no ato da entrega; se recebimentos podem chegar parciais; qual pessoa confere quantidade/custo e se referência do documento é obrigatória. | Registrar pedido e recebimento separadamente; aceitar entrega parcial; recalcular custo médio só pela quantidade/custo realmente recebidos. Registrar referência do documento, sem emitir NF-e/NFC-e. |
+| Recebimento e compra | Definido pelo usuário em 14/11/2026 às 08h58: lançar a entrada somente quando a mercadoria chegar; não criar pedido de compra prévio no sistema. Permanecem pendentes: entrega parcial, responsável que confere quantidade/custo e referência de documento. | Registrar somente a quantidade fisicamente recebida; não aumentar saldo por mercadoria ainda não entregue. Sem emissão de NF-e/NFC-e. |
 | Reposição e aprovação | Quem define estoque mínimo, quem pode pedir/comprar, valor que requer aprovação e se há limite máximo desejado. | Gerente define mínimos e prepara sugestão; proprietário/gerente autoriza compra. Não enviar pedido ao fornecedor automaticamente. |
 | Devolução, avaria e validade | Prazo e procedimento de devolução a fornecedor; como lidar com avaria, produto aberto, vencimento e itens consignados. | Movimentação separada e motivo obrigatório; item não retorna ao disponível até inspeção/decisão autorizada. Lote/validade pode começar obrigatório somente nas categorias em que você o exigir. |
 
@@ -212,3 +212,10 @@ O usuário escolheu realizar uma contagem física inicial auditada. Registrar ca
 O saldo de abertura será lançado por contagem física auditada, expressa na unidade-base confirmada de cada item e vinculada a responsável autenticado e data/hora. Nenhuma quantidade ou conversão será presumida. Não importar CSV/dados locais nem lançar saldos reais sem autorização expressa. Esta decisão não inicia implementação.
 
 **Próxima decisão:** a reposição deve começar por pedido de compra no sistema, seguido de recebimento separado, ou ser lançada somente na entrega?
+
+
+## 19. Reposição definida em 14/11/2026 às 08h58
+
+Por decisão do usuário, a entrada de estoque será registrada somente quando a mercadoria chegar. Não haverá pedido de compra prévio no sistema, nem aumento do saldo para itens ainda não entregues. A regra não autoriza implementação.
+
+**Próxima decisão:** aceitar entregas parciais, lançando apenas o que chegou e complementando depois, ou exigir uma única conferência completa antes de lançar?

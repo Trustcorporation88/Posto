@@ -138,7 +138,8 @@ A revisão independente não encontrou falhas na abertura e confirmou um problem
 - [x] Reserva de estoque para OS: criar a reserva quando o cliente aprovar o orçamento. A reserva reduz o disponível, sem baixar o saldo físico. Se faltar estoque, a OS aguarda reposição ou substituição aprovada; não presumir consumo.
 - [x] Unidade-base: um padrão por item/SKU e conversões explícitas, confirmadas por embalagem. Itens discretos contam-se em unidade e lubrificantes em mL. Nenhum fator de embalagem deve ser inferido; fatores reais dependem da embalagem confirmada.
 - [x] Saldo inicial: estabelecer por contagem física inicial auditada, na unidade-base confirmada de cada item, identificando responsável autenticado e data/hora. Não presumir quantidades ou conversões; não importar CSV/dados locais sem autorização explícita, prévia e validação. Esta decisão não autoriza lançar saldo real nem iniciar a implementação.
-- [ ] Reposição: decidir se haverá pedido de compra no sistema antes do recebimento, com recebimentos separados e parciais, ou lançamento somente quando a mercadoria chegar.
+- [x] Reposição: registrar a entrada somente quando a mercadoria chegar; não criar pedido de compra prévio no sistema nem aumentar saldo por itens não entregues.
+- [ ] Entregas parciais: decidir se uma entrega com itens/quantidades faltantes pode ser registrada como parcial, com complemento posterior, sem lançar o que ainda não chegou.
 - [ ] Catálogo real, fornecedores, recebimento, devoluções, ajustes e regras de contagem continuam pendentes. Não iniciar implementação sem decisões e autorização explícita.
 - [ ] Conveniência e ordens de serviço: permanecem fora da implementação até conclusão das decisões do estoque e autorização explícita separada.
 
