@@ -9,16 +9,21 @@ import { createContext } from "./context";
 import { createCorsMiddleware } from "./cors";
 import { clearLegacySessionCookie } from "./cookies";
 import { registerProductionWeb } from "./web-static";
+import { createSecurityHeadersMiddleware } from "./security-headers";
+import { logTrpcError } from "./trpc-errors";
 
 async function startServer() {
   const app = express();
   const server = createServer(app);
 
+  app.disable("x-powered-by");
+  app.use(createSecurityHeadersMiddleware());
   app.use(createCorsMiddleware());
   app.use(clearLegacySessionCookie());
 
-  app.use(express.json({ limit: "50mb" }));
-  app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  // Business payloads are small forms; a tight limit keeps oversized bodies out.
+  app.use(express.json({ limit: "1mb" }));
+  app.use(express.urlencoded({ limit: "1mb", extended: true }));
 
   registerStorageProxy(app);
   registerOAuthRoutes(app);
@@ -32,6 +37,7 @@ async function startServer() {
     createExpressMiddleware({
       router: appRouter,
       createContext,
+      onError: logTrpcError,
     }),
   );
 
