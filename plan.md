@@ -427,3 +427,10 @@ A próxima decisão pendente é o fluxo de reposição: pedido de compra prévio
 O usuário decidiu registrar a entrada somente quando a mercadoria chegar, sem criar pedido de compra prévio no sistema. A entrada deve refletir apenas a quantidade fisicamente recebida, sem aumentar saldo por itens ainda não entregues. Essa decisão não autoriza implementação.
 
 A próxima decisão pendente é aceitar recebimentos parciais, registrando apenas o que chegou e permitindo complemento posterior, ou exigir uma única conferência completa antes de lançar a entrega.
+
+
+## Definição de estoque, atualização de 14/11/2026 às 08h59
+
+O usuário decidiu permitir recebimentos parciais. Cada chegada será registrada em lançamento separado, acrescentando somente as quantidades fisicamente recebidas e conferidas naquele momento; itens não entregues não aumentam o saldo e podem ser registrados em outro lançamento quando chegarem. O fluxo segue sem pedido de compra prévio no sistema. Esta decisão não autoriza implementação.
+
+A próxima decisão pendente é quais perfis podem registrar e confirmar uma entrada física de mercadoria.
