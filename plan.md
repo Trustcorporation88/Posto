@@ -462,3 +462,10 @@ A próxima decisão pendente é quais perfis podem preencher ou corrigir um cust
 O usuário autorizou proprietário, gerente ou caixa a preencher ou corrigir posteriormente o custo unitário pendente. Cada alteração deve ficar vinculada à identidade autenticada e registrada no histórico, sem apagar o estado anterior. A autorização não define o método de valoração e não inicia implementação.
 
 A próxima decisão pendente é o método de custo: média móvel por item (recomendado para simplicidade operacional) ou FIFO por lote/recebimento (mantém o custo de cada chegada separado).
+
+
+## Definição de estoque, atualização de 14/11/2026 às 10h02
+
+O usuário escolheu FIFO por lote/recebimento para o custo interno. Cada entrega física, inclusive cada recebimento parcial, forma um lote próprio; as saídas são custeadas pela ordem cronológica das entradas. O custo/margem dos lotes com custo pendente não é calculado até que o custo real seja regularizado. Essa decisão não autoriza implementação.
+
+A próxima decisão pendente é se um lote FIFO ainda sem custo pode ser consumido ou vendido fisicamente com custo/margem pendentes para regularização posterior, ou se sua saída deve aguardar o custo.
