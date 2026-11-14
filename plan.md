@@ -483,3 +483,10 @@ A próxima decisão pendente é como a contagem física inicial será representa
 O usuário escolheu reconstituir lotes iniciais documentados para o FIFO. Para reconstruir cada camada histórica, item, quantidade, data de recebimento e custo real precisam ser verificáveis; qualquer quantidade sem evidência ficará como lote de abertura com custo pendente. Não inferir ou importar histórico automaticamente. A decisão não autoriza carregar saldos reais nem iniciar implementação.
 
 A próxima decisão pendente é quais fontes contam como evidência suficiente para lotes anteriores: documentos do fornecedor ou também registros internos/exportações que comprovem item, quantidade, data e custo.
+
+
+## Definição de estoque, atualização de 14/11/2026 às 10h19
+
+O usuário decidiu aceitar, além de documentos do fornecedor, registros internos e exportações antigas como evidência de lotes FIFO históricos, desde que item, quantidade, data de recebimento e custo real sejam verificáveis. Revisar manualmente antes de qualquer carga. Campos faltantes não serão inferidos; a quantidade correspondente fica em lote de abertura com custo pendente. Esta decisão não autoriza importar arquivos ou iniciar implementação.
+
+A próxima decisão pendente é o mecanismo para lançar os lotes iniciais revisados: digitação manual ou upload CSV/Excel para prévia e confirmação explícita.
