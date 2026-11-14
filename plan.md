@@ -497,3 +497,10 @@ A próxima decisão pendente é o mecanismo para lançar os lotes iniciais revis
 O usuário escolheu permitir carga inicial por CSV/Excel em uma área de prévia. O fluxo deve permitir mapeamento e validação das colunas, revisão dos lotes e duplicidades, e exigir confirmação explícita antes de gravar. Não haverá importação automática. Mapear formatos depois de receber arquivo amostra; nenhum saldo/lote real foi carregado. A decisão não autoriza iniciar implementação.
 
 A próxima decisão pendente é a composição do custo unitário FIFO: somente valor líquido do item ou também frete e outros custos diretos documentados rateados ao lote. Nenhum custo será presumido.
+
+
+## Definição de estoque, atualização de 14/11/2026 às 10h23
+
+O usuário escolheu o valor líquido de compra do próprio item, após descontos da linha, como base de custo FIFO para gestão interna. Frete e outras despesas não entram no custo do lote. Não inferir tratamento fiscal ou tributário.
+
+Para mapear o carregamento CSV/Excel, solicitar um arquivo de amostra anonimizado, mantendo a estrutura e os cabeçalhos úteis e substituindo valores identificáveis por linhas fictícias. O arquivo servirá somente para compreender o formato; não será importado. Não pedir credenciais.

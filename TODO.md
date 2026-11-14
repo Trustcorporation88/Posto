@@ -149,7 +149,8 @@ A revisão independente não encontrou falhas na abertura e confirmou um problem
 - [x] Saldo inicial sob FIFO: reconstituir lotes históricos quando item, quantidade, data e custo forem verificáveis. Qualquer quantidade sem evidência permanece em lote de abertura com custo pendente; não inventar datas/custos nem importar histórico automaticamente.
 - [x] Evidência histórica: aceitar documento do fornecedor ou registro interno/exportação verificável se identificar item, quantidade, data do recebimento e custo real; revisar manualmente antes da carga. Se faltar evidência de algum campo, manter a quantidade em lote de abertura com custo pendente.
 - [x] Carga dos lotes iniciais: aceitar CSV/Excel em área de prévia; permitir mapear e validar colunas, revisar registros e duplicidades; só gravar depois de confirmação explícita. Nunca importar automaticamente. Mapear o formato depois de receber um arquivo amostra; nenhum saldo/lote real foi carregado.
-- [ ] Base do custo FIFO: decidir se o custo unitário usa somente valor líquido do item ou também frete e outros custos diretos documentados alocados ao lote.
+- [x] Base do custo FIFO: usar o valor líquido de compra do próprio item após descontos da linha; frete e outras despesas ficam fora do custo do lote. Uso para gestão interna, sem inferir tratamento fiscal.
+- [ ] Arquivo de amostra do inventário: solicitar CSV/Excel anonimizado com estrutura/colunas preservadas e linhas fictícias para mapear o formato; apenas inspecionar, sem pedir credenciais e sem importar.
 - [ ] Catálogo real, fornecedores, recebimento, devoluções, ajustes e regras de contagem continuam pendentes. Não iniciar implementação sem decisões e autorização explícita.
 - [ ] Conveniência e ordens de serviço: permanecem fora da implementação até conclusão das decisões do estoque e autorização explícita separada.
 
