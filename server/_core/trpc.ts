@@ -4,8 +4,15 @@ import { NOT_ADMIN_ERR_MSG, UNAUTHED_ERR_MSG } from "../../shared/const.js";
 import { constantTimeHexEqual, tokenHash } from "../auth/security";
 import { isLoopbackApiHost, trustedExpoWebOrigins } from "./cors";
 import type { TrpcContext } from "./context";
+import { publicErrorMessage } from "./trpc-errors";
 
-const t = initTRPC.context<TrpcContext>().create({ transformer: superjson });
+const t = initTRPC.context<TrpcContext>().create({
+  transformer: superjson,
+  errorFormatter: ({ shape, error }) => ({
+    ...shape,
+    message: publicErrorMessage(error.code, shape.message),
+  }),
+});
 export const router = t.router;
 export const publicProcedure = t.procedure;
 

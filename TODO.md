@@ -221,3 +221,15 @@ Evidências da correção: suíte completa anterior aos reparos finais, 316 apro
 Não houve chamada ao OAuth real, criação de conta, bootstrap, reset, SQL, migração ou publicação durante a implementação/testes. O diagnóstico anterior usou consultas mínimas somente de leitura; não provou a causa das três tentativas reais. Para confirmar o acesso real ainda será necessária uma tentativa do próprio usuário depois de uma etapa separada de publicação autorizada.
 
 Build final de produção web/servidor concluído após os reparos; mantidas 21 rotas Expo. Configuração, recuperação e health do Preview responderam HTTP 200. Auto_publicação confirmada desligada; o envio ao remoto não é uma publicação. Só declarar o checkpoint formalmente registrado se retornar recibo/cartão. O site público e a conta real continuam sem alteração nesta etapa.
+
+## Revisão técnica, lote 1: segurança e base (14/11/2026)
+
+- [x] **Cabeçalhos HTTP:** `nosniff`, `Referrer-Policy`, `frame-ancestors 'self'`/`X-Frame-Options`, `Permissions-Policy` e HSTS somente atrás de HTTPS; `X-Powered-By` desligado. Origens extras para embutir o site só por `SOBRA_FRAME_ANCESTORS` (origens https exatas). CSP completa de scripts/estilos fica para etapa em modo relatório.
+- [x] **Erros do tRPC:** mensagens de `INTERNAL_SERVER_ERROR` substituídas por texto genérico no cliente; o servidor registra apenas procedimento, tipo e código do driver, sem entrada, mensagem, cookie ou token.
+- [x] **Limite de corpo:** JSON e formulários limitados a 1 MB (antes 50 MB).
+- [x] **Identificador do proprietário fora do bundle:** removido o mapeamento `OWNER_OPEN_ID`/`OWNER_NAME` para `EXPO_PUBLIC_*`, que o Expo embutiria no JavaScript público se definidos no build.
+- [x] **Credenciais fora do Git e da imagem:** `.gitignore` passa a ignorar `.env`/`.env.*`; novo `.dockerignore`.
+- [x] **Cache:** bundles com hash em `/_expo/static/` com cache imutável de 1 ano; HTML continua `no-store`.
+- [x] **Testes e CI:** `vitest.config.ts` impede carregar configuração Vite de pastas superiores; workflow GitHub Actions roda TypeScript, lint, testes e build de produção.
+
+Evidências: 337 testes aprovados e 1 legado ignorado; TypeScript e lint sem erros; `build:production` concluído; servidor de produção local respondeu saúde/login/bundle 200, API inexistente 404, corpo de 1,2 MB 413 e erro sem banco com mensagem genérica. Nenhum banco, conta real, migração ou publicação usados. Regras de negócio não alteradas.

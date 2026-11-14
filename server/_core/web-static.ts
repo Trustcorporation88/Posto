@@ -85,6 +85,21 @@ export function registerProductionWeb(app: Express, directory = path.resolve("we
     }
   });
 
-  app.use(express.static(root, { index: false, redirect: false, maxAge: 0, dotfiles: "deny" }));
+  const hashedBundles = path.join(root, "_expo", "static") + path.sep;
+  app.use(
+    express.static(root, {
+      index: false,
+      redirect: false,
+      maxAge: 0,
+      dotfiles: "deny",
+      setHeaders: (res, file) => {
+        // Expo export puts content-hashed bundles here: a new build gets new file names,
+        // so browsers may keep these for a year. Other files keep revalidating.
+        if (path.resolve(file).startsWith(hashedBundles)) {
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        }
+      },
+    }),
+  );
   app.use((_req, res) => res.status(404).type("text").send("Página ou arquivo não encontrado."));
 }
