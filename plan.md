@@ -476,3 +476,10 @@ A próxima decisão pendente é se um lote FIFO ainda sem custo pode ser consumi
 O usuário decidiu permitir venda/consumo físico de um lote FIFO cujo custo ainda esteja pendente. A saída e sua margem ficam sem custo calculado até o custo unitário real do lote ser informado; então, calcular retroativamente o custo das saídas vinculadas, preservando histórico e autoria das alterações. Esta decisão não autoriza implementação.
 
 A próxima decisão pendente é como a contagem física inicial será representada no FIFO: um lote de abertura por item com custo real comprovado ou pendente, ou separação por lotes históricos identificáveis com custos reais. Não inferir datas, lotes ou custos.
+
+
+## Definição de estoque, atualização de 14/11/2026 às 10h13
+
+O usuário escolheu reconstituir lotes iniciais documentados para o FIFO. Para reconstruir cada camada histórica, item, quantidade, data de recebimento e custo real precisam ser verificáveis; qualquer quantidade sem evidência ficará como lote de abertura com custo pendente. Não inferir ou importar histórico automaticamente. A decisão não autoriza carregar saldos reais nem iniciar implementação.
+
+A próxima decisão pendente é quais fontes contam como evidência suficiente para lotes anteriores: documentos do fornecedor ou também registros internos/exportações que comprovem item, quantidade, data e custo.

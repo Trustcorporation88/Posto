@@ -146,7 +146,8 @@ A revisão independente não encontrou falhas na abertura e confirmou um problem
 - [x] Autorização de custo: proprietário, gerente ou caixa podem preencher e corrigir custo pendente; cada alteração é atribuída à identidade autenticada e preservada no histórico.
 - [x] Valoração de estoque: usar FIFO por lote/recebimento. Cada recebimento físico, inclusive parcial, forma um lote próprio na ordem de entrada. Custo/margem de lote com custo pendente ficam sem cálculo até regularização.
 - [x] Saída de lote sem custo: permitir venda/consumo físico pelo lote FIFO mais antigo mesmo com custo pendente. Marcar custo/margem da saída como pendente e calcular retroativamente as saídas daquele lote quando o custo real for regularizado, mantendo o histórico.
-- [ ] Saldo inicial sob FIFO: definir se a contagem física inicial cria um lote de abertura por item ou exige separar lotes históricos identificáveis e seus custos reais; não estimar nem importar histórico automaticamente.
+- [x] Saldo inicial sob FIFO: reconstituir lotes históricos quando item, quantidade, data e custo forem verificáveis. Qualquer quantidade sem evidência permanece em lote de abertura com custo pendente; não inventar datas/custos nem importar histórico automaticamente.
+- [ ] Evidência histórica: definir quais documentos ou registros podem comprovar item, quantidade, data e custo de lotes anteriores.
 - [ ] Catálogo real, fornecedores, recebimento, devoluções, ajustes e regras de contagem continuam pendentes. Não iniciar implementação sem decisões e autorização explícita.
 - [ ] Conveniência e ordens de serviço: permanecem fora da implementação até conclusão das decisões do estoque e autorização explícita separada.
 
