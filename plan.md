@@ -490,3 +490,10 @@ A próxima decisão pendente é quais fontes contam como evidência suficiente p
 O usuário decidiu aceitar, além de documentos do fornecedor, registros internos e exportações antigas como evidência de lotes FIFO históricos, desde que item, quantidade, data de recebimento e custo real sejam verificáveis. Revisar manualmente antes de qualquer carga. Campos faltantes não serão inferidos; a quantidade correspondente fica em lote de abertura com custo pendente. Esta decisão não autoriza importar arquivos ou iniciar implementação.
 
 A próxima decisão pendente é o mecanismo para lançar os lotes iniciais revisados: digitação manual ou upload CSV/Excel para prévia e confirmação explícita.
+
+
+## Definição de estoque, atualização de 14/11/2026 às 10h21
+
+O usuário escolheu permitir carga inicial por CSV/Excel em uma área de prévia. O fluxo deve permitir mapeamento e validação das colunas, revisão dos lotes e duplicidades, e exigir confirmação explícita antes de gravar. Não haverá importação automática. Mapear formatos depois de receber arquivo amostra; nenhum saldo/lote real foi carregado. A decisão não autoriza iniciar implementação.
+
+A próxima decisão pendente é a composição do custo unitário FIFO: somente valor líquido do item ou também frete e outros custos diretos documentados rateados ao lote. Nenhum custo será presumido.
