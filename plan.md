@@ -448,3 +448,10 @@ A próxima decisão pendente é exigir em cada recebimento a referência da nota
 O usuário decidiu que a referência de nota, romaneio ou comprovante do fornecedor é opcional em cada recebimento. Guardar quando fornecida; sua ausência não deve impedir a entrada física. Não criar número nem documento artificial e não emitir documento fiscal pelo GAS PUMP.
 
 A próxima decisão pendente é se o custo unitário real precisa estar disponível para confirmar o recebimento ou se a quantidade pode entrar com custo pendente, sem inventar custo e sem calcular margem até completar esse dado. Nenhuma implementação foi autorizada.
+
+
+## Definição de estoque, atualização de 14/11/2026 às 09h57
+
+O usuário decidiu permitir a entrada física mesmo quando o custo unitário ainda não estiver disponível. Marcar o custo como pendente; não presumir custo anterior ou aproximado e não calcular custo/margem dessa quantidade até receber o custo unitário real e regularizá-lo.
+
+A próxima decisão pendente é quais perfis podem preencher ou corrigir um custo pendente depois do recebimento. Nenhuma implementação foi autorizada.

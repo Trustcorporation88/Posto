@@ -142,7 +142,8 @@ A revisão independente não encontrou falhas na abertura e confirmou um problem
 - [x] Entregas parciais: permitir lançamentos separados para cada chegada, aumentando o saldo somente pelas quantidades efetivamente recebidas e conferidas naquela entrega; itens ausentes não entram no saldo.
 - [x] Autorização de recebimento: proprietário, gerente ou caixa podem registrar e confirmar recebimento físico; autoria sempre vinculada à identidade autenticada e auditada.
 - [x] Referência do recebimento: opcional; registrar número ou documento do fornecedor quando disponível, mas não impedir recebimento se não houver referência.
-- [ ] Custo do recebimento: decidir se o custo unitário real deve ser obrigatório antes de dar entrada ou pode ficar pendente sem custo inventado e sem margem calculada.
+- [x] Custo do recebimento: permitir entrada da quantidade fisicamente recebida com custo marcado como pendente. Não presumir custo anterior ou aproximado; não calcular custo/margem da quantidade pendente até regularizar o custo unitário real.
+- [ ] Autorização de custo: decidir quais perfis podem preencher ou corrigir posteriormente o custo unitário pendente.
 - [ ] Catálogo real, fornecedores, recebimento, devoluções, ajustes e regras de contagem continuam pendentes. Não iniciar implementação sem decisões e autorização explícita.
 - [ ] Conveniência e ordens de serviço: permanecem fora da implementação até conclusão das decisões do estoque e autorização explícita separada.
 
