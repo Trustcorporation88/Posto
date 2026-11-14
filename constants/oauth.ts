@@ -1,6 +1,7 @@
 import * as Linking from "expo-linking";
 import Constants from "expo-constants";
 import * as ReactNative from "react-native";
+import { pairedExpoApiOrigin, type OwnerOAuthPurpose } from "../shared/oauth-flow";
 
 // Extract scheme from bundle ID (last segment timestamp, prefixed with "manus")
 // e.g., "space.manus.my.app.t20240115103045" -> "manus20240115103045"
@@ -48,14 +49,10 @@ export function getApiBaseUrl(): string {
     return API_BASE_URL.replace(/\/$/, "");
   }
 
-  // On web, derive from current hostname by replacing port 8081 with 3000
+  // On web, derive the API host for both Metro (8081) and the embedded Preview (8328).
   if (ReactNative.Platform.OS === "web" && typeof window !== "undefined" && window.location) {
-    const { protocol, hostname } = window.location;
-    // Pattern: 8081-sandboxid.region.domain -> 3000-sandboxid.region.domain
-    const apiHostname = hostname.replace(/^8081-/, "3000-");
-    if (apiHostname !== hostname) {
-      return `${protocol}//${apiHostname}`;
-    }
+    const paired = pairedExpoApiOrigin(window.location.origin);
+    if (paired) return paired;
   }
 
   // Fallback to empty (will use relative URL)
@@ -121,17 +118,25 @@ export const getLoginUrl = () => {
  *
  * @returns Always null, the callback is handled via deep link.
  */
-export async function startOAuthLogin(): Promise<string | null> {
-  const loginUrl = getLoginUrl();
-
+export async function startOAuthLogin(purpose: OwnerOAuthPurpose = "setup"): Promise<string | null> {
   if (ReactNative.Platform.OS === "web") {
-    // On web, just redirect
     if (typeof window !== "undefined") {
-      window.location.href = loginUrl;
+      const response = await fetch(`${getApiBaseUrl()}/api/oauth/start`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ purpose, redirectUri: getRedirectUri() }),
+      });
+      const data = await response.json();
+      if (!response.ok || typeof data.loginUrl !== "string") {
+        throw new Error("Não foi possível iniciar a autenticação do proprietário. Nenhuma conta foi criada.");
+      }
+      window.location.href = data.loginUrl;
     }
     return null;
   }
 
+  const loginUrl = getLoginUrl();
   const supported = await Linking.canOpenURL(loginUrl);
   if (!supported) {
     console.warn("[OAuth] Cannot open login URL: URL scheme not supported");

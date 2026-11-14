@@ -7,6 +7,17 @@ import {
 } from "./cookies";
 import { sdk } from "./sdk";
 import { oauthFrontendRedirect } from "./oauth-return";
+import { parse as parseCookieHeader } from "cookie";
+import { ENV } from "./env";
+import { trustedExpoWebOrigins } from "./cors";
+import { isOwnerOAuthPurpose } from "../../shared/oauth-flow";
+import {
+  createOwnerOAuthAttempt,
+  isAllowedOwnerOAuthStart,
+  ownerOAuthLoginUrl,
+  OWNER_OAUTH_TTL_MS,
+  validateOwnerOAuthAttempt,
+} from "./owner-oauth-flow";
 
 function getQueryParam(req: Request, key: string): string | undefined {
   const value = req.query[key];
@@ -66,12 +77,55 @@ function buildUserResponse(
 }
 
 export function registerOAuthRoutes(app: Express) {
+  app.post("/api/oauth/start", (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "no-store");
+    const purpose: unknown = req.body?.purpose;
+    const redirectUri: unknown = req.body?.redirectUri;
+    const trustedOrigins = trustedExpoWebOrigins();
+    for (const configured of [process.env.EXPO_WEB_PREVIEW_URL, process.env.EXPO_PACKAGER_PROXY_URL]) {
+      if (configured) trustedOrigins.add(configured);
+    }
+    if (!isOwnerOAuthPurpose(purpose) || typeof redirectUri !== "string" ||
+        !isAllowedOwnerOAuthStart({
+          redirectUri,
+          origin: req.headers.origin,
+          sameOrigin: req.headers["sec-fetch-site"] === "same-origin",
+          trustedOrigins,
+          configuredApiBase: process.env.EXPO_PUBLIC_API_BASE_URL,
+        })) {
+      res.status(403).json({ error: "Não foi possível iniciar uma autenticação nesta origem." });
+      return;
+    }
+    try {
+      const attempt = createOwnerOAuthAttempt(purpose, redirectUri, ENV.cookieSecret);
+      const portal = process.env.MANUS_OAUTH_PORTAL_URL ?? process.env.VITE_OAUTH_PORTAL_URL ?? process.env.EXPO_PUBLIC_OAUTH_PORTAL_URL ?? "";
+      const loginUrl = ownerOAuthLoginUrl(portal, ENV.appId, redirectUri, attempt.state);
+      const options = getSessionCookieOptions(req);
+      const name = options.secure ? "__Host-gas_pump_oauth_pending" : "gas_pump_local_oauth_pending";
+      res.cookie(name, attempt.cookie, { ...options, maxAge: OWNER_OAUTH_TTL_MS });
+      res.json({ loginUrl });
+    } catch {
+      res.status(503).json({ error: "A configuração de autenticação não está disponível. Nenhuma conta foi criada." });
+    }
+  });
+
   app.get("/api/oauth/callback", async (req: Request, res: Response) => {
     const code = getQueryParam(req, "code");
     const state = getQueryParam(req, "state");
-
-    if (!code || !state) {
-      res.status(400).json({ error: "code and state are required" });
+    res.setHeader("Cache-Control", "no-store");
+    const options = getSessionCookieOptions(req);
+    const name = options.secure ? "__Host-gas_pump_oauth_pending" : "gas_pump_local_oauth_pending";
+    let pendingCookie: string | undefined;
+    try {
+      pendingCookie = parseCookieHeader(req.headers.cookie ?? "")[name];
+    } catch {
+      // An invalid browser cookie is not authorization.
+    }
+    const pending = validateOwnerOAuthAttempt(pendingCookie, state ?? "", ENV.cookieSecret);
+    // Consume the browser-bound attempt before token exchange, including failures.
+    res.clearCookie(name, options);
+    if (!code || !state || !pending) {
+      res.redirect(302, oauthFrontendRedirect(process.env, pending?.purpose ?? "setup", "failed"));
       return;
     }
 
@@ -90,11 +144,11 @@ export function registerOAuthRoutes(app: Express) {
         maxAge: ONE_YEAR_MS,
       });
 
-      // Same-origin fixed path in production; paired Expo frontend only in development.
-      res.redirect(302, oauthFrontendRedirect());
+      // The signed browser attempt decides a fixed screen, not sessionStorage or query URLs.
+      res.redirect(302, oauthFrontendRedirect(process.env, pending.purpose));
     } catch {
       console.error("[OAuth] Callback failed");
-      res.status(500).json({ error: "OAuth callback failed" });
+      res.redirect(302, oauthFrontendRedirect(process.env, pending.purpose, "failed"));
     }
   });
 

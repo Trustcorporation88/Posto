@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Platform, Text, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   Body,
   Button,
@@ -14,10 +14,12 @@ import {
 import { businessAuth } from "@/components/sobra/gestao/gestao-shell";
 import { useAuth } from "@/hooks/use-auth";
 import { startOAuthLogin } from "@/constants/oauth";
+import { ownerAccessNotice } from "@/lib/business-owner-access";
 export default function ConfigurarGestao() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ oauth?: string }>();
   const owner = useAuth();
-  const status = businessAuth.setupStatus.useQuery(undefined, { retry: false });
+  const status = businessAuth.setupStatus.useQuery(undefined, { retry: false, refetchOnMount: "always" });
   const [organizationName, setOrganization] = useState("");
   const [locationName, setLocation] = useState("");
   const [ownerName, setName] = useState("");
@@ -27,16 +29,8 @@ export default function ConfigurarGestao() {
   const [error, setError] = useState("");
   const beginOwnerLogin = async () => {
     setError("");
-    if (Platform.OS === "web") {
-      try {
-        window.sessionStorage.setItem("sobra.gestao.return", "setup");
-      } catch {
-        setError("O navegador bloqueou o retorno seguro da autenticação.");
-        return;
-      }
-    }
     try {
-      await startOAuthLogin();
+      await startOAuthLogin("setup");
     } catch {
       setError("Não foi possível iniciar a autenticação do proprietário.");
     }
@@ -48,7 +42,16 @@ export default function ConfigurarGestao() {
         e.message || "Não foi possível configurar. Revise e tente novamente.",
       ),
   });
-  const ready = !!status.data?.canBootstrap && !status.data?.hasOrganization;
+  const ready = !!status.data?.canBootstrap && !status.data?.hasOrganization &&
+    !status.error && !status.isLoading && params.oauth !== "failed";
+  const notice = ownerAccessNotice({
+    checking: status.isLoading || owner.loading,
+    apiFailed: Boolean(status.error),
+    oauthResult: typeof params.oauth === "string" ? params.oauth : undefined,
+    authenticated: owner.isAuthenticated,
+    canBootstrap: Boolean(status.data?.canBootstrap),
+    hasOrganization: Boolean(status.data?.hasOrganization),
+  });
   const submit = () => {
     setError("");
     if (
@@ -96,21 +99,9 @@ export default function ConfigurarGestao() {
           válida do proprietário do projeto. Depois, o acesso comercial usa
           e-mail e senha próprios.
         </Body>
-        {status.isLoading || owner.loading ? (
-          <Notice>Verificando autorização e disponibilidade…</Notice>
-        ) : null}
-        {status.error ? (
-          <Notice warning>
-            Não foi possível consultar o estado de configuração pela API.
-            Atualize ou tente novamente mais tarde.
-          </Notice>
-        ) : null}
+        <Notice warning={notice.warning}>{notice.message}</Notice>
         {!owner.isAuthenticated && !owner.loading ? (
           <View style={{ gap: 10 }}>
-            <Notice warning>
-              Entre com a conta autorizada do proprietário do projeto. Essa
-              autenticação serve somente para provisionar a primeira conta.
-            </Notice>
             <Button
               variant="secondary"
               disabled={Platform.OS !== "web"}
@@ -119,12 +110,6 @@ export default function ConfigurarGestao() {
               Entrar como proprietário do projeto
             </Button>
           </View>
-        ) : null}
-        {status.data?.hasOrganization ? (
-          <Notice>
-            Uma organização já foi configurada. O acesso inicial não pode ser
-            executado novamente.
-          </Notice>
         ) : null}
         {error ? <Notice warning>{error}</Notice> : null}
         <Field

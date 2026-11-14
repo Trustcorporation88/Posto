@@ -7,6 +7,7 @@ import type { User } from "../../drizzle/schema";
 import * as db from "../db";
 import { ENV } from "./env";
 import { currentSessionCookie } from "./cookies";
+import { decodeOAuthRedirectUri } from "../../shared/oauth-flow";
 import type {
   ExchangeTokenRequest,
   ExchangeTokenResponse,
@@ -39,8 +40,7 @@ class OAuthService {
   }
 
   private decodeState(state: string): string {
-    const redirectUri = atob(state);
-    return redirectUri;
+    return decodeOAuthRedirectUri(state);
   }
 
   async getTokenByCode(code: string, state: string): Promise<ExchangeTokenResponse> {

@@ -21,4 +21,13 @@ describe("OAuth frontend return", () => {
     expect(oauthFrontendRedirect({ NODE_ENV: "development", EXPO_PACKAGER_PROXY_URL: "https://metro-preview.example.test" })).toBe("https://metro-preview.example.test");
     expect(oauthFrontendRedirect({ NODE_ENV: "development" })).toBe("http://localhost:8081");
   });
+  it.each(["setup", "recover"] as const)("returns %s directly in production, ignoring stale Preview configuration", (purpose) => {
+    const path = purpose === "setup" ? "/gestao/configurar" : "/gestao/recuperar";
+    expect(oauthFrontendRedirect({ NODE_ENV: "production", EXPO_WEB_PREVIEW_URL: "https://stale.example.test" }, purpose)).toBe(`${path}?oauth=returned`);
+    expect(oauthFrontendRedirect({ NODE_ENV: "production" }, purpose, "failed")).toBe(`${path}?oauth=failed`);
+  });
+  it.each(["setup", "recover"] as const)("returns %s to its paired Preview screen", (purpose) => {
+    const path = purpose === "setup" ? "/gestao/configurar" : "/gestao/recuperar";
+    expect(oauthFrontendRedirect({ NODE_ENV: "development", EXPO_WEB_PREVIEW_URL: "https://web-preview.example.test" }, purpose)).toBe(`https://web-preview.example.test${path}?oauth=returned`);
+  });
 });

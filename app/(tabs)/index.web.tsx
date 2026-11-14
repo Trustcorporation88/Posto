@@ -1,12 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useCallback } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { C } from "@/components/sobra/ui";
 
 export default function WebEntryRedirect() {
   const router = useRouter();
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     let destination = "/gestao";
     try {
       const returnTo = window.sessionStorage.getItem("sobra.gestao.return");
@@ -19,7 +19,7 @@ export default function WebEntryRedirect() {
       // If browser storage is unavailable, use the normal management entry.
     }
     router.replace(destination as never);
-  }, [router]);
+  }, [router]));
 
   return (
     <View
