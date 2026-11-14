@@ -199,3 +199,16 @@ O usuário decidiu que a reserva dos itens ocorrerá quando o cliente aprovar o 
 Cada item/SKU terá uma unidade-base e fatores explícitos por embalagem. Itens discretos serão contados em unidade e lubrificantes em mL; só usar fatores confirmados, sem inferir equivalências. A decisão não autoriza implementação nem carga de estoque.
 
 **Próxima decisão:** iniciar com uma contagem física inicial autorizada ou começar com saldo zero e aumentar somente por recebimentos. CSV e dados locais permanecem sem importação automática.
+
+## 17. Saldo inicial definido em 14/11/2026 às 08h56
+
+O usuário escolheu realizar uma contagem física inicial auditada. Registrar cada quantidade na unidade-base confirmada do item, com responsável autenticado, data/hora e trilha de auditoria; não presumir quantidades nem fatores de conversão. Nenhum CSV ou dado local será importado automaticamente, e a regra não autoriza ainda iniciar implementação ou lançar saldos reais.
+
+**Próxima decisão:** definir se a reposição será registrada primeiro como pedido de compra no sistema, com recebimento separado (recomendado), ou somente no ato da entrega.
+
+
+## 18. Contagem física inicial auditada definida em 14/11/2026 às 08h56
+
+O saldo de abertura será lançado por contagem física auditada, expressa na unidade-base confirmada de cada item e vinculada a responsável autenticado e data/hora. Nenhuma quantidade ou conversão será presumida. Não importar CSV/dados locais nem lançar saldos reais sem autorização expressa. Esta decisão não inicia implementação.
+
+**Próxima decisão:** a reposição deve começar por pedido de compra no sistema, seguido de recebimento separado, ou ser lançada somente na entrega?

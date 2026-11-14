@@ -137,7 +137,8 @@ A revisão independente não encontrou falhas na abertura e confirmou um problem
 - [x] Exceção de estoque: proprietário/gerente pode autorizar saída acima de `em mãos - reservado`, com justificativa obrigatória, aviso explícito antes da confirmação e evento de auditoria. A exceção pode produzir saldo disponível negativo e afetar quantidades prometidas. Caixa e técnico não recebem essa permissão.
 - [x] Reserva de estoque para OS: criar a reserva quando o cliente aprovar o orçamento. A reserva reduz o disponível, sem baixar o saldo físico. Se faltar estoque, a OS aguarda reposição ou substituição aprovada; não presumir consumo.
 - [x] Unidade-base: um padrão por item/SKU e conversões explícitas, confirmadas por embalagem. Itens discretos contam-se em unidade e lubrificantes em mL. Nenhum fator de embalagem deve ser inferido; fatores reais dependem da embalagem confirmada.
-- [ ] Saldo inicial: decidir se o estoque começará com contagem física inicial autorizada ou saldo zero, acrescido somente por recebimentos. Não importar CSV ou dados locais sem opção expressa, prévia e validação.
+- [x] Saldo inicial: estabelecer por contagem física inicial auditada, na unidade-base confirmada de cada item, identificando responsável autenticado e data/hora. Não presumir quantidades ou conversões; não importar CSV/dados locais sem autorização explícita, prévia e validação. Esta decisão não autoriza lançar saldo real nem iniciar a implementação.
+- [ ] Reposição: decidir se haverá pedido de compra no sistema antes do recebimento, com recebimentos separados e parciais, ou lançamento somente quando a mercadoria chegar.
 - [ ] Catálogo real, fornecedores, recebimento, devoluções, ajustes e regras de contagem continuam pendentes. Não iniciar implementação sem decisões e autorização explícita.
 - [ ] Conveniência e ordens de serviço: permanecem fora da implementação até conclusão das decisões do estoque e autorização explícita separada.
 

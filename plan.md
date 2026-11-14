@@ -413,3 +413,10 @@ A próxima decisão pendente é o padrão de unidades: recomendar uma unidade-ba
 O usuário escolheu unidade-base e conversões explícitas. Cada item/SKU terá unidade-base própria; conversões por embalagem serão registradas somente quando confirmadas. Itens discretos serão contados em unidade e lubrificantes em mL. Não inferir fator de embalagem nem cadastrar saldo real sem dados confirmados.
 
 A próxima decisão pendente é o saldo inicial do estoque: realizar contagem física inicial autorizada ou começar com saldo zero e aumentá-lo somente pelos recebimentos. CSV ou dados locais não serão importados automaticamente. Esta definição não autoriza implementação.
+
+
+## Definição de estoque, atualização de 14/11/2026 às 08h56
+
+O usuário escolheu estabelecer o saldo inicial por contagem física auditada. Cada quantidade deve ser informada na unidade-base confirmada do item, vinculada a responsável autenticado e data/hora, com trilha de auditoria. Não presumir quantidades nem fatores de conversão, e não importar CSV ou dados locais sem autorização explícita, prévia e validação. A decisão define a política, não autoriza registrar saldos reais nem iniciar a implementação.
+
+A próxima decisão pendente é o fluxo de reposição: pedido de compra prévio no sistema, com recebimento separado (recomendado), ou lançamento somente no ato da entrega.
