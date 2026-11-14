@@ -141,7 +141,8 @@ A revisão independente não encontrou falhas na abertura e confirmou um problem
 - [x] Reposição: registrar a entrada somente quando a mercadoria chegar; não criar pedido de compra prévio no sistema nem aumentar saldo por itens não entregues.
 - [x] Entregas parciais: permitir lançamentos separados para cada chegada, aumentando o saldo somente pelas quantidades efetivamente recebidas e conferidas naquela entrega; itens ausentes não entram no saldo.
 - [x] Autorização de recebimento: proprietário, gerente ou caixa podem registrar e confirmar recebimento físico; autoria sempre vinculada à identidade autenticada e auditada.
-- [ ] Referência do recebimento: decidir se número de nota/romaneio/comprovante do fornecedor é obrigatório em cada lançamento ou opcional quando disponível.
+- [x] Referência do recebimento: opcional; registrar número ou documento do fornecedor quando disponível, mas não impedir recebimento se não houver referência.
+- [ ] Custo do recebimento: decidir se o custo unitário real deve ser obrigatório antes de dar entrada ou pode ficar pendente sem custo inventado e sem margem calculada.
 - [ ] Catálogo real, fornecedores, recebimento, devoluções, ajustes e regras de contagem continuam pendentes. Não iniciar implementação sem decisões e autorização explícita.
 - [ ] Conveniência e ordens de serviço: permanecem fora da implementação até conclusão das decisões do estoque e autorização explícita separada.
 

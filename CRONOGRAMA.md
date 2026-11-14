@@ -97,7 +97,7 @@ Emissão de NF-e/NFC-e/NFS-e, cálculo ou declaração fiscal automática, integ
 | Fornecedores atuais | Nomes dos fornecedores de conveniência, lubrificantes e filtros; se enviam catálogo/preço em Excel, CSV, PDF ou portal; periodicidade e identificação de SKU usada por eles. | Cadastrar fornecedor manualmente e aceitar importação de catálogo somente com prévia/validação, depois que recebermos amostras reais dos arquivos. Sem integração automática no MVP. |
 | Identificação dos itens | Se cada item já tem EAN/GTIN, código interno ou códigos diferentes por fornecedor; quais variações de marca/modelo precisam continuar separadas. | Guardar SKU interno e permitir múltiplos códigos de barras/fornecedor apontando para o mesmo produto, com alerta de duplicidade antes de unificar. Não usar descrição como chave. |
 | Embalagens e unidade-base | Como cada produto é comprado, vendido e usado: caixa, pacote, unidade, frasco de 1/4/5 L, bombona ou granel; fator de conversão e precisão permitida. | Cada conversão é explícita e revisável. Peças contam em unidades; lubrificante a granel em mL escalados. Não presumir conversão que o fornecedor/embalagem não confirme. |
-| Recebimento e compra | Definido pelo usuário em 14/11/2026: lançar somente na chegada, sem pedido de compra prévio; permitir recebimentos parciais em lançamentos separados; proprietário, gerente ou caixa podem registrar e confirmar. Permanecem pendentes a conferência de quantidade/custo e referência de documento. | Cada lançamento aumenta o saldo somente pela quantidade fisicamente recebida e conferida naquela entrega. Sem emissão de NF-e/NFC-e. |
+| Recebimento e compra | Definido pelo usuário em 14/11/2026: lançar somente na chegada, sem pedido de compra prévio; permitir recebimentos parciais em lançamentos separados; proprietário, gerente ou caixa podem registrar e confirmar; referência de documento é opcional e armazenada quando fornecida. Permanece pendente definir exigência e cálculo do custo unitário. | Cada lançamento aumenta o saldo somente pela quantidade fisicamente recebida e conferida naquela entrega. Não inventar documento ou custo; sem emissão de NF-e/NFC-e. |
 | Reposição e aprovação | Quem define estoque mínimo, quem pode pedir/comprar, valor que requer aprovação e se há limite máximo desejado. | Gerente define mínimos e prepara sugestão; proprietário/gerente autoriza compra. Não enviar pedido ao fornecedor automaticamente. |
 | Devolução, avaria e validade | Prazo e procedimento de devolução a fornecedor; como lidar com avaria, produto aberto, vencimento e itens consignados. | Movimentação separada e motivo obrigatório; item não retorna ao disponível até inspeção/decisão autorizada. Lote/validade pode começar obrigatório somente nas categorias em que você o exigir. |
 
@@ -233,3 +233,10 @@ O usuário decidiu permitir recebimentos parciais, em lançamentos separados. Ca
 O usuário decidiu que proprietário, gerente ou caixa podem registrar e confirmar a entrada física de mercadoria. Cada lançamento deve guardar a identidade autenticada de quem confirmou e integrar a trilha de auditoria. Quantidades e custos ainda precisam ser conferidos; esta decisão não autoriza implementação.
 
 **Próxima decisão:** tornar obrigatória a referência de nota, romaneio ou comprovante do fornecedor em cada lançamento, ou permiti-la opcionalmente quando disponível?
+
+
+## 22. Referência do recebimento definida em 14/11/2026 às 09h55
+
+A referência de nota, romaneio ou comprovante do fornecedor será opcional; armazená-la quando fornecida e não impedir o lançamento físico quando estiver ausente. Não inventar documento nem emitir documento fiscal.
+
+**Próxima decisão:** exigir custo unitário real para confirmar o recebimento, ou aceitar entrada física com custo pendente sem calcular margem até completar o custo?

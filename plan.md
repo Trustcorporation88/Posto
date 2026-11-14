@@ -441,3 +441,10 @@ A próxima decisão pendente é quais perfis podem registrar e confirmar uma ent
 O usuário autorizou proprietário, gerente ou caixa a registrar e confirmar recebimentos físicos. Cada confirmação permanece atribuída à identidade autenticada, nunca a um nome digitado ou presumido. Esta decisão não autoriza implementação.
 
 A próxima decisão pendente é exigir em cada recebimento a referência da nota, romaneio ou comprovante do fornecedor, ou deixá-la opcional quando disponível.
+
+
+## Definição de estoque, atualização de 14/11/2026 às 09h55
+
+O usuário decidiu que a referência de nota, romaneio ou comprovante do fornecedor é opcional em cada recebimento. Guardar quando fornecida; sua ausência não deve impedir a entrada física. Não criar número nem documento artificial e não emitir documento fiscal pelo GAS PUMP.
+
+A próxima decisão pendente é se o custo unitário real precisa estar disponível para confirmar o recebimento ou se a quantidade pode entrar com custo pendente, sem inventar custo e sem calcular margem até completar esse dado. Nenhuma implementação foi autorizada.
