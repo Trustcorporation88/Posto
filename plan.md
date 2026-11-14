@@ -392,3 +392,10 @@ Implementação concluída para revisão do usuário no menu Caixa do Preview: q
 ## Estado mais recente, 13/11/2026 às 20h01
 
 O usuário aprovou o fechamento central, concluindo sua entrega incremental. A etapa seguinte é definir as regras do estoque geral; a autorização para desenvolvê-las ainda não foi dada. A primeira decisão a fechar é se toda saída acima de `em mãos - reservado` será bloqueada, ou se proprietário/gerente poderá autorizar exceção mediante justificativa e alerta auditável. Recomendação: bloquear toda saída acima do disponível, sem exceção no início, protegendo itens já reservados e evitando saldo negativo. O aceite do caixa não significa aprovação automática de todas as etapas, conveniência, ordens de serviço ou publicação.
+
+
+## Definição de estoque, atualização de 13/11/2026 às 21h12
+
+O usuário definiu que proprietário/gerente pode autorizar exceção a uma saída acima de `em mãos - reservado`. Exigir justificativa, aviso explícito antes da confirmação e auditoria; permitir que a operação deixe saldo disponível negativo e afete quantidades prometidas. Caixa e técnico não recebem essa permissão. Essa decisão define a política, mas não autoriza código.
+
+A próxima regra pendente é quando reservar produtos para uma ordem de serviço: na aprovação do orçamento pelo cliente (recomendado, reduz disponível sem reduzir o saldo físico) ou somente quando o técnico iniciar o serviço (mantém estoque disponível para balcão durante a espera).

@@ -77,7 +77,7 @@ Para a primeira entrega, **cadastro, recebimento, posição/movimentações, ven
 
 1. O cronograma-base de 12 semanas e a dependência de concluir caixa multiusuário antes de vendas integradas estão aprovados?
 2. Quais categorias, produtos, SKUs, códigos de barras, embalagens e unidades de medida existem na conveniência e na troca de óleo?
-3. O estoque deve bloquear toda saída acima do disponível, ou gerente poderá autorizar exceção mediante justificativa auditada?
+3. **Definido pelo usuário em 13/11/2026 às 21h12:** proprietário/gerente poderá autorizar exceção a uma saída acima do disponível, com justificativa obrigatória, aviso explícito e auditoria; a exceção pode deixar saldo disponível negativo e afetar quantidades prometidas. Caixa e técnico não ganham essa autorização.
 4. Quando reservar item da ordem: ao aprovar orçamento (recomendação) ou ao iniciar serviço?
 5. Que regras valem para descontos, devolução, item aberto/avariado, troca por produto equivalente e formas de pagamento?
 6. Qual PDV, leitor, impressora, maquininha e fornecedor existem hoje? A implementação inicial permanece manual até confirmar modelos, contratos e APIs.
@@ -178,3 +178,10 @@ Validação final: 292 testes aprovados, 1 legado ignorado, TypeScript/lint/buil
 O usuário aprovou o fechamento central entregue no menu Caixa. Esse aceite encerra a terceira subentrega da Fase 3. Também iniciou a definição do estoque geral, mas não aprova automaticamente todo o cronograma de 12 semanas nem autoriza sua implementação. Conveniência e ordens de serviço continuam como etapas futuras, dependentes das regras e de autorização separada.
 
 A primeira política pendente é a saída acima do disponível, calculado como quantidade em mãos menos quantidade reservada pelas ordens aprovadas. Decidir entre bloquear toda venda/consumo acima desse saldo ou permitir exceção restrita a proprietário/gerente, com justificativa e alerta auditável. Recomendação inicial: bloquear, sem exceções, para proteger reservas e evitar saldo negativo até haver rotina deliberada de correção.
+
+
+## 14. Regra de exceção do estoque definida em 13/11/2026 às 21h12
+
+Por decisão do usuário, proprietário/gerente poderá autorizar venda ou consumo acima do disponível (`em mãos - reservado`) com justificativa obrigatória, aviso explícito antes da confirmação e trilha de auditoria. Essa exceção pode levar o saldo disponível a valor negativo e afetar quantidades prometidas; não concede a caixa/técnicos poder para aprová-la. A decisão não autoriza implementação.
+
+**Próxima decisão:** quando reservar os itens de uma ordem de serviço. Opções: ao cliente aprovar o orçamento (recomendado, protege a promessa e reduz somente o disponível) ou quando o técnico iniciar o serviço (mantém o item disponível para venda enquanto a ordem aguarda).

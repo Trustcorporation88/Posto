@@ -134,7 +134,9 @@ A revisão independente não encontrou falhas na abertura e confirmou um problem
 ### Subetapa aprovada e definições futuras
 
 - [x] Fechamento/conferência compartilhados: implementados, verificados e aprovados pelo usuário em 13/11/2026 às 20h01, com proprietário/gerente/caixa fechando e conferindo sozinho pela sessão autenticada.
-- [ ] Estoque geral: definir as regras de saldo e operação antes de qualquer autorização de código. A primeira decisão pendente é bloquear toda saída acima do disponível ou permitir exceção autorizada e auditada.
+- [x] Exceção de estoque: proprietário/gerente pode autorizar saída acima de `em mãos - reservado`, com justificativa obrigatória, aviso explícito antes da confirmação e evento de auditoria. A exceção pode produzir saldo disponível negativo e afetar quantidades prometidas. Caixa e técnico não recebem essa permissão.
+- [ ] Reserva de estoque para OS: decidir se acontece quando o cliente aprova o orçamento ou somente quando o técnico inicia o serviço; a recomendação é reservar na aprovação.
+- [ ] Demais regras de catálogo, fornecedores, unidades/conversões, recebimento, devoluções e contagem continuam pendentes. Não iniciar implementação sem as decisões e autorização explícita.
 - [ ] Conveniência e ordens de serviço: permanecem fora da implementação até conclusão das decisões do estoque e autorização explícita separada.
 
 **Salvamento do fechamento:** código enviado à main do remoto canônico Manus no commit `a1c377679e85ac089f56b44e471042a9232c36ad`. A documentação do resultado está no commit `8e0b52f54409bc20a89fd614226bbd1ab976afe9`. O recibo formal do checkpoint não retornou nesta sessão; não declarar registro em Version history apenas pelo push. A tarefa não publicou o código e auto_publicação continua desligada.
