@@ -469,3 +469,10 @@ A próxima decisão pendente é o método de custo: média móvel por item (reco
 O usuário escolheu FIFO por lote/recebimento para o custo interno. Cada entrega física, inclusive cada recebimento parcial, forma um lote próprio; as saídas são custeadas pela ordem cronológica das entradas. O custo/margem dos lotes com custo pendente não é calculado até que o custo real seja regularizado. Essa decisão não autoriza implementação.
 
 A próxima decisão pendente é se um lote FIFO ainda sem custo pode ser consumido ou vendido fisicamente com custo/margem pendentes para regularização posterior, ou se sua saída deve aguardar o custo.
+
+
+## Definição de estoque, atualização de 14/11/2026 às 10h08
+
+O usuário decidiu permitir venda/consumo físico de um lote FIFO cujo custo ainda esteja pendente. A saída e sua margem ficam sem custo calculado até o custo unitário real do lote ser informado; então, calcular retroativamente o custo das saídas vinculadas, preservando histórico e autoria das alterações. Esta decisão não autoriza implementação.
+
+A próxima decisão pendente é como a contagem física inicial será representada no FIFO: um lote de abertura por item com custo real comprovado ou pendente, ou separação por lotes históricos identificáveis com custos reais. Não inferir datas, lotes ou custos.
