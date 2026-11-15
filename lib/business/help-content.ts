@@ -217,6 +217,15 @@ export const HELP_SECTIONS: HelpSection[] = [
       { kind: "list", title: "Lancei um valor errado. Como apago?", items: ["Não se apaga. No caixa, registre o movimento correto e explique no fechamento. Na pista, o gerente faz um ajuste justificado."] },
       { kind: "list", title: "Por que a venda da pista é estimada?", items: ["Ela vem dos litros (diferença de encerrantes) vezes o preço vigente. Não é a soma das vendas do PDV nem documento fiscal."] },
       { kind: "list", title: "Posso usar duas abas ou dois aparelhos?", items: ["Pode. Se outra pessoa alterar o caixa enquanto você revisa, o sistema pede para atualizar e revisar de novo antes de gravar."] },
+      {
+        kind: "list",
+        title: "Como instalar no celular?",
+        items: [
+          "Android (Chrome): abra posto.trustcorp.com.br, toque no menu ⋮ e escolha Instalar app ou Adicionar à tela inicial.",
+          "iPhone (Safari): toque em Compartilhar e escolha Adicionar à Tela de Início.",
+          "O ícone do GAS PUMP abre o sistema em tela cheia. Continua precisando de internet.",
+        ],
+      },
       { kind: "list", title: "Onde treino sem mexer no posto real?", items: ["No ambiente de demonstração, com dados fictícios: gas-pump-demo.up.railway.app. Peça a senha ao administrador."] },
     ],
   },

@@ -121,6 +121,7 @@ describe("static caching", () => {
     await writeFile(path.join(directory, "index.html"), "<html><head></head><body></body></html>");
     await writeFile(path.join(directory, "_expo", "static", "js", "web", "entry-abc123.js"), "1");
     await writeFile(path.join(directory, "favicon.ico"), "i");
+    await writeFile(path.join(directory, "manifest.webmanifest"), "{}");
     const app = express();
     registerProductionWeb(app, directory);
     const base = await listen(app);
@@ -130,5 +131,8 @@ describe("static caching", () => {
     const icon = await fetch(`${base}/favicon.ico`);
     expect(icon.status).toBe(200);
     expect(icon.headers.get("cache-control")).not.toContain("immutable");
+    const manifest = await fetch(`${base}/manifest.webmanifest`);
+    expect(manifest.status).toBe(200);
+    expect(manifest.headers.get("content-type")).toContain("application/manifest+json");
   });
 });
