@@ -18,7 +18,7 @@ import {
   Icon,
   Label,
 } from "@/components/sobra/ui";
-import { isDemoMode } from "@/lib/api-base";
+import { useDemoMode } from "@/lib/api-base";
 import { helpSectionForPath } from "@/lib/business/help-content";
 import { trpc } from "@/lib/trpc";
 import { setBusinessCsrfToken } from "@/lib/business-csrf";
@@ -66,6 +66,7 @@ export function GestaoShell({
 }) {
   const pathname = usePathname();
   const helpSection = helpSectionForPath(pathname);
+  const demo = useDemoMode();
   const router = useRouter();
   const queryClient = useQueryClient();
   const session = useMe();
@@ -249,7 +250,7 @@ export function GestaoShell({
             gap: 24,
           }}
         >
-          {isDemoMode() ? (
+          {demo ? (
             <View
               accessibilityRole="alert"
               style={{

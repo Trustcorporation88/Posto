@@ -16,7 +16,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { migrate } from "drizzle-orm/mysql2/migrator";
 import { bootstrap, createOwnerPasswordReset, organizationExists } from "./auth/service";
 import { validEmail, validatePassword } from "./auth/security";
-import { seedDemo } from "./demo-seed";
+import { resetDemoPasswords, seedDemo } from "./demo-seed";
 
 let muted = false;
 const output = new Writable({
@@ -145,8 +145,13 @@ async function runSeedDemo() {
   console.log("Criando dados de demonstração (pode levar alguns minutos)…\n");
   const result = await seedDemo((line) => console.log(`  ${line}`));
   console.log("\nContas de demonstração (mesma senha para todas):\n");
-  for (const [role, email] of result.accounts) console.log(`  ${role.padEnd(20)} ${email}`);
+  for (const { role, email } of result.accounts) console.log(`  ${role.padEnd(20)} ${email}`);
   console.log(`\n  Senha: ${result.password}\n`);
+}
+
+async function runDemoPassword() {
+  const result = await resetDemoPasswords();
+  console.log(`Senha das ${result.updated} contas de demonstração definida como: ${result.password}`);
 }
 
 const commands: Record<string, () => Promise<void>> = {
@@ -155,6 +160,7 @@ const commands: Record<string, () => Promise<void>> = {
   "owner-reset": runOwnerReset,
   // Only on the DEMO deployment (DEMO_MODE=true) and only on an empty database.
   "seed-demo": runSeedDemo,
+  "demo-password": runDemoPassword,
 };
 
 async function main() {
