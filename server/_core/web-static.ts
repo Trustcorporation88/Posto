@@ -92,6 +92,10 @@ export function registerProductionWeb(app: Express, directory = path.resolve("we
         if (path.resolve(file).startsWith(hashedBundles)) {
           res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
         }
+        // Express 4's mime table predates the .webmanifest extension.
+        if (file.endsWith(".webmanifest")) {
+          res.setHeader("Content-Type", "application/manifest+json; charset=utf-8");
+        }
       },
     }),
   );

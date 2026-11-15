@@ -1,0 +1,16 @@
+{
+  "name": "GAS PUMP · Gestão de posto",
+  "short_name": "GAS PUMP",
+  "description": "Caixa por turno, pista e combustíveis, relatórios e equipe do posto.",
+  "lang": "pt-BR",
+  "start_url": "/gestao",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F6F5EF",
+  "theme_color": "#214D40",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
