@@ -4,7 +4,10 @@ import { defineRailway, github, mysql, project, service, volume } from "railway/
 // US East is the Railway region closest to Brazil.
 const REGION = "us-east4-eqdc4a";
 
-export default defineRailway(() => {
+export default defineRailway((ctx) => {
+  // "demo": separate database with fictitious data for training and usability tests.
+  const demo = ctx.environment === "demo";
+
   const MySQL = mysql("MySQL", { region: REGION });
   MySQL.deploy = { startCommand: "docker-entrypoint.sh mysqld --innodb-use-native-aio=0 --disable-log-bin --performance_schema=0 --innodb-buffer-pool-size=1G" };
   MySQL.networking = { privateNetworkEndpoint: "mysql" };
@@ -23,7 +26,8 @@ export default defineRailway(() => {
     env: {
       PORT: "3000",
       NODE_ENV: "production",
-      PUBLIC_APP_URL: "https://posto.trustcorp.com.br",
+      PUBLIC_APP_URL: demo ? "https://gas-pump-demo.up.railway.app" : "https://posto.trustcorp.com.br",
+      ...(demo ? { DEMO_MODE: "true" } : {}),
       DATABASE_URL: MySQL.env.MYSQL_URL,
     },
   });

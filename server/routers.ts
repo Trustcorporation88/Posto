@@ -35,6 +35,7 @@ import {
 } from "./auth/service";
 import { fuelRouter } from "./modules/fuel";
 import { cashRouter } from "./modules/cash";
+import { dashboardRouter } from "./modules/dashboard";
 
 const loginRateLimiter = new LoginRateLimiter();
 const emailSchema = z.string().refine(validEmail, "E-mail inválido.");
@@ -300,6 +301,7 @@ export const appRouter = router({
   businessAuth,
   businessAdmin,
   cash: cashRouter,
+  dashboard: dashboardRouter,
   fuel: fuelRouter,
 });
 

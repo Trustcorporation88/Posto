@@ -17,8 +17,8 @@ import {
   Card,
   Icon,
   Label,
-  Notice,
 } from "@/components/sobra/ui";
+import { isDemoMode } from "@/lib/api-base";
 import { trpc } from "@/lib/trpc";
 import { setBusinessCsrfToken } from "@/lib/business-csrf";
 import { GasPumpBrand } from "@/components/sobra/gas-pump-brand";
@@ -46,8 +46,10 @@ export function useBusinessCsrf(enabled = true) {
 }
 
 const nav = [
+  { path: "/gestao/painel", label: "Painel", icon: "home" },
   { path: "/gestao/caixa", label: "Caixa", icon: "dollar-sign" },
   { path: "/gestao/pista", label: "Combustíveis", icon: "droplet" },
+  { path: "/gestao/relatorios", label: "Relatórios", icon: "bar-chart-2" },
   { path: "/gestao/equipe", label: "Equipe", icon: "users" },
 ] as const;
 
@@ -115,6 +117,11 @@ export function GestaoShell({
 
   const profile = session.data as any;
   const visibleNav = nav.filter((item) => {
+    if (item.path === "/gestao/painel" || item.path === "/gestao/relatorios") {
+      return ["owner", "manager", "cashier", "attendant", "finance_viewer"].includes(
+        profile.role,
+      );
+    }
     if (item.path === "/gestao/equipe") {
       return profile.role === "owner" || profile.role === "manager";
     }
@@ -238,6 +245,21 @@ export function GestaoShell({
             gap: 24,
           }}
         >
+          {isDemoMode() ? (
+            <View
+              accessibilityRole="alert"
+              style={{
+                backgroundColor: C.orangeBg,
+                borderRadius: 12,
+                paddingVertical: 10,
+                paddingHorizontal: 14,
+              }}
+            >
+              <Text style={{ color: C.orange, fontFamily: F.bold, fontSize: 13 }}>
+                AMBIENTE DE DEMONSTRAÇÃO · dados fictícios, separados do posto real
+              </Text>
+            </View>
+          ) : null}
           <View
             style={{
               flexDirection: "row",
@@ -278,12 +300,11 @@ export function GestaoShell({
             </View>
           </View>
           {children}
-          <Notice>
-            O fechamento é manual e registra diferença pendente quando os
-            valores não coincidem; não confirma banco, TEF, POS ou documento
-            fiscal. Combustíveis e pista permanecem disponíveis; conveniência e
-            troca de óleo seguem em etapas futuras.
-          </Notice>
+          <Text style={{ color: C.muted, fontFamily: F.regular, fontSize: 11 }}>
+            Valores de pista e margem são estimativas gerenciais. O caixa é
+            conferido manualmente e não substitui banco, TEF, PDV ou documento
+            fiscal.
+          </Text>
         </View>
       </ScrollView>
     </View>
