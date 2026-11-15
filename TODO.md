@@ -242,3 +242,13 @@ Evidências: 337 testes aprovados e 1 legado ignorado; TypeScript e lint sem err
 - [x] **Identificadores nativos:** `br.com.trustcorp.posto`, slug e esquema `gaspump`.
 - [x] **Imagem enxuta:** a imagem final leva só dependências de produção; pacotes não usados removidos.
 - [x] **Domínio:** `posto.trustcorp.com.br` (DNS no Cloudflare).
+
+## Painel, relatórios e demonstração (15/11/2026)
+
+- [x] **Painel inicial** (`/gestao/painel`, página inicial de todos os perfis com módulos): caixa do turno com esperado por meio, últimos fechamentos, pista do dia, gráfico de 7 dias, litros por combustível e estoque teórico por tanque.
+- [x] **Primeiros passos** para proprietário/gerente: oito etapas na ordem de dependência, com atalho para cada tela; some quando tudo estiver concluído.
+- [x] **Relatórios** (`/gestao/relatorios`): 7, 30 ou 90 dias; pista por dia e por combustível, recebimentos, fechamentos de caixa com diferenças e exportação CSV.
+- [x] **Ambiente de demonstração** separado no Railway (`demo`, banco próprio, `DEMO_MODE=true`, faixa visível). `seed-demo` cria 30 dias de pista e 14 de caixa pelos próprios serviços, só em banco vazio do demo.
+- [x] **Manual da equipe** em PDF (`docs/manual/Manual-GAS-PUMP.pdf`).
+
+Evidências: 304 testes, TypeScript e lint sem erros. Seed no demo: 360 leituras, 17 recebimentos, 29 turnos e 325 movimentos; painel e relatório de 30 dias responderam 200 (relatório em ~0,5 s); capturas de tela em computador e celular conferidas. Banco de produção não recebeu dados fictícios.

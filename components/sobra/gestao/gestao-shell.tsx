@@ -263,12 +263,13 @@ export function GestaoShell({
           <View
             style={{
               flexDirection: "row",
+              flexWrap: "wrap",
               alignItems: "flex-start",
               justifyContent: "space-between",
-              gap: 16,
+              gap: 12,
             }}
           >
-            <View style={{ gap: 7 }}>
+            <View style={{ gap: 7, flexShrink: 1 }}>
               <Label>BAURU · SP</Label>
               <Text
                 style={{
