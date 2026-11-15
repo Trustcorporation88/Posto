@@ -1,7 +1,7 @@
 /**
  * Custom environment loader that prioritizes system environment variables
- * over .env file values. This ensures that Manus platform-injected variables
- * are not overridden by placeholder values in .env
+ * over .env file values, so values injected by the host (e.g. Railway) are never
+ * overridden by local placeholders.
  */
 import fs from "fs";
 import path from "path";
@@ -31,23 +31,4 @@ if (fs.existsSync(envPath)) {
       }
     }
   });
-}
-
-// Map platform variables to Expo public variables. Canonical MANUS_* names win;
-// legacy aliases remain as fallbacks for older published environments.
-const mappings = [
-  ["MANUS_PROJECT_ID", "EXPO_PUBLIC_APP_ID"],
-  ["MANUS_OAUTH_PORTAL_URL", "EXPO_PUBLIC_OAUTH_PORTAL_URL"],
-  ["MANUS_OAUTH_API_URL", "EXPO_PUBLIC_OAUTH_SERVER_URL"],
-  ["VITE_APP_ID", "EXPO_PUBLIC_APP_ID"],
-  ["VITE_OAUTH_PORTAL_URL", "EXPO_PUBLIC_OAUTH_PORTAL_URL"],
-  ["OAUTH_SERVER_URL", "EXPO_PUBLIC_OAUTH_SERVER_URL"],
-  // The owner identifier stays server-only (OWNER_OPEN_ID). Never map it to an
-  // EXPO_PUBLIC_* name: Expo inlines those values into the public JavaScript bundle.
-];
-
-for (const [systemVar, expoVar] of mappings) {
-  if (process.env[systemVar] && !process.env[expoVar]) {
-    process.env[expoVar] = process.env[systemVar];
-  }
 }

@@ -1,12 +1,9 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
-import type { User } from "../../drizzle/schema";
-import { sdk } from "./sdk";
 import { SESSION_COOKIE } from "../auth/security";
 import { resolveSession } from "../auth/service";
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
   res: CreateExpressContextOptions["res"];
-  user: User | null;
   businessUser?: { id: number; name: string; email: string } | null;
   businessMembership?: {
     id: number;
@@ -48,12 +45,6 @@ function cookieValue(header: string | undefined, name: string) {
 export async function createContext(
   opts: CreateExpressContextOptions,
 ): Promise<TrpcContext> {
-  let user: User | null = null;
-  try {
-    user = await sdk.authenticateRequest(opts.req);
-  } catch {
-    user = null;
-  }
   let business = null;
   try {
     business = await resolveSession(
@@ -65,7 +56,6 @@ export async function createContext(
   return {
     req: opts.req,
     res: opts.res,
-    user,
     businessUser: business?.user ?? null,
     businessMembership: business?.membership ?? null,
     businessOrganization: business?.organization ?? null,

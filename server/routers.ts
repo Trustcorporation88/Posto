@@ -1,8 +1,6 @@
 import { parse as parseCookieHeader } from "cookie";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { systemRouter } from "./_core/systemRouter";
-import { ENV } from "./_core/env";
 import {
   businessManagerProcedure,
   businessOwnerProcedure,
@@ -11,7 +9,6 @@ import {
   requireTrustedOrigin,
   router,
 } from "./_core/trpc";
-import { getSessionCookieName, getSessionCookieOptions } from "./_core/cookies";
 import {
   INVITE_ROLES,
   LoginRateLimiter,
@@ -25,9 +22,7 @@ import {
   acceptInvitation,
   acceptPasswordReset,
   authenticate,
-  bootstrap,
   createInvitation,
-  createOwnerPasswordReset,
   createPasswordReset,
   issueSession,
   listInvitations,
@@ -52,15 +47,6 @@ function errorCode(error: unknown) {
   return String(error.message);
 }
 
-function isProjectOwner(user: { openId: string; role: string } | null) {
-  return Boolean(
-    user &&
-    user.role === "admin" &&
-    ENV.ownerOpenId &&
-    user.openId === ENV.ownerOpenId,
-  );
-}
-
 function businessSessionToken(cookieHeader: string | undefined) {
   if (!cookieHeader) return "";
   try {
@@ -70,53 +56,11 @@ function businessSessionToken(cookieHeader: string | undefined) {
   }
 }
 
-function businessCookieOptions(req: Parameters<typeof cookieOptions>[0]) {
-  const publicTransport = cookieOptions(req);
-  return {
-    ...getSessionCookieOptions(req as never),
-    httpOnly: true,
-    path: "/",
-    sameSite: publicTransport.sameSite,
-    secure: publicTransport.secure,
-  };
-}
-
 const businessAuth = router({
-  setupStatus: publicProcedure.query(async ({ ctx }) => ({
+  // The first owner is created on the server (`node dist/admin.mjs bootstrap`), never here.
+  setupStatus: publicProcedure.query(async () => ({
     hasOrganization: await organizationExists(),
-    canBootstrap: isProjectOwner(ctx.user),
   })),
-
-  bootstrapOwner: publicProcedure
-    .use(requireTrustedOrigin)
-    .input(
-      z.object({
-        organizationName: z.string().trim().min(1).max(160),
-        locationName: z.string().trim().min(1).max(160),
-        ownerName: z.string().trim().min(2).max(120),
-        email: emailSchema,
-        password: passwordSchema,
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      if (!isProjectOwner(ctx.user)) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Acesso não autorizado.",
-        });
-      }
-      try {
-        return await bootstrap(input);
-      } catch (error) {
-        if (errorCode(error) === "BOOTSTRAP_CLOSED") {
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: "A configuração inicial já foi concluída.",
-          });
-        }
-        throw error;
-      }
-    }),
 
   login: publicProcedure
     .use(requireTrustedOrigin)
@@ -154,7 +98,7 @@ const businessAuth = router({
       }
       loginRateLimiter.clear(key);
       ctx.res.cookie(SESSION_COOKIE, issued.token, {
-        ...businessCookieOptions(ctx.req),
+        ...cookieOptions(ctx.req),
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
       return { success: true };
@@ -180,7 +124,7 @@ const businessAuth = router({
 
   logout: businessProcedure.mutation(async ({ ctx }) => {
     await revokeSession(businessSessionToken(ctx.req.headers.cookie));
-    ctx.res.clearCookie(SESSION_COOKIE, businessCookieOptions(ctx.req));
+    ctx.res.clearCookie(SESSION_COOKIE, cookieOptions(ctx.req));
     return { success: true };
   }),
 
@@ -226,25 +170,6 @@ const businessAuth = router({
         });
       }
       return { success: true };
-    }),
-
-  ownerPasswordResetLink: publicProcedure
-    .use(requireTrustedOrigin)
-    .mutation(async ({ ctx }) => {
-      if (!isProjectOwner(ctx.user)) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Acesso não autorizado.",
-        });
-      }
-      const token = await createOwnerPasswordReset();
-      if (!token) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Não há conta proprietária ativa para recuperar.",
-        });
-      }
-      return { token };
     }),
 });
 
@@ -372,17 +297,6 @@ const businessAdmin = router({
 });
 
 export const appRouter = router({
-  system: systemRouter,
-  auth: router({
-    me: publicProcedure.query(({ ctx }) => ctx.user),
-    logout: publicProcedure.mutation(({ ctx }) => {
-      ctx.res.clearCookie(getSessionCookieName(ctx.req), {
-        ...getSessionCookieOptions(ctx.req),
-        maxAge: -1,
-      });
-      return { success: true } as const;
-    }),
-  }),
   businessAuth,
   businessAdmin,
   cash: cashRouter,
