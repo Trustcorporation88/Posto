@@ -4,6 +4,8 @@ import { Redirect } from "expo-router";
 import { Body, C, Card, F, Label, Notice } from "@/components/sobra/ui";
 import { GestaoShell, useMe } from "@/components/sobra/gestao/gestao-shell";
 
+const DASHBOARD_ROLES = ["owner", "manager", "cashier", "attendant", "finance_viewer"];
+
 export default function GestaoHome() {
   const session = useMe();
 
@@ -29,17 +31,8 @@ export default function GestaoHome() {
     return <Redirect href="/gestao/login" />;
   }
 
-  const role = session.data.role;
-  if (role === "cashier") {
-    return <Redirect href="/gestao/caixa" />;
-  }
-  if (
-    role === "owner" ||
-    role === "manager" ||
-    role === "attendant" ||
-    role === "finance_viewer"
-  ) {
-    return <Redirect href="/gestao/pista" />;
+  if (DASHBOARD_ROLES.includes(session.data.role)) {
+    return <Redirect href={"/gestao/painel" as never} />;
   }
 
   return (
@@ -50,11 +43,11 @@ export default function GestaoHome() {
       <Card style={{ gap: 13 }}>
         <Label>SEM MÓDULO INICIAL DISPONÍVEL</Label>
         <Text style={{ color: C.ink, fontFamily: F.heading, fontSize: 20 }}>
-          Este perfil não tem acesso à pista nem ao caixa.
+          Este perfil ainda não tem módulos disponíveis.
         </Text>
         <Notice warning>
-          O perfil técnico de troca de óleo não recebe acesso ao caixa nesta
-          subetapa. Nenhum redirecionamento automático será repetido.
+          O perfil de técnico de troca de óleo receberá acesso quando o módulo
+          de ordens de serviço for entregue.
         </Notice>
       </Card>
     </GestaoShell>

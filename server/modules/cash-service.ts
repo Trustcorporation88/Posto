@@ -828,10 +828,11 @@ function drizzleRepository(db: CashDb): CashRepository {
   };
 }
 
-async function serviceWithDatabase() {
+/** Database-backed service. The clock is injectable only for the demo seed and tests. */
+export async function serviceWithDatabase(nowProvider?: () => Date) {
   const db = await getDb();
   if (!db) throw unavailable();
-  return createCashService(drizzleRepository(db));
+  return createCashService(drizzleRepository(db), nowProvider);
 }
 
 export async function getCashPosition(scope: CashScope): Promise<CashPosition> {

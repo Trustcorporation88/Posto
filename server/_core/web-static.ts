@@ -3,13 +3,13 @@ import { readFile, stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 
-export function publicWebConfig() {
+export function publicWebConfig(env: Readonly<Record<string, string | undefined>> = process.env) {
   // Exact allowlist. Never spread env or include credentials here. The published site
   // calls its own origin, so the API base stays empty.
-  return { apiBaseUrl: "" };
+  return { apiBaseUrl: "", demoMode: env.DEMO_MODE === "true" };
 }
 
-export function injectPublicWebConfig(html: string, config: Readonly<Record<string, string>>) {
+export function injectPublicWebConfig(html: string, config: Readonly<Record<string, string | boolean>>) {
   const safeJson = JSON.stringify(config)
     .replace(/</g, "\\u003c")
     .replace(/\u2028/g, "\\u2028")

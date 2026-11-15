@@ -16,6 +16,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { migrate } from "drizzle-orm/mysql2/migrator";
 import { bootstrap, createOwnerPasswordReset, organizationExists } from "./auth/service";
 import { validEmail, validatePassword } from "./auth/security";
+import { seedDemo } from "./demo-seed";
 
 let muted = false;
 const output = new Writable({
@@ -140,17 +141,27 @@ async function runOwnerReset() {
   console.log("\nEnvie por um canal privado. Gerar outro link invalida este.");
 }
 
+async function runSeedDemo() {
+  console.log("Criando dados de demonstração (pode levar alguns minutos)…\n");
+  const result = await seedDemo((line) => console.log(`  ${line}`));
+  console.log("\nContas de demonstração (mesma senha para todas):\n");
+  for (const [role, email] of result.accounts) console.log(`  ${role.padEnd(20)} ${email}`);
+  console.log(`\n  Senha: ${result.password}\n`);
+}
+
 const commands: Record<string, () => Promise<void>> = {
   migrate: runMigrate,
   bootstrap: runBootstrap,
   "owner-reset": runOwnerReset,
+  // Only on the DEMO deployment (DEMO_MODE=true) and only on an empty database.
+  "seed-demo": runSeedDemo,
 };
 
 async function main() {
   const name = process.argv[2] ?? "";
   const command = commands[name];
   if (!command) {
-    console.log("Uso: node dist/admin.mjs <migrate|bootstrap|owner-reset>");
+    console.log("Uso: node dist/admin.mjs <migrate|bootstrap|owner-reset|seed-demo>");
     process.exitCode = 1;
     return;
   }

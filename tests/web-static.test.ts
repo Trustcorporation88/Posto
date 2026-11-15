@@ -78,7 +78,8 @@ describe("production Expo Web serving", () => {
     vi.stubEnv("DATABASE_URL", "private-db");
     vi.stubEnv("EXPO_PUBLIC_API_BASE_URL", "https://temporary.example.test");
     const config = publicWebConfig();
-    expect(config).toEqual({ apiBaseUrl: "" });
+    expect(config).toEqual({ apiBaseUrl: "", demoMode: false });
+    expect(publicWebConfig({ DEMO_MODE: "true" }).demoMode).toBe(true);
     const html = injectPublicWebConfig("<html><head></head><body></body></html>", {
       ...config,
       note: "</script><script>alert(1)</script>",

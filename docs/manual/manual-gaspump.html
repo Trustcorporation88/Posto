@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>GAS PUMP · Manual da equipe</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: #172D28; font-size: 10.5pt; line-height: 1.5; }
+  h1 { font-size: 26pt; color: #214D40; margin: 0 0 4px; }
+  h2 { font-size: 15pt; color: #214D40; border-bottom: 2px solid #DAE8B0; padding-bottom: 4px; margin-top: 26px; page-break-after: avoid; }
+  h3 { font-size: 11.5pt; margin: 16px 0 4px; page-break-after: avoid; }
+  p, li { margin: 4px 0; }
+  .cover { background: #214D40; color: #fff; padding: 28px; border-radius: 14px; margin-bottom: 18px; }
+  .cover h1 { color: #fff; }
+  .cover p { color: #DAE8B0; margin: 0; }
+  .box { background: #EDF1E5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; }
+  .warn { background: #FBEEE7; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #8a3f27; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 9.5pt; }
+  th, td { border: 1px solid #E5E7DD; padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #EDF1E5; }
+  img { width: 100%; border: 1px solid #E5E7DD; border-radius: 8px; margin: 8px 0; }
+  img.phone { width: 42%; }
+  .step { counter-increment: step; }
+  code { background: #EDF1E5; padding: 1px 5px; border-radius: 4px; }
+  .muted { color: #7A8279; font-size: 9pt; }
+  .break { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>GAS PUMP</h1>
+  <p>Manual da equipe · Gestão de posto · versão de novembro de 2026</p>
+</div>
+
+<p>O GAS PUMP organiza o dia a dia do posto: abertura e fechamento do caixa por turno, leituras das bombas,
+estoque dos tanques, preços, margem por litro e relatórios. Funciona no navegador do computador e do celular,
+em <b>https://posto.trustcorp.com.br</b>.</p>
+
+<div class="box"><b>Três regras que valem em todo o sistema</b>
+<ul>
+  <li><b>Nada grava sem revisão.</b> Toda operação mostra uma tela de conferência. Só o botão <i>Confirmar e registrar</i> salva.</li>
+  <li><b>Nada é apagado.</b> Erros são corrigidos com um novo lançamento justificado. O histórico mostra quem fez o quê e quando.</li>
+  <li><b>Cada pessoa usa a própria conta.</b> O nome gravado nos registros é sempre o da conta que está conectada.</li>
+</ul></div>
+
+<h2>1. Acesso e funções</h2>
+<p>Não há cadastro público. O proprietário convida cada pessoa em <b>Equipe</b>: informa o e-mail e a função, e o sistema
+gera um link de convite válido por 72 horas. Envie o link por um canal privado (WhatsApp, por exemplo). A pessoa abre o link e cria a própria senha
+(mínimo de 12 caracteres).</p>
+<table>
+  <tr><th>Função</th><th>Pode fazer</th></tr>
+  <tr><td>Proprietário</td><td>Tudo. Também convida, troca funções, bloqueia contas e gera links de redefinição de senha.</td></tr>
+  <tr><td>Gerente</td><td>Cadastros, preços, recebimentos e ajustes da pista; abre, movimenta e fecha o caixa; vê a equipe.</td></tr>
+  <tr><td>Caixa</td><td>Abre, movimenta e fecha o caixa; vê painel e relatórios do caixa.</td></tr>
+  <tr><td>Frentista</td><td>Registra leituras de bico e medições dos tanques; vê o painel da pista.</td></tr>
+  <tr><td>Consulta financeira</td><td>Vê caixa, pista e relatórios, sem alterar nada.</td></tr>
+</table>
+<p><b>Esqueci a senha:</b> a equipe pede ao proprietário um link de redefinição (vale 30 minutos, uso único). O proprietário
+recupera a própria senha pelo administrador do servidor.</p>
+
+<h2>2. Painel</h2>
+<p>É a primeira tela depois do login. Mostra, para o seu perfil:</p>
+<ul>
+  <li><b>Primeiros passos</b> (proprietário e gerente): o que já foi configurado e o que falta. Toque em um item para ir à tela certa.</li>
+  <li><b>Caixa:</b> turno aberto, dinheiro esperado na gaveta, Pix, débito e crédito lançados, e os últimos fechamentos com ou sem diferença.</li>
+  <li><b>Pista hoje:</b> litros vendidos, venda estimada, margem estimada, pendências de medição, gráfico dos últimos 7 dias e estoque teórico de cada tanque.</li>
+</ul>
+<img src="img/painel.png" alt="Painel no computador">
+
+<h2>3. Configuração inicial (uma vez)</h2>
+<p>Feita pelo proprietário ou gerente, em <b>Combustíveis</b>, nesta ordem:</p>
+<ol>
+  <li><b>Combustíveis:</b> em <i>Estrutura da pista</i>, escolha a categoria e use <i>Adicionar</i>. Ex.: GC Gasolina comum, ET Etanol, S10 Diesel S10.</li>
+  <li><b>Tanques:</b> cada tanque fica ligado a um combustível. Informe a capacidade para ver o percentual de ocupação.</li>
+  <li><b>Bombas</b> e <b>bicos:</b> cada bico fica ligado à bomba e ao tanque que o abastece.</li>
+  <li><b>Preço:</b> <i>Registrar preço</i> para cada combustível, com a data e hora em que passa a valer.</li>
+  <li><b>Encerrante inicial:</b> <i>Registrar encerrante inicial</i> de cada bico com o número atual do contador da bomba.</li>
+  <li><b>Estoque inicial:</b> registre a carga com <i>Receber combustível</i> (ou <i>Ajustar estoque</i>, com justificativa) e confira com <i>Medir tanque fisicamente</i>.</li>
+  <li><b>Equipe:</b> convide gerente, caixas e frentistas.</li>
+</ol>
+
+<h2 class="break">4. Caixa por turno</h2>
+<p>Turnos de Bauru: segunda a sábado 06h–14h e 14h–22h; domingos e feriados 07h–13h e 13h–19h. O sistema escolhe o turno pelo relógio do servidor.</p>
+<h3>Abrir o turno</h3>
+<ol>
+  <li>Conte o fundo de troco e digite o valor (zero é permitido, se não houver).</li>
+  <li>Confira a revisão (operador, data, turno, fundo) e toque em <i>Confirmar e abrir caixa</i>.</li>
+</ol>
+<h3>Registrar movimentos</h3>
+<ul>
+  <li><b>Recebimento:</b> meio (dinheiro, Pix, débito, crédito), natureza (venda do turno ou conta anterior), valor e descrição.
+  Pix, cartões e contas anteriores exigem uma referência (NSU, número do comprovante). Nunca digite número de cartão, CVV ou senha.</li>
+  <li><b>Sangria:</b> retirada de dinheiro da gaveta (ex.: para o cofre). Não pode ser maior que o dinheiro esperado.</li>
+  <li><b>Suprimento:</b> reforço de troco em dinheiro.</li>
+</ul>
+<p class="muted">Dinheiro esperado = fundo + recebimentos em dinheiro + suprimentos − sangrias. Fundo, sangria e suprimento são guarda de dinheiro, não receita nem despesa.</p>
+<h3>Fechar o turno</h3>
+<ol>
+  <li>Conte o dinheiro da gaveta (incluindo o fundo) e digite.</li>
+  <li>Digite os totais de Pix, débito e crédito dos relatórios das maquininhas.</li>
+  <li>O sistema mostra o esperado e a diferença de cada meio. Se houver diferença, escreva a justificativa: o turno fecha como <b>diferença pendente</b>.</li>
+  <li>Toque em <i>Confirmar e fechar turno</i>. Depois disso o turno não aceita movimentos e o próximo pode ser aberto.</li>
+</ol>
+<img src="img/caixa.png" alt="Tela do caixa">
+<div class="warn">O caixa não fecha sozinho quando o horário acaba. Enquanto um turno estiver aberto, outro não pode ser aberto.
+O fechamento é uma conferência manual: não confirma banco, TEF, PDV nem documento fiscal.</div>
+
+<h2>5. Pista e combustíveis</h2>
+<table>
+  <tr><th>Quando</th><th>O que fazer</th><th>Botão</th></tr>
+  <tr><td>Fim de cada turno</td><td>Anotar o encerrante final de cada bico. O sistema calcula litros, venda estimada e custo.</td><td>Registrar leitura de pista</td></tr>
+  <tr><td>Chegada do caminhão</td><td>Fornecedor, tanque, volume, custo por litro e número da nota (opcional).</td><td>Receber combustível</td></tr>
+  <tr><td>Periodicamente (ex.: semanal)</td><td>Medir o tanque com régua/sensor. Diferenças viram pendência a investigar.</td><td>Medir tanque fisicamente</td></tr>
+  <tr><td>Mudança de preço</td><td>Novo preço com data e hora. Faça uma leitura de todos os bicos no mesmo horário.</td><td>Registrar preço</td></tr>
+  <tr><td>Correção autorizada</td><td>Entrada ou saída com justificativa (só proprietário/gerente).</td><td>Ajustar estoque</td></tr>
+  <tr><td>Troca ou zeramento do medidor</td><td>Novo encerrante com justificativa.</td><td>Troca/reset de medidor</td></tr>
+</table>
+<p><b>Margem estimada</b> = venda estimada − custo médio do combustível vendido. É um indicador de gestão, não lucro contábil.
+Sem custo de compra conhecido, a margem aparece como indisponível.</p>
+
+<h2 class="break">6. Relatórios</h2>
+<p>Escolha 7, 30 ou 90 dias. O relatório mostra:</p>
+<ul>
+  <li>Litros, venda e margem estimadas do período, gráfico de venda por dia e participação de cada combustível.</li>
+  <li>Por combustível: litros, venda, margem por litro, preço vigente e custo médio.</li>
+  <li>Recebimentos de combustível do período.</li>
+  <li>Caixa: turnos fechados, quantos com diferença, diferença líquida, total conferido por meio e lista dos turnos com justificativas.</li>
+</ul>
+<p>Os botões <i>Exportar em CSV</i> geram planilhas para Excel (ponto e vírgula, vírgula decimal).</p>
+<img src="img/relatorios.png" alt="Relatórios">
+
+<h2>7. No celular</h2>
+<p>O mesmo endereço funciona no celular. O menu fica no topo. Dica: no navegador do celular, use <i>Adicionar à tela inicial</i> para abrir como aplicativo.</p>
+<img class="phone" src="img/painel-celular.png" alt="Painel no celular">
+
+<h2>8. Ambiente de demonstração</h2>
+<p>Para treinar sem risco, use <b>https://gas-pump-demo.up.railway.app</b>. Ele tem um banco separado, com 30 dias de pista e 14 dias de caixa
+fictícios, e mostra a faixa <i>AMBIENTE DE DEMONSTRAÇÃO</i> em todas as telas. Nada feito lá aparece no posto real.</p>
+<table>
+  <tr><th>Perfil</th><th>E-mail</th></tr>
+  <tr><td>Proprietária</td><td>proprietario@gaspump.test</td></tr>
+  <tr><td>Gerente</td><td>manager@gaspump.test</td></tr>
+  <tr><td>Caixa</td><td>cashier@gaspump.test</td></tr>
+  <tr><td>Frentista</td><td>attendant@gaspump.test</td></tr>
+  <tr><td>Consulta financeira</td><td>finance@gaspump.test</td></tr>
+</table>
+<p class="muted">A senha da demonstração é informada pelo administrador.</p>
+
+<h2>9. Perguntas frequentes</h2>
+<h3>Lancei um valor errado. Como apago?</h3>
+<p>Não se apaga. No caixa, registre o movimento correto e explique no fechamento. Na pista, o gerente faz um ajuste justificado.</p>
+<h3>Por que a venda da pista é "estimada"?</h3>
+<p>Ela vem de litros (diferença de encerrantes) × preço vigente. Não é a soma das vendas do PDV nem documento fiscal.</p>
+<h3>O sistema funciona sem internet?</h3>
+<p>Não. Toda gravação é confirmada no servidor. Sem conexão, a tela avisa e nada é salvo pela metade.</p>
+<h3>Posso usar duas abas ao mesmo tempo?</h3>
+<p>Pode. Se outra pessoa alterar o caixa enquanto você revisa, o sistema pede para atualizar e revisar de novo antes de gravar.</p>
+
+</body>
+</html>

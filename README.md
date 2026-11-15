@@ -39,6 +39,18 @@ node dist/admin.mjs owner-reset   # link de redefinição de senha do proprietá
 
 As senhas são digitadas de forma oculta. A equipe entra por convite gerado pelo proprietário na tela Equipe.
 
+## Demonstração
+
+O ambiente Railway `demo` (https://gas-pump-demo.up.railway.app) tem banco próprio e `DEMO_MODE=true`, que mostra a faixa de demonstração.
+Para recriar os dados fictícios num banco demo vazio:
+
+```bash
+railway ssh --service gas-pump --environment demo
+cd /app && node dist/admin.mjs seed-demo   # recusa rodar sem DEMO_MODE=true ou com empresa já cadastrada
+```
+
+Manual da equipe: `docs/manual/Manual-GAS-PUMP.pdf` (fonte em `docs/manual/manual-gaspump.html`).
+
 ## Dados
 
 - Valores em centavos inteiros; volumes em `DECIMAL(18,3)`.
