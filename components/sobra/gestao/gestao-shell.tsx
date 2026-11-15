@@ -19,6 +19,7 @@ import {
   Label,
 } from "@/components/sobra/ui";
 import { isDemoMode } from "@/lib/api-base";
+import { helpSectionForPath } from "@/lib/business/help-content";
 import { trpc } from "@/lib/trpc";
 import { setBusinessCsrfToken } from "@/lib/business-csrf";
 import { GasPumpBrand } from "@/components/sobra/gas-pump-brand";
@@ -51,6 +52,7 @@ const nav = [
   { path: "/gestao/pista", label: "Combustíveis", icon: "droplet" },
   { path: "/gestao/relatorios", label: "Relatórios", icon: "bar-chart-2" },
   { path: "/gestao/equipe", label: "Equipe", icon: "users" },
+  { path: "/gestao/ajuda", label: "Ajuda", icon: "help-circle" },
 ] as const;
 
 export function GestaoShell({
@@ -63,6 +65,7 @@ export function GestaoShell({
   subtitle: string;
 }) {
   const pathname = usePathname();
+  const helpSection = helpSectionForPath(pathname);
   const router = useRouter();
   const queryClient = useQueryClient();
   const session = useMe();
@@ -117,6 +120,7 @@ export function GestaoShell({
 
   const profile = session.data as any;
   const visibleNav = nav.filter((item) => {
+    if (item.path === "/gestao/ajuda") return true;
     if (item.path === "/gestao/painel" || item.path === "/gestao/relatorios") {
       return ["owner", "manager", "cashier", "attendant", "finance_viewer"].includes(
         profile.role,
@@ -282,6 +286,19 @@ export function GestaoShell({
                 {title}
               </Text>
               <Body>{subtitle}</Body>
+              {helpSection ? (
+                <Link href={`/gestao/ajuda?secao=${helpSection}` as any} asChild>
+                  <Pressable
+                    accessibilityRole="link"
+                    style={{ flexDirection: "row", alignItems: "center", gap: 6, alignSelf: "flex-start", paddingVertical: 4 }}
+                  >
+                    <Icon name="help-circle" size={14} color={C.green} />
+                    <Text style={{ color: C.green, fontFamily: F.bold, fontSize: 12 }}>
+                      Como usar esta tela
+                    </Text>
+                  </Pressable>
+                </Link>
+              ) : null}
             </View>
             <View
               style={{

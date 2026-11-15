@@ -91,6 +91,14 @@ function SetupChecklist({ steps }: { steps: NonNullable<Overview["setup"]> }) {
       <View style={{ height: 8, borderRadius: 4, backgroundColor: C.light, overflow: "hidden" }}>
         <View style={{ width: `${(done / steps.length) * 100}%`, height: 8, backgroundColor: C.green }} />
       </View>
+      <Button
+        compact
+        variant="ghost"
+        icon="book-open"
+        onPress={() => router.push("/gestao/ajuda?secao=primeiros-passos" as never)}
+      >
+        Ver o passo a passo explicado
+      </Button>
       <View style={{ gap: 2 }}>
         {steps.map((step) => (
           <Pressable
