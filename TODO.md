@@ -233,3 +233,12 @@ Build final de produção web/servidor concluído após os reparos; mantidas 21 
 - [x] **Testes e CI:** `vitest.config.ts` impede carregar configuração Vite de pastas superiores; workflow GitHub Actions roda TypeScript, lint, testes e build de produção.
 
 Evidências: 337 testes aprovados e 1 legado ignorado; TypeScript e lint sem erros; `build:production` concluído; servidor de produção local respondeu saúde/login/bundle 200, API inexistente 404, corpo de 1,2 MB 413 e erro sem banco com mensagem genérica. Nenhum banco, conta real, migração ou publicação usados. Regras de negócio não alteradas.
+
+## Independência do Manus e hospedagem própria (14/11/2026)
+
+- [x] **Sem dependência do Manus:** removidos OAuth do Manus, runtime do painel, proxy de arquivos, módulos de IA/notificação/heartbeat e cookies legados. O login por e-mail e senha, sessões, CSRF e papéis continuam iguais.
+- [x] **Proprietário pelo servidor:** `node dist/admin.mjs bootstrap` cria empresa, unidade e proprietário uma única vez; `node dist/admin.mjs owner-reset` gera link de redefinição de 30 minutos. Senhas digitadas de forma oculta, nunca como argumento. As telas Configurar e Recuperar passam a explicar esses comandos.
+- [x] **Migrações no deploy:** `node dist/admin.mjs migrate` aplica as migrações Drizzle; o Railway roda o comando antes de cada deploy (`railway.json`).
+- [x] **Identificadores nativos:** `br.com.trustcorp.posto`, slug e esquema `gaspump`.
+- [x] **Imagem enxuta:** a imagem final leva só dependências de produção; pacotes não usados removidos.
+- [x] **Domínio:** `posto.trustcorp.com.br` (DNS no Cloudflare).

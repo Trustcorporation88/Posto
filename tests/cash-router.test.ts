@@ -67,7 +67,6 @@ function context(options: {
   return {
     req,
     res: {} as TrpcContext["res"],
-    user: null,
     businessUser: { id: 30, name: "Operadora", email: "cash@example.test" },
     businessMembership: {
       id: 50,

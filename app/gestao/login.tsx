@@ -100,7 +100,7 @@ export default function GestaoLogin() {
           variant="ghost"
           onPress={() => router.replace("/gestao/recuperar" as any)}
         >
-          Sou proprietário e esqueci a senha
+          Esqueci a senha
         </Button>
         <Button
           variant="ghost"

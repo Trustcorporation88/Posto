@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import Head from "expo-router/head";
 import { StatusBar } from "expo-status-bar";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Platform } from "react-native";
 import { ThemeProvider } from "@/lib/theme-provider";
@@ -15,13 +15,9 @@ import {
   SafeAreaProvider,
   initialWindowMetrics,
 } from "react-native-safe-area-context";
-import type { EdgeInsets, Metrics, Rect } from "react-native-safe-area-context";
+import type { EdgeInsets, Rect } from "react-native-safe-area-context";
 import { trpc, createTRPCClient } from "@/lib/trpc";
 import { installBusinessSessionEvents } from "@/lib/business-session-events";
-import {
-  initManusRuntime,
-  subscribeSafeAreaInsets,
-} from "@/lib/_core/manus-runtime";
 import { useFonts } from "expo-font";
 import {
   Manrope_700Bold,
@@ -45,23 +41,10 @@ export default function RootLayout() {
   });
   const initialInsets = initialWindowMetrics?.insets ?? DEFAULT_WEB_INSETS;
   const initialFrame = initialWindowMetrics?.frame ?? DEFAULT_WEB_FRAME;
-  const [insets, setInsets] = useState<EdgeInsets>(initialInsets);
-  const [frame, setFrame] = useState<Rect>(initialFrame);
-  useEffect(() => {
-    initManusRuntime();
-  }, []);
   useEffect(() => {
     if (Platform.OS !== "web") return;
     return installBusinessSessionEvents();
   }, []);
-  const handleSafeAreaUpdate = useCallback((metrics: Metrics) => {
-    setInsets(metrics.insets);
-    setFrame(metrics.frame);
-  }, []);
-  useEffect(() => {
-    if (Platform.OS !== "web") return;
-    return subscribeSafeAreaInsets(handleSafeAreaUpdate);
-  }, [handleSafeAreaUpdate]);
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -96,7 +79,6 @@ export default function RootLayout() {
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="gestao" />
-            <Stack.Screen name="oauth/callback" />
           </Stack>
           <StatusBar style="dark" />
         </QueryClientProvider>
@@ -107,8 +89,8 @@ export default function RootLayout() {
     <ThemeProvider>
       <SafeAreaProvider initialMetrics={providerInitialMetrics}>
         {Platform.OS === "web" ? (
-          <SafeAreaFrameContext.Provider value={frame}>
-            <SafeAreaInsetsContext.Provider value={insets}>
+          <SafeAreaFrameContext.Provider value={initialFrame}>
+            <SafeAreaInsetsContext.Provider value={initialInsets}>
               {content}
             </SafeAreaInsetsContext.Provider>
           </SafeAreaFrameContext.Provider>

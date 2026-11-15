@@ -48,7 +48,6 @@ function context(
       ip: "127.0.0.1",
     },
     res: {} as TrpcContext["res"],
-    user: null,
     businessUser: { id: 30, name: "Fechadora", email: "close@example.test" },
     businessMembership: {
       id: 50,

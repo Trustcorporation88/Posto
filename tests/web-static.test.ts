@@ -16,9 +16,7 @@ beforeEach(async () => {
   await writeFile(path.join(directory, "index.html"), "<!doctype html><html><head></head><body>Local</body></html>");
   await writeFile(path.join(directory, "gestao", "pista.html"), "<!doctype html><html><head></head><body>Pista</body></html>");
   await writeFile(path.join(directory, "app.js"), "console.log('test');");
-  vi.stubEnv("MANUS_PROJECT_ID", "test-project");
-  vi.stubEnv("MANUS_OAUTH_PORTAL_URL", "https://login.example.test");
-  vi.stubEnv("MANUS_API_KEY", "private-test-value");
+  vi.stubEnv("DATABASE_URL", "mysql://private-test-value");
   const app = express();
   app.get("/api/health", (_req, res) => res.json({ ok: true }));
   registerProductionWeb(app, directory);
@@ -47,7 +45,6 @@ describe("production Expo Web serving", () => {
     expect(response.headers.get("cache-control")).toContain("no-store");
     expect(html).toContain("<head><script>globalThis.__SOBRA_PUBLIC_CONFIG__=");
     expect(html).toContain('"apiBaseUrl":""');
-    expect(html).toContain("test-project");
     expect(html).not.toContain("private-test-value");
   });
 
@@ -78,16 +75,14 @@ describe("production Expo Web serving", () => {
   });
 
   it("serializes only the explicit public allowlist and escapes script termination", () => {
-    const config = publicWebConfig({
-      MANUS_PROJECT_ID: "project",
-      MANUS_OAUTH_PORTAL_URL: "</script><script>alert(1)</script>",
-      MANUS_API_KEY: "private",
-      OWNER_OPEN_ID: "owner-private",
-      DATABASE_URL: "private-db",
-      EXPO_PUBLIC_API_BASE_URL: "https://temporary.example.test",
+    vi.stubEnv("DATABASE_URL", "private-db");
+    vi.stubEnv("EXPO_PUBLIC_API_BASE_URL", "https://temporary.example.test");
+    const config = publicWebConfig();
+    expect(config).toEqual({ apiBaseUrl: "" });
+    const html = injectPublicWebConfig("<html><head></head><body></body></html>", {
+      ...config,
+      note: "</script><script>alert(1)</script>",
     });
-    expect(Object.keys(config).sort()).toEqual(["apiBaseUrl", "appId", "oauthPortalUrl", "oauthServerUrl"]);
-    const html = injectPublicWebConfig("<html><head></head><body></body></html>", config);
     expect(html).not.toContain("</script><script>alert");
     expect(html).not.toContain("private");
     expect(html).not.toContain("temporary.example.test");
