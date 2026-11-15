@@ -2026,6 +2026,15 @@
             "productId"
           ],
           "isUnique": true
+        },
+        "fuel_tank_scope_id_uq": {
+          "name": "fuel_tank_scope_id_uq",
+          "columns": [
+            "organizationId",
+            "locationId",
+            "id"
+          ],
+          "isUnique": true
         }
       },
       "foreignKeys": {

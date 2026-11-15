@@ -3,6 +3,7 @@ ALTER TABLE `business_fuel_prices` ADD CONSTRAINT `fuel_price_scope_id_product_u
 ALTER TABLE `business_fuel_products` ADD CONSTRAINT `fuel_product_scope_id_uq` UNIQUE(`organizationId`,`locationId`,`id`);--> statement-breakpoint
 ALTER TABLE `business_fuel_pumps` ADD CONSTRAINT `fuel_pump_scope_id_uq` UNIQUE(`organizationId`,`locationId`,`id`);--> statement-breakpoint
 ALTER TABLE `business_fuel_tanks` ADD CONSTRAINT `fuel_tank_scope_id_product_uq` UNIQUE(`organizationId`,`locationId`,`id`,`productId`);--> statement-breakpoint
+ALTER TABLE `business_fuel_tanks` ADD CONSTRAINT `fuel_tank_scope_id_uq` UNIQUE(`organizationId`,`locationId`,`id`);--> statement-breakpoint
 ALTER TABLE `business_locations` ADD CONSTRAINT `business_location_scope_id_uq` UNIQUE(`organizationId`,`id`);--> statement-breakpoint
 ALTER TABLE `business_fuel_adjustments` ADD CONSTRAINT `fuel_adjustment_location_fk` FOREIGN KEY (`organizationId`,`locationId`) REFERENCES `business_locations`(`organizationId`,`id`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE `business_fuel_adjustments` ADD CONSTRAINT `fuel_adjustment_tank_product_fk` FOREIGN KEY (`organizationId`,`locationId`,`tankId`,`productId`) REFERENCES `business_fuel_tanks`(`organizationId`,`locationId`,`id`,`productId`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
