@@ -6,7 +6,12 @@
  * ledgers, average costs, cash revisions and audit trails stay consistent. Cash services get
  * a simulated clock; fuel services accept past event timestamps by design.
  */
-import { randomBytes, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
+import { like } from "drizzle-orm";
+import { businessUsers } from "../drizzle/schema";
+import { DEMO_ACCOUNTS, DEMO_EMAIL_DOMAIN, DEMO_PASSWORD } from "../shared/demo";
+import { hashPassword } from "./auth/security";
+import { getDb } from "./db";
 import { getScheduleForDate } from "../lib/station-calendar";
 import { acceptInvitation, bootstrap, createInvitation, issueSession, organizationExists, resolveSession } from "./auth/service";
 import { serviceWithDatabase as cashOpenService } from "./modules/cash-service";
@@ -26,7 +31,7 @@ import {
 
 const FUEL_DAYS = 30;
 const CASH_DAYS = 14;
-const DOMAIN = "gaspump.test";
+const DOMAIN = DEMO_EMAIL_DOMAIN;
 
 /** Deterministic PRNG so every demo database looks the same. */
 function rng(seed: number) {
@@ -66,7 +71,7 @@ export async function seedDemo(log: Log = console.log) {
   if (await organizationExists()) {
     throw new Error("Este banco já tem uma empresa. A demonstração só é criada em banco vazio.");
   }
-  const password = `demo-${randomBytes(6).toString("base64url")}`;
+  const password = DEMO_PASSWORD;
   const now = new Date();
   const today = localDate(now);
 
@@ -373,14 +378,20 @@ export async function seedDemo(log: Log = console.log) {
   }
   log(`${turns} turnos de caixa e ${movementsTotal} movimentos registrados.`);
 
-  return {
-    password,
-    accounts: [
-      ["Proprietária", `proprietario@${DOMAIN}`],
-      ["Gerente", `manager@${DOMAIN}`],
-      ["Caixa", `cashier@${DOMAIN}`],
-      ["Frentista", `attendant@${DOMAIN}`],
-      ["Consulta financeira", `finance@${DOMAIN}`],
-    ] as const,
-  };
+  return { password, accounts: DEMO_ACCOUNTS };
+}
+
+/** Sets the public demo password on every demo account (DEMO_MODE only). */
+export async function resetDemoPasswords() {
+  if (process.env.DEMO_MODE !== "true") {
+    throw new Error("demo-password só roda com DEMO_MODE=true (ambiente de demonstração).");
+  }
+  const db = await getDb();
+  if (!db) throw new Error("SERVICE_UNAVAILABLE");
+  const passwordHash = await hashPassword(DEMO_PASSWORD);
+  const [result] = await db
+    .update(businessUsers)
+    .set({ passwordHash })
+    .where(like(businessUsers.email, `%@${DEMO_EMAIL_DOMAIN}`));
+  return { password: DEMO_PASSWORD, updated: (result as { affectedRows?: number }).affectedRows ?? 0 };
 }

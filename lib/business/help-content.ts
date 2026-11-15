@@ -226,7 +226,7 @@ export const HELP_SECTIONS: HelpSection[] = [
           "O ícone do GAS PUMP abre o sistema em tela cheia. Continua precisando de internet.",
         ],
       },
-      { kind: "list", title: "Onde treino sem mexer no posto real?", items: ["No ambiente de demonstração, com dados fictícios: gas-pump-demo.up.railway.app. Peça a senha ao administrador."] },
+      { kind: "list", title: "Onde treino sem mexer no posto real?", items: ["No ambiente de demonstração, com dados fictícios: gas-pump-demo.up.railway.app. A tela de login de lá tem um botão para entrar com cada perfil."] },
     ],
   },
 ];

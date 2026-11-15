@@ -17,7 +17,10 @@ import { GasPumpBrand } from "@/components/sobra/gas-pump-brand";
 import { clearBusinessQueryCache } from "@/lib/business-query-cache";
 import { setBusinessCsrfToken } from "@/lib/business-csrf";
 import { notifyBusinessSessionChanged } from "@/lib/business-session-events";
+import { useDemoMode } from "@/lib/api-base";
+import { DEMO_ACCOUNTS, DEMO_PASSWORD } from "@/shared/demo";
 export default function GestaoLogin() {
+  const demo = useDemoMode();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
@@ -55,7 +58,44 @@ export default function GestaoLogin() {
             A entrada é destinada às pessoas convidadas pela administração.
           </Body>
         </View>
-        <Notice>Acesso restrito à equipe convidada</Notice>
+        {demo ? (
+          <View
+            style={{
+              backgroundColor: C.orangeBg,
+              borderRadius: 12,
+              padding: 14,
+              gap: 10,
+            }}
+          >
+            <Text style={{ color: C.orange, fontFamily: F.bold, fontSize: 13 }}>
+              AMBIENTE DE DEMONSTRAÇÃO · dados fictícios
+            </Text>
+            <Text style={{ color: C.ink, fontFamily: F.regular, fontSize: 13 }}>
+              Escolha um perfil para entrar. Senha de todas as contas:{" "}
+              <Text style={{ fontFamily: F.bold }}>{DEMO_PASSWORD}</Text>
+            </Text>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+              {DEMO_ACCOUNTS.map((account) => (
+                <Button
+                  key={account.email}
+                  compact
+                  variant="secondary"
+                  disabled={login.isPending}
+                  onPress={() => {
+                    setEmail(account.email);
+                    setPassword(DEMO_PASSWORD);
+                    setError("");
+                    login.mutate({ email: account.email, password: DEMO_PASSWORD });
+                  }}
+                >
+                  {`Entrar como ${account.role}`}
+                </Button>
+              ))}
+            </View>
+          </View>
+        ) : (
+          <Notice>Acesso restrito à equipe convidada</Notice>
+        )}
         {error ? <Notice warning>{error}</Notice> : null}
         <Field
           label="E-mail"

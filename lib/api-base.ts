@@ -1,4 +1,5 @@
 import Constants from "expo-constants";
+import { useSyncExternalStore } from "react";
 import { Platform } from "react-native";
 import { localDevApiOrigin } from "./api-origin";
 
@@ -25,6 +26,16 @@ function configuredBase() {
 /** True only on the separate demonstration deployment (DEMO_MODE=true on the server). */
 export function isDemoMode(): boolean {
   return injectedConfig()?.demoMode === true;
+}
+
+const noSubscription = () => () => undefined;
+
+/**
+ * Demo flag for rendering. The static HTML is exported without it, so the server snapshot
+ * is false and the banner appears right after hydration instead of mismatching it.
+ */
+export function useDemoMode(): boolean {
+  return useSyncExternalStore(noSubscription, isDemoMode, () => false);
 }
 
 /** Base URL for API calls. Empty means same origin (production). */
