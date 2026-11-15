@@ -256,6 +256,9 @@ export const businessFuelTanks = mysqlTable(
       t.id,
       t.productId,
     ),
+    // Exact key for fuel_tank_inventory_tank_fk: MySQL 8.4+ rejects foreign keys whose
+    // referenced columns are not a whole unique key (TiDB accepted it).
+    uniqueIndex("fuel_tank_scope_id_uq").on(t.organizationId, t.locationId, t.id),
     foreignKey({
       name: "fuel_tank_location_fk",
       columns: [t.organizationId, t.locationId],
