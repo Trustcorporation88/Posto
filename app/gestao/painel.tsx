@@ -58,9 +58,11 @@ function PainelContent({ data }: { data: Overview }) {
   return (
     <View style={{ gap: 24 }}>
       {data.setup ? <SetupChecklist steps={data.setup} /> : null}
+      {/* Month, projection and 12-month history first: they are meaningful at any hour,
+          while "today" is still empty before the first shift closes. */}
+      {data.fuel ? <FuelMonthly /> : null}
       {data.cash ? <CashToday cash={data.cash} /> : null}
       {data.fuel ? <FuelToday fuel={data.fuel} /> : null}
-      {data.fuel ? <FuelMonthly /> : null}
       {data.cash || data.fuel ? (
         <Button variant="secondary" icon="bar-chart-2" onPress={() => router.push("/gestao/relatorios" as never)}>
           Ver relatórios do período
