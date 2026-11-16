@@ -29,7 +29,9 @@ import {
   recordFuelTankMeasurement,
 } from "./modules/fuel-service";
 
-const FUEL_DAYS = 30;
+const FUEL_DAYS = 365;
+/** Monthly demand profile (January first): weaker February, stronger December. */
+const SEASON = [0.94, 0.88, 0.97, 0.98, 1.0, 0.97, 1.04, 1.02, 0.99, 1.01, 1.03, 1.12];
 const CASH_DAYS = 14;
 const DOMAIN = DEMO_EMAIL_DOMAIN;
 
@@ -107,12 +109,14 @@ export async function seedDemo(log: Log = console.log) {
 
   // Station structure -----------------------------------------------------------------------
   const manager = fuelScope(people.manager);
+  // Prices and costs in cents per liter at the start of the history; both drift month to month.
   const products = [
-    { code: "GC", name: "Gasolina comum", price: 629, cost: 558, capacity: 30_000, start: 24_000, daily: 3_000 },
-    { code: "GA", name: "Gasolina aditivada", price: 659, cost: 582, capacity: 15_000, start: 9_000, daily: 900 },
-    { code: "ET", name: "Etanol hidratado", price: 439, cost: 379, capacity: 20_000, start: 15_000, daily: 1_600 },
-    { code: "S10", name: "Diesel S10", price: 609, cost: 541, capacity: 20_000, start: 14_000, daily: 1_700 },
+    { code: "GC", name: "Gasolina comum", price: 609, cost: 541, capacity: 30_000, start: 24_000, daily: 3_200 },
+    { code: "ET", name: "Etanol hidratado", price: 419, cost: 362, capacity: 20_000, start: 15_000, daily: 1_700 },
+    { code: "S10", name: "Diesel S10", price: 589, cost: 523, capacity: 20_000, start: 14_000, daily: 1_800 },
   ];
+  const prices = products.map((product) => product.price);
+  const costs = products.map((product) => product.cost);
   const tanks: { id: number; productIndex: number; theoretical: bigint }[] = [];
   const productIds: number[] = [];
   for (const [index, product] of products.entries()) {
@@ -133,11 +137,10 @@ export async function seedDemo(log: Log = console.log) {
   // [pump, product index, share of the product's daily volume]
   const layout: [number, number, number][] = [
     [0, 0, 0.5],
-    [0, 1, 1],
-    [0, 2, 0.5],
+    [0, 1, 0.5],
     [1, 0, 0.5],
-    [1, 2, 0.5],
-    [1, 3, 1],
+    [1, 1, 0.5],
+    [1, 2, 1],
   ];
   const nozzles: { id: number; productIndex: number; tankIndex: number; share: number; counter: bigint }[] = [];
   for (const [index, [pumpIndex, productIndex, share]] of layout.entries()) {
@@ -150,7 +153,7 @@ export async function seedDemo(log: Log = console.log) {
     });
     nozzles.push({ id, productIndex, tankIndex: productIndex, share, counter: BigInt(int(150_000, 900_000)) * 1000n });
   }
-  log("Pista cadastrada: 4 combustíveis, 4 tanques, 2 bombas, 6 bicos.");
+  log("Pista cadastrada: 3 combustíveis, 3 tanques, 2 bombas, 5 bicos.");
 
   // Opening day: prices, first loads and meter baselines --------------------------------------
   const firstDay = shiftDate(today, -FUEL_DAYS);
@@ -158,15 +161,14 @@ export async function seedDemo(log: Log = console.log) {
   for (const [index, product] of products.entries()) {
     await createFuelPrice(manager, {
       productId: productIds[index],
-      price: money(product.price),
+      price: money(prices[index]),
       effectiveAt: start.toISOString(),
     });
   }
   const suppliers = ["Distribuidora Rota Paulista (DEMO)", "Combustíveis Interior SP (DEMO)"];
   let documentNumber = 48_210;
   async function receive(tankIndex: number, quantity: number, when: Date) {
-    const product = products[tankIndex];
-    const cost = Math.round(product.cost * between(0.97, 1.04));
+    const cost = Math.round(costs[tankIndex] * between(0.98, 1.02));
     await createFuelReceipt(manager, {
       productId: productIds[tankIndex],
       tankId: tanks[tankIndex].id,
@@ -192,13 +194,15 @@ export async function seedDemo(log: Log = console.log) {
   log(`Abertura da demonstração em ${firstDay}: preços, cargas iniciais e encerrantes.`);
 
   // Day by day -------------------------------------------------------------------------------
-  const priceChangeDay = shiftDate(today, -12);
-  let pendingPriceChange = true;
   let readings = 0;
+  let priceChanges = 0;
   for (let day = 0; day <= FUEL_DAYS; day += 1) {
     const date = shiftDate(firstDay, day);
     const schedule = getScheduleForDate(date);
     const weekday = new Date(`${date}T12:00:00Z`).getUTCDay();
+    const season = SEASON[Number(date.slice(5, 7)) - 1];
+    const growth = 0.94 + 0.06 * (day / FUEL_DAYS);
+    const weekdayFactor = weekday === 5 ? 1.08 : weekday === 6 ? 1.05 : 1;
 
     // Weekly physical measurement on Mondays, before the station opens.
     if (weekday === 1 && day > 0) {
@@ -221,17 +225,25 @@ export async function seedDemo(log: Log = console.log) {
     for (const shift of schedule.shifts) {
       const end = at(date, shift.end);
       if (end.getTime() > now.getTime() - 60_000) continue;
-      const dayFactor = schedule.kind === "normal" ? 1 : 0.65;
+      const dayFactor = (schedule.kind === "normal" ? 1 : 0.65) * season * growth * weekdayFactor;
 
-      // A price change at a shift end needs that reading to be the boundary of every nozzle.
-      if (pendingPriceChange && date === priceChangeDay && shift.id === "turno-2") {
-        await createFuelPrice(manager, { productId: productIds[0], price: money(639), effectiveAt: end.toISOString() });
-        await createFuelPrice(manager, { productId: productIds[2], price: money(429), effectiveAt: end.toISOString() });
-        pendingPriceChange = false;
+      // Monthly repricing on the 1st. The change takes effect exactly at this shift-end reading,
+      // which is the boundary of every nozzle, so no interval crosses two prices.
+      if (day > 0 && date.endsWith("-01") && shift.id === "turno-1") {
+        for (const index of products.keys()) {
+          prices[index] = Math.round(prices[index] * between(0.985, 1.03));
+          costs[index] = Math.round(prices[index] * between(0.865, 0.895));
+          await createFuelPrice(manager, {
+            productId: productIds[index],
+            price: money(prices[index]),
+            effectiveAt: end.toISOString(),
+          });
+          priceChanges += 1;
+        }
       }
       for (const nozzle of nozzles) {
         const product = products[nozzle.productIndex];
-        const liters = Math.max(0, product.daily * nozzle.share * 0.5 * dayFactor * between(0.7, 1.3));
+        const liters = Math.max(0, product.daily * nozzle.share * 0.5 * dayFactor * between(0.85, 1.15));
         const milli = BigInt(Math.round(liters * 1000));
         const previous = nozzle.counter;
         nozzle.counter += milli;
@@ -255,7 +267,7 @@ export async function seedDemo(log: Log = console.log) {
       }
     }
   }
-  log(`${readings} leituras de bico registradas.`);
+  log(`${readings} leituras de bico e ${priceChanges} reajustes de preço registrados.`);
 
   // Cash: last CASH_DAYS days, every shift opened, moved and closed ---------------------------
   const cashier = await cashScope(people.cashier);

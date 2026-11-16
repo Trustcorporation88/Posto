@@ -6,6 +6,7 @@ import type { AppRouter } from "@/server/routers";
 import { Body, Button, C, Card, F, Icon, Label, Notice, SectionTitle } from "@/components/sobra/ui";
 import { GestaoShell, useMe } from "@/components/sobra/gestao/gestao-shell";
 import { BarChart, Metric, ShareBars } from "@/components/sobra/gestao/dashboard-charts";
+import { FuelMonthly } from "@/components/sobra/gestao/fuel-monthly";
 import { formatCents, formatMilliLiters } from "@/lib/business/fuel-domain";
 import { litersToMilli } from "@/lib/business/dashboard";
 import { trpc } from "@/lib/trpc";
@@ -59,6 +60,7 @@ function PainelContent({ data }: { data: Overview }) {
       {data.setup ? <SetupChecklist steps={data.setup} /> : null}
       {data.cash ? <CashToday cash={data.cash} /> : null}
       {data.fuel ? <FuelToday fuel={data.fuel} /> : null}
+      {data.fuel ? <FuelMonthly /> : null}
       {data.cash || data.fuel ? (
         <Button variant="secondary" icon="bar-chart-2" onPress={() => router.push("/gestao/relatorios" as never)}>
           Ver relatórios do período
