@@ -100,7 +100,7 @@ export async function seedDemo(log: Log = console.log) {
   const owner = await bootstrap({
     organizationName: "Posto Exemplo Ltda (DEMO)",
     locationName: "Posto Exemplo · Bauru",
-    ownerName: "Ana Proprietária",
+    ownerName: "Flávio Rinaldi",
     email: `proprietario@${DOMAIN}`,
     password,
   });
