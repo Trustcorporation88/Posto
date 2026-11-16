@@ -84,7 +84,91 @@ export function BarChart({
   );
 }
 
-const SHARE_COLORS = [C.green, C.blue, "#D59A34", C.orange, "#8BAA5B", "#5C6F68"];
+export const SERIES_COLORS = [C.green, "#D59A34", C.blue, C.orange, "#8BAA5B", "#5C6F68"];
+const SHARE_COLORS = SERIES_COLORS;
+
+export type StackedPoint = {
+  key: string;
+  label: string;
+  /** Height basis per series, same order as `series`. */
+  values: number[];
+  display: string;
+};
+
+/** Stacked vertical bars (e.g. liters per month split by fuel) with a text legend. */
+export function StackedBarChart({
+  points,
+  series,
+  height = 170,
+  highlightLast = false,
+}: {
+  points: StackedPoint[];
+  series: string[];
+  height?: number;
+  highlightLast?: boolean;
+}) {
+  const totals = points.map((point) => point.values.reduce((sum, value) => sum + Math.max(0, value), 0));
+  const max = Math.max(0, ...totals);
+  if (points.length === 0 || max <= 0) {
+    return (
+      <View style={{ height, justifyContent: "center", alignItems: "center" }}>
+        <Text style={{ color: C.muted, fontFamily: F.regular, fontSize: 13 }}>Sem dados no período.</Text>
+      </View>
+    );
+  }
+  const width = 100;
+  const gap = 1.6;
+  const barWidth = (width - gap * (points.length - 1)) / points.length;
+  return (
+    <View
+      accessible
+      accessibilityLabel={points.map((point) => `${point.label}: ${point.display}`).join("; ")}
+      style={{ gap: 8 }}
+    >
+      <Svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none">
+        <Line x1={0} y1={height - 0.5} x2={width} y2={height - 0.5} stroke={C.line} strokeWidth={1} />
+        {points.map((point, index) => {
+          let y = height;
+          const faded = highlightLast && index === points.length - 1;
+          return point.values.map((value, serie) => {
+            const segment = value > 0 ? (value / max) * (height - 8) : 0;
+            y -= segment;
+            return (
+              <Rect
+                key={`${point.key}-${serie}`}
+                x={index * (barWidth + gap)}
+                y={y}
+                width={barWidth}
+                height={segment}
+                fill={SERIES_COLORS[serie % SERIES_COLORS.length]}
+                opacity={faded ? 0.45 : 1}
+              />
+            );
+          });
+        })}
+      </Svg>
+      <View style={{ flexDirection: "row" }}>
+        {points.map((point) => (
+          <Text
+            key={point.key}
+            numberOfLines={1}
+            style={{ flex: 1, textAlign: "center", color: C.muted, fontFamily: F.medium, fontSize: 10 }}
+          >
+            {point.label}
+          </Text>
+        ))}
+      </View>
+      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 14 }}>
+        {series.map((name, serie) => (
+          <View key={name} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+            <View style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: SERIES_COLORS[serie % SERIES_COLORS.length] }} />
+            <Text style={{ color: C.ink, fontFamily: F.medium, fontSize: 12 }}>{name}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
 
 /** Horizontal share bars with name, percent and exact value: readable on any screen size. */
 export function ShareBars({

@@ -6,6 +6,7 @@ import type { AppRouter } from "@/server/routers";
 import { Body, Button, C, Card, F, Icon, Label, Notice, SectionTitle } from "@/components/sobra/ui";
 import { GestaoShell, useMe } from "@/components/sobra/gestao/gestao-shell";
 import { BarChart, Metric, ShareBars } from "@/components/sobra/gestao/dashboard-charts";
+import { FuelMonthly } from "@/components/sobra/gestao/fuel-monthly";
 import { formatCents, formatMilliLiters } from "@/lib/business/fuel-domain";
 import { litersToMilli } from "@/lib/business/dashboard";
 import { trpc } from "@/lib/trpc";
@@ -57,6 +58,9 @@ function PainelContent({ data }: { data: Overview }) {
   return (
     <View style={{ gap: 24 }}>
       {data.setup ? <SetupChecklist steps={data.setup} /> : null}
+      {/* Month, projection and 12-month history first: they are meaningful at any hour,
+          while "today" is still empty before the first shift closes. */}
+      {data.fuel ? <FuelMonthly /> : null}
       {data.cash ? <CashToday cash={data.cash} /> : null}
       {data.fuel ? <FuelToday fuel={data.fuel} /> : null}
       {data.cash || data.fuel ? (

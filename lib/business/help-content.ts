@@ -88,12 +88,18 @@ export const HELP_SECTIONS: HelpSection[] = [
       {
         kind: "list",
         items: [
+          "Mês atual: galonagem, faturamento e margem estimados, preço e margem por litro, média diária e comparação com os mesmos dias do mês anterior.",
+          "Simulação de fechamento: quanto o mês deve fechar em litros, faturamento e margem se o ritmo dos dias já fechados continuar, comparado com a média mensal dos últimos 12 meses, no total e por combustível.",
+          "Últimos 12 meses: galonagem por mês separada por combustível, faturamento por mês, total do ano, média mensal e melhor mês.",
+          "Galonagem por dia do mês e cobertura de estoque: quantos dias cada combustível aguenta no consumo médio dos últimos 30 dias.",
           "Caixa: turno aberto, operador, dinheiro esperado na gaveta, Pix, débito e crédito lançados e os últimos fechamentos.",
-          "Pista hoje: litros vendidos, venda estimada, margem estimada e tanques com diferença de medição a investigar.",
-          "Gráfico dos últimos 7 dias, litros por combustível e estoque teórico de cada tanque.",
+          "Pista hoje: litros, venda, margem, tanques com diferença de medição, últimos 7 dias e estoque de cada tanque.",
         ],
       },
-      { kind: "note", text: "Os números da pista do dia só aparecem depois da primeira leitura de encerrante, no fim do turno." },
+      {
+        kind: "note",
+        text: "A simulação usa só dias fechados (até ontem) e começa no 2º dia do mês. A média de 12 meses considera apenas meses completos com vendas registradas. Os números do dia aparecem depois da primeira leitura de encerrante, no fim do turno.",
+      },
     ],
   },
   {

@@ -10,6 +10,7 @@ import {
   summarizeClosings,
   trailingDates,
 } from "../../lib/business/dashboard";
+import { analyticsStart, fuelAnalytics } from "../../lib/business/fuel-analytics";
 import { businessProcedure, router } from "../_core/trpc";
 import type { TrpcContext } from "../_core/context";
 import { getDb } from "../db";
@@ -78,6 +79,30 @@ async function dailyFuelSeries(
   return aggregateDailyFuel(rows, dates, timeZone);
 }
 
+async function analyticsRows(scope: { organizationId: number; locationId: number }, today: string) {
+  const db = await getDb();
+  if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Banco indisponível." });
+  const from = new Date(`${analyticsStart(today)}T00:00:00Z`);
+  from.setUTCHours(from.getUTCHours() - 36);
+  return db
+    .select({
+      measuredAt: businessFuelReadings.measuredAt,
+      productId: businessFuelReadings.productId,
+      quantityLiters: businessFuelReadings.quantityLiters,
+      revenueCents: businessFuelReadings.revenueCents,
+      costCents: businessFuelReadings.costCents,
+    })
+    .from(businessFuelReadings)
+    .where(
+      and(
+        eq(businessFuelReadings.organizationId, scope.organizationId),
+        eq(businessFuelReadings.locationId, scope.locationId),
+        eq(businessFuelReadings.kind, "interval"),
+        gte(businessFuelReadings.measuredAt, from),
+      ),
+    );
+}
+
 async function nozzlesWithBaseline(scope: { organizationId: number; locationId: number }) {
   const db = await getDb();
   if (!db) return new Set<number>();
@@ -99,6 +124,47 @@ async function recentClosings(scope: Parameters<typeof getCashClosingHistory>[0]
 }
 
 export const dashboardRouter = router({
+  /** Month-to-date, month-end projection, last 12 closed months and stock coverage. */
+  fuelMonthly: businessProcedure.query(async ({ ctx }) => {
+    const s = scopes(ctx);
+    if (!FUEL_READERS.includes(s.role)) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "Seu perfil não pode consultar o módulo de combustíveis." });
+    }
+    const today = localDateKey(new Date(), s.timeZone);
+    const [snapshot, rows] = await Promise.all([
+      getFuelDashboard(s.fuel, { fromDate: today, toDate: today }, s.timeZone).catch(fuelError),
+      analyticsRows(s.fuel, today),
+    ]);
+    const products = snapshot.products.map((product) => ({
+      productId: product.productId,
+      productName: product.productName,
+      currentPriceCentsPerLiter: product.currentPriceCentsPerLiter,
+      currentAverageCostCentsPerLiter: product.currentAverageCostCentsPerLiter,
+    }));
+    const analytics = fuelAnalytics({
+      rows,
+      today,
+      timeZone: s.timeZone,
+      productIds: products.map((product) => product.productId),
+    });
+    const dailyByProduct = new Map(
+      analytics.current.byProduct.map((product) => [product.productId, product.dailyAverageLiters30]),
+    );
+    return {
+      today,
+      products,
+      ...analytics,
+      coverage: snapshot.tanks.map((tank) => ({
+        tankId: tank.id,
+        tankName: tank.name,
+        productId: tank.productId,
+        theoreticalLiters: tank.theoreticalLiters,
+        capacityLiters: tank.capacityLiters,
+        dailyAverageLiters: dailyByProduct.get(tank.productId) ?? "0.000",
+      })),
+    };
+  }),
+
   /** Home screen: today's numbers, a 7-day trend and the first-use checklist. */
   overview: businessProcedure.query(async ({ ctx }) => {
     const s = scopes(ctx);
