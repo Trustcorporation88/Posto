@@ -66,6 +66,25 @@ function shiftDate(date: string, days: number) {
 
 type Log = (line: string) => void;
 
+/**
+ * The verified Bauru calendar starts in 2026. Demo history older than that uses the same
+ * weekday schedule without holidays (only fuel readings happen there, never cash turns).
+ */
+function scheduleFor(date: string) {
+  if (Number(date.slice(0, 4)) >= 2026) return getScheduleForDate(date);
+  const sunday = new Date(`${date}T12:00:00Z`).getUTCDay() === 0;
+  const shifts = sunday
+    ? [
+        { id: "turno-1" as const, label: "Turno 1", start: "07:00", end: "13:00" },
+        { id: "turno-2" as const, label: "Turno 2", start: "13:00", end: "19:00" },
+      ]
+    : [
+        { id: "turno-1" as const, label: "Turno 1", start: "06:00", end: "14:00" },
+        { id: "turno-2" as const, label: "Turno 2", start: "14:00", end: "22:00" },
+      ];
+  return { kind: sunday ? ("domingo" as const) : ("normal" as const), shifts };
+}
+
 export async function seedDemo(log: Log = console.log) {
   if (process.env.DEMO_MODE !== "true") {
     throw new Error("seed-demo só roda com DEMO_MODE=true (ambiente de demonstração).");
@@ -198,7 +217,7 @@ export async function seedDemo(log: Log = console.log) {
   let priceChanges = 0;
   for (let day = 0; day <= FUEL_DAYS; day += 1) {
     const date = shiftDate(firstDay, day);
-    const schedule = getScheduleForDate(date);
+    const schedule = scheduleFor(date);
     const weekday = new Date(`${date}T12:00:00Z`).getUTCDay();
     const season = SEASON[Number(date.slice(5, 7)) - 1];
     const growth = 0.94 + 0.06 * (day / FUEL_DAYS);
