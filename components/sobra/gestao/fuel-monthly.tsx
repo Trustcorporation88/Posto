@@ -109,7 +109,7 @@ function Projection({ data }: { data: Monthly }) {
         <Body size={12}>
           Ritmo dos {current.completedDays} dias fechados × {current.daysInMonth} dias do mês.
           {average12
-            ? ` Média mensal dos últimos 12 meses: ${liters(average12.liters)} e ${formatCents(average12.revenueCents)} (${average12.monthsWithData} ${average12.monthsWithData === 1 ? "mês" : "meses"} com dados).`
+            ? ` Média mensal dos últimos 12 meses: ${liters(average12.liters)} e ${formatCents(average12.revenueCents)} (${average12.monthsWithData} ${average12.monthsWithData === 1 ? "mês completo" : "meses completos"}${average12.excludedPartialMonth ? `; ${monthShort(average12.excludedPartialMonth)} ficou fora por ter começado no meio do mês` : ""}).`
             : " Ainda não há meses fechados para comparar."}
         </Body>
       </View>
@@ -202,7 +202,11 @@ function TwelveMonths({ data }: { data: Monthly }) {
         <Metric
           label="Média mensal"
           value={data.average12 ? liters(data.average12.liters) : "—"}
-          detail={data.average12 ? `${formatCents(data.average12.revenueCents)} por mês` : "Sem meses fechados"}
+          detail={
+            data.average12
+              ? `${formatCents(data.average12.revenueCents)} por mês · ${data.average12.monthsWithData} meses completos`
+              : "Sem meses fechados"
+          }
         />
         <Metric label="Melhor mês" value={best ? monthShort(best.month) : "—"} detail={best ? liters(best.liters) : undefined} />
       </View>

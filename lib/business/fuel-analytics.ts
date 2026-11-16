@@ -60,7 +60,13 @@ export type ProductMonth = Amounts & {
 
 export type FuelAnalytics = {
   months: MonthPoint[];
-  average12: { liters: string; revenueCents: bigint; monthsWithData: number } | null;
+  average12: {
+    liters: string;
+    revenueCents: bigint;
+    monthsWithData: number;
+    /** First month with data, left out of the average because it started after day 1. */
+    excludedPartialMonth: string | null;
+  } | null;
   current: Amounts & {
     month: string;
     daysInMonth: number;
@@ -117,10 +123,12 @@ export function fuelAnalytics(input: {
   const currentProduct = new Map<number, { all: Totals; completed: Totals }>();
   const last30Product = new Map<number, bigint>();
 
+  const firstDayByMonth = new Map<string, number>();
   for (const row of input.rows) {
     const date = localDateKey(row.measuredAt, timeZone);
     const month = monthKey(date);
     const day = Number(date.slice(8, 10));
+    if (day < (firstDayByMonth.get(month) ?? 32)) firstDayByMonth.set(month, day);
     if (last30.has(date)) last30Product.set(row.productId, (last30Product.get(row.productId) ?? 0n) + litersToMilli(row.quantityLiters));
     const monthly = byMonth.get(month);
     if (monthly) {
@@ -155,8 +163,14 @@ export function fuelAnalytics(input: {
   });
 
   // Average over closed months that have any sale, so months before the system started do not
-  // drag the average down.
-  const withData = months.filter((month) => byMonth.get(month)!.all.count > 0);
+  // drag the average down. The first month with data is also left out when it started after
+  // day 1 (the month the station began using the system), as long as another month remains.
+  let withData = months.filter((month) => byMonth.get(month)!.all.count > 0);
+  let excludedPartialMonth: string | null = null;
+  if (withData.length > 1 && (firstDayByMonth.get(withData[0]) ?? 1) > 1) {
+    excludedPartialMonth = withData[0];
+    withData = withData.slice(1);
+  }
   const sumMonths = (pick: (month: string) => Totals) => {
     const total = empty();
     for (const month of withData) merge(total, pick(month));
@@ -168,6 +182,7 @@ export function fuelAnalytics(input: {
         liters: milliToLiters(scale(allMonths.milli, 1, withData.length)),
         revenueCents: scale(allMonths.revenue, 1, withData.length),
         monthsWithData: withData.length,
+        excludedPartialMonth,
       }
     : null;
 

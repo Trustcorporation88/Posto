@@ -41,7 +41,7 @@ describe("month-end projection and 12-month history", () => {
     row("2026-10-03", 1, "800.000", 480_000n, 400_000n),
     row("2026-10-25", 1, "1000.000", 600_000n, 500_000n),
     // Older closed month and one outside the 12-month window.
-    row("2026-01-10", 1, "1200.000", 720_000n, 600_000n),
+    row("2026-01-01", 1, "1200.000", 720_000n, 600_000n),
     row("2025-10-10", 1, "9999.000", 1n, 1n),
   ];
   const result = fuelAnalytics({ rows, today: "2026-11-11", timeZone: TZ, productIds: [1, 2] });
@@ -55,7 +55,25 @@ describe("month-end projection and 12-month history", () => {
   });
 
   it("averages only months with sales", () => {
-    expect(result.average12).toEqual({ liters: "1500.000", revenueCents: 900_000n, monthsWithData: 2 });
+    expect(result.average12).toEqual({
+      liters: "1500.000",
+      revenueCents: 900_000n,
+      monthsWithData: 2,
+      excludedPartialMonth: null,
+    });
+  });
+
+  it("leaves a first month that started mid-month out of the average", () => {
+    const partial = fuelAnalytics({
+      rows: [row("2026-08-20", 1, "300.000", 1n), row("2026-09-01", 1, "1000.000", 1n), row("2026-10-01", 1, "1200.000", 1n)],
+      today: "2026-11-11",
+      timeZone: TZ,
+      productIds: [1],
+    });
+    expect(partial.average12).toMatchObject({ liters: "1100.000", monthsWithData: 2, excludedPartialMonth: "2026-08" });
+    // A single partial month is still better than no average at all.
+    const single = fuelAnalytics({ rows: [row("2026-10-20", 1, "300.000", 1n)], today: "2026-11-11", timeZone: TZ, productIds: [1] });
+    expect(single.average12).toMatchObject({ liters: "300.000", monthsWithData: 1, excludedPartialMonth: null });
   });
 
   it("projects the month from completed days only", () => {
