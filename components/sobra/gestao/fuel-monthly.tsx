@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, Text, useWindowDimensions, View } from "react-native";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@/server/routers";
 import { Body, C, Card, F, Label, Notice, SectionTitle } from "@/components/sobra/ui";
@@ -90,6 +90,7 @@ function MonthToDate({ data }: { data: Monthly }) {
 }
 
 function Projection({ data }: { data: Monthly }) {
+  const narrow = useWindowDimensions().width < 720;
   const { current, average12 } = data;
   const names = new Map(data.products.map((product) => [product.productId, product.productName]));
   if (current.projectedLiters === null || current.projectedRevenueCents === null) {
@@ -123,21 +124,47 @@ function Projection({ data }: { data: Monthly }) {
         />
       </View>
       <View style={{ gap: 0, borderWidth: 1, borderColor: C.line, borderRadius: 12, overflow: "hidden" }}>
-        <View style={{ flexDirection: "row", backgroundColor: C.light, paddingVertical: 8, paddingHorizontal: 12 }}>
-          {["Combustível", "Realizado", "Projeção", "Média 12 m", "vs média"].map((head, index) => (
-            <Text
-              key={head}
-              style={{ flex: index === 0 ? 1.4 : 1, color: C.muted, fontFamily: F.bold, fontSize: 10, textAlign: index === 0 ? "left" : "right" }}
-            >
-              {head.toUpperCase()}
-            </Text>
-          ))}
-        </View>
+        {narrow ? null : (
+          <View style={{ flexDirection: "row", backgroundColor: C.light, paddingVertical: 8, paddingHorizontal: 12 }}>
+            {["Combustível", "Realizado", "Projeção", "Média 12 m", "vs média"].map((head, index) => (
+              <Text
+                key={head}
+                style={{ flex: index === 0 ? 1.4 : 1, color: C.muted, fontFamily: F.bold, fontSize: 10, textAlign: index === 0 ? "left" : "right" }}
+              >
+                {head.toUpperCase()}
+              </Text>
+            ))}
+          </View>
+        )}
         {current.byProduct.map((product, index) => {
           const change =
             product.projectedLiters && product.average12Liters
               ? percentChange(litersToMilli(product.projectedLiters), litersToMilli(product.average12Liters))
               : null;
+          if (narrow) {
+            // Phones: one block per fuel instead of five squeezed columns.
+            return (
+              <View key={product.productId} style={{ padding: 12, gap: 8, borderTopWidth: index === 0 ? 0 : 1, borderTopColor: C.line }}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                  <View style={{ width: 10, height: 10, borderRadius: 2, backgroundColor: SERIES_COLORS[index % SERIES_COLORS.length] }} />
+                  <Text style={{ flex: 1, color: C.ink, fontFamily: F.bold, fontSize: 14 }}>{names.get(product.productId)}</Text>
+                  <Text style={{ color: deltaTone(change), fontFamily: F.bold, fontSize: 12 }}>{`${delta(change)} vs média`}</Text>
+                </View>
+                <View style={{ flexDirection: "row", gap: 8 }}>
+                  {[
+                    ["Realizado", liters(product.liters)],
+                    ["Projeção", liters(product.projectedLiters)],
+                    ["Média 12 m", liters(product.average12Liters)],
+                  ].map(([label, value]) => (
+                    <View key={label} style={{ flex: 1, gap: 2 }}>
+                      <Text style={{ color: C.muted, fontFamily: F.bold, fontSize: 10 }}>{label.toUpperCase()}</Text>
+                      <Text style={{ color: C.ink, fontFamily: label === "Projeção" ? F.bold : F.regular, fontSize: 13 }}>{value}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            );
+          }
           return (
             <View
               key={product.productId}
